@@ -1,7 +1,22 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\Resource.rc||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:Resource.rc||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,11 +24,61 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Resource.rc",
+              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\Resource.rc",
+              "RelativeDocumentMoniker": "Resource.rc",
+              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\Resource.rc",
+              "RelativeToolTip": "Resource.rc",
+              "ViewState": "AgIAAHwAAAAAAAAAAAAUwIYAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
+              "WhenOpened": "2026-05-04T12:30:26.526Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "\uCEE4\uBE44 \uAE30\uBCF8.png - PNG [26x27, 32\uBE44\uD2B8, PNG]",
+              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png",
+              "RelativeDocumentMoniker": "..\\..\\..\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png",
+              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png - PNG [26x27, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png - PNG [26x27, 32\uBE44\uD2B8, PNG]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
+              "WhenOpened": "2026-05-04T12:29:28.351Z",
+              "EditorCaption": " - PNG [26x27, 32\uBE44\uD2B8, PNG]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "\uCEE4\uBE44 \uC549\uAE30.png - PNG [26x25, 32\uBE44\uD2B8, PNG]",
+              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png",
+              "RelativeDocumentMoniker": "..\\..\\..\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png",
+              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png - PNG [26x25, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png - PNG [26x25, 32\uBE44\uD2B8, PNG]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
+              "WhenOpened": "2026-05-04T12:29:26.893Z",
+              "EditorCaption": " - PNG [26x25, 32\uBE44\uD2B8, PNG]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "main.cpp",
+              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\main.cpp",
+              "RelativeDocumentMoniker": "main.cpp",
+              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\main.cpp",
+              "RelativeToolTip": "main.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-05-04T12:29:05.049Z",
+              "EditorCaption": ""
             }
           ]
         }
