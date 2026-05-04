@@ -1,0 +1,272 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{9802c7a6-2901-4c9e-8452-8532d7b06939}</ProjectGuid>
+    <RootNamespace>windows실습9</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="game.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="soundmanger.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="game.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="soundmanger.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\Desktop\기몬 맵 공격2.png" />
+    <Image Include="..\..\..\Desktop\기본 맵 걸어.png" />
+    <Image Include="..\..\..\Desktop\기본 맵 공격1.png" />
+    <Image Include="..\..\..\Desktop\기본 맵 더 빨리 걸어.png" />
+    <Image Include="..\..\..\Desktop\기본 맵 더빨리빠릴 걸어.png" />
+    <Image Include="..\..\..\Desktop\기본 맵 반대로 더 걸어.png" />
+    <Image Include="..\..\..\Desktop\기본 맵.png" />
+    <Image Include="..\..\..\Desktop\기본 몹 더더 많이 걸어어.png" />
+    <Image Include="..\..\..\Desktop\기본 몹 반대로 걸어.png" />
+    <Image Include="..\..\..\Desktop\기본 몹 반대로 더더 걸어.png" />
+    <Image Include="..\..\..\Desktop\달리기 기본.png" />
+    <Image Include="..\..\..\Desktop\달리기 빠르게.png" />
+    <Image Include="..\..\..\Desktop\달리기 천천히.png" />
+    <Image Include="..\..\..\Desktop\돌 가만히.png" />
+    <Image Include="..\..\..\Desktop\돌 걸어.png" />
+    <Image Include="..\..\..\Desktop\돌 더 걸어.png" />
+    <Image Include="..\..\..\Desktop\돌 더 많이 걸어.png" />
+    <Image Include="..\..\..\Desktop\돌 반대로 가만히.png" />
+    <Image Include="..\..\..\Desktop\돌 반대로 걸어.png" />
+    <Image Include="..\..\..\Desktop\돌 반대로 더 걸어.png" />
+    <Image Include="..\..\..\Desktop\돌 반대로 더 많이 걸어.png" />
+    <Image Include="..\..\..\Desktop\레이저1.png" />
+    <Image Include="..\..\..\Desktop\레이저2.png" />
+    <Image Include="..\..\..\Desktop\레이저3.png" />
+    <Image Include="..\..\..\Desktop\레이저4.png" />
+    <Image Include="..\..\..\Desktop\레이저5.png" />
+    <Image Include="..\..\..\Desktop\망치 펭권2.png" />
+    <Image Include="..\..\..\Desktop\망치 펭귄.png" />
+    <Image Include="..\..\..\Desktop\망치 펭귄3.png" />
+    <Image Include="..\..\..\Desktop\몹 넘어진다.png" />
+    <Image Include="..\..\..\Desktop\몹1.png" />
+    <Image Include="..\..\..\Desktop\몹2.png" />
+    <Image Include="..\..\..\Desktop\몹3.png" />
+    <Image Include="..\..\..\Desktop\몹4.png" />
+    <Image Include="..\..\..\Desktop\배경 1.png" />
+    <Image Include="..\..\..\Desktop\배경 2.png" />
+    <Image Include="..\..\..\Desktop\배경 3.png" />
+    <Image Include="..\..\..\Desktop\배경 4.png" />
+    <Image Include="..\..\..\Desktop\배경 6.png" />
+    <Image Include="..\..\..\Desktop\배경 7.png" />
+    <Image Include="..\..\..\Desktop\배경 8.png" />
+    <Image Include="..\..\..\Desktop\배경 9.png" />
+    <Image Include="..\..\..\Desktop\배경5.png" />
+    <Image Include="..\..\..\Desktop\뱉은 몬스터별.png" />
+    <Image Include="..\..\..\Desktop\불 몹 공격.png" />
+    <Image Include="..\..\..\Desktop\불 몹 죽어.png" />
+    <Image Include="..\..\..\Desktop\불 몹.png" />
+    <Image Include="..\..\..\Desktop\불 커비 걸어1.png" />
+    <Image Include="..\..\..\Desktop\불 커비 걸어2.png" />
+    <Image Include="..\..\..\Desktop\불 커비 걸어3.png" />
+    <Image Include="..\..\..\Desktop\불 커비 걸어4.png" />
+    <Image Include="..\..\..\Desktop\불 커비 공격 효과.png" />
+    <Image Include="..\..\..\Desktop\불 커비 공격해.png" />
+    <Image Include="..\..\..\Desktop\불 커비 앉아.png" />
+    <Image Include="..\..\..\Desktop\불 커비 원거리 불 효과.png" />
+    <Image Include="..\..\..\Desktop\불 커비 풍선 1.png" />
+    <Image Include="..\..\..\Desktop\불 커비 풍선 전 상태.png" />
+    <Image Include="..\..\..\Desktop\불 커비 풍선2.png" />
+    <Image Include="..\..\..\Desktop\불 커비.png" />
+    <Image Include="..\..\..\Desktop\불커비 기본자세.png" />
+    <Image Include="..\..\..\Desktop\불커비 다쳐.png" />
+    <Image Include="..\..\..\Desktop\빨아들이는 효과 2.png" />
+    <Image Include="..\..\..\Desktop\빨아들이는 효과.png" />
+    <Image Include="..\..\..\Desktop\소화하는 커비.png" />
+    <Image Include="..\..\..\Desktop\심사용.png" />
+    <Image Include="..\..\..\Desktop\커비 가만히.png" />
+    <Image Include="..\..\..\Desktop\커비 걷기 1단계.png" />
+    <Image Include="..\..\..\Desktop\커비 걷기 2단계.png" />
+    <Image Include="..\..\..\Desktop\커비 걷기 3단계.png" />
+    <Image Include="..\..\..\Desktop\커비 걷기 4단계.png" />
+    <Image Include="..\..\..\Desktop\커비 걸어.png" />
+    <Image Include="..\..\..\Desktop\커비 공격모션1.png" />
+    <Image Include="..\..\..\Desktop\커비 공격모션2.png" />
+    <Image Include="..\..\..\Desktop\커비 공격모션3.png" />
+    <Image Include="..\..\..\Desktop\커비 공격모션4.png" />
+    <Image Include="..\..\..\Desktop\커비 공격모션5.png" />
+    <Image Include="..\..\..\Desktop\커비 기본.png" />
+    <Image Include="..\..\..\Desktop\커비 꽈당.png" />
+    <Image Include="..\..\..\Desktop\커비 더 걸어.png" />
+    <Image Include="..\..\..\Desktop\커비 더 크게 흡수.png" />
+    <Image Include="..\..\..\Desktop\커비 더 흡수.png" />
+    <Image Include="..\..\..\Desktop\커비 뒤로 걸어.png" />
+    <Image Include="..\..\..\Desktop\커비 뒤로 더 걸어.png" />
+    <Image Include="..\..\..\Desktop\커비 뒤를 보면서 가만히.png" />
+    <Image Include="..\..\..\Desktop\커비 멈춰.png" />
+    <Image Include="..\..\..\Desktop\커비 배경.png" />
+    <Image Include="..\..\..\Desktop\커비 빨아드리기 1단계.png" />
+    <Image Include="..\..\..\Desktop\커비 빨아드리기 2단계.png" />
+    <Image Include="..\..\..\Desktop\커비 빨아드리기 3단계.png" />
+    <Image Include="..\..\..\Desktop\커비 앉기.png" />
+    <Image Include="..\..\..\Desktop\커비 진화할때 모습.png" />
+    <Image Include="..\..\..\Desktop\커비 체력바.png" />
+    <Image Include="..\..\..\Desktop\커비 풍선 1단계.png" />
+    <Image Include="..\..\..\Desktop\커비 풍선 2단계.png" />
+    <Image Include="..\..\..\Desktop\커비 풍선 3단계.png" />
+    <Image Include="..\..\..\Desktop\커비 풍선 4단계 후 숨 쉬기.png" />
+    <Image Include="..\..\..\Desktop\커비 풍선.png" />
+    <Image Include="..\..\..\Desktop\커비 풍선2.png" />
+    <Image Include="..\..\..\Desktop\커비 흡수.png" />
+    <Image Include="..\..\..\Desktop\커진 커비 걸어1.png" />
+    <Image Include="..\..\..\Desktop\커진 커비 걸어2.png" />
+    <Image Include="..\..\..\Desktop\커진 커비 걸어3.png" />
+    <Image Include="..\..\..\Desktop\커진 커비 걸어4.png" />
+    <Image Include="..\..\..\Desktop\커진 커비 걸어5.png" />
+    <Image Include="..\..\..\Desktop\커진 커비 뱉어1.png" />
+    <Image Include="..\..\..\Desktop\커진 커비.png" />
+    <Image Include="..\..\..\Desktop\폭탄 공격1.png" />
+    <Image Include="..\..\..\Desktop\폭탄 공격2.png" />
+    <Image Include="..\..\..\Desktop\폭탄 공격3.png" />
+    <Image Include="..\..\..\Desktop\폭탄 뻥 자국.png" />
+    <Image Include="..\..\..\Desktop\폭탄 자국 수정.png" />
+    <Image Include="..\..\..\Desktop\폭탄 커비 걸어1.png" />
+    <Image Include="..\..\..\Desktop\폭탄 커비 걸어2.png" />
+    <Image Include="..\..\..\Desktop\폭탄 커비 걸어3.png" />
+    <Image Include="..\..\..\Desktop\폭탄 커비 걸어4.png" />
+    <Image Include="..\..\..\Desktop\폭탄 커비 공격당함.png" />
+    <Image Include="..\..\..\Desktop\폭탄 커비 기본.png" />
+    <Image Include="..\..\..\Desktop\폭탄 커비 풍선 준비.png" />
+    <Image Include="..\..\..\Desktop\폭탄 커비 풍선1.png" />
+    <Image Include="..\..\..\Desktop\폭탄 커비 풍선2.png" />
+    <Image Include="..\..\..\Desktop\폭탄.png" />
+    <Image Include="..\..\..\Desktop\폭탄몹 날아다녀.png" />
+    <Image Include="..\..\..\Desktop\폭탄몹 죽어.png" />
+    <Image Include="..\..\..\Desktop\풀 숲 배경.png" />
+    <Image Include="..\..\..\Desktop\풀 올라가기 배경.png" />
+    <Image Include="..\..\..\Downloads\Game-Boy-Advance-Kirby-_-the-Amazing-Mirror-Playable-Characters-Beam-Kirby-_1_.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="..\..\..\Downloads\녹음-_7_.wav" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
