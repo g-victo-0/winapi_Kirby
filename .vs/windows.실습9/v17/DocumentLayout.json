@@ -38,7 +38,7 @@
               "RelativeDocumentMoniker": "Resource.rc",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\Resource.rc",
               "RelativeToolTip": "Resource.rc",
-              "ViewState": "AgIAAHwAAAAAAAAAAAAUwIYAAAACAAAAAAAAAA==",
+              "ViewState": "AgIAAEMAAAAAAAAAAAAkwGAAAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
               "WhenOpened": "2026-05-04T12:30:26.526Z",
               "EditorCaption": ""
@@ -52,8 +52,7 @@
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png - PNG [26x27, 32\uBE44\uD2B8, PNG]",
               "RelativeToolTip": "..\\..\\..\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png - PNG [26x27, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-04T12:29:28.351Z",
-              "EditorCaption": " - PNG [26x27, 32\uBE44\uD2B8, PNG]"
+              "WhenOpened": "2026-05-04T12:29:28.351Z"
             },
             {
               "$type": "Document",
@@ -64,8 +63,7 @@
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png - PNG [26x25, 32\uBE44\uD2B8, PNG]",
               "RelativeToolTip": "..\\..\\..\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png - PNG [26x25, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-04T12:29:26.893Z",
-              "EditorCaption": " - PNG [26x25, 32\uBE44\uD2B8, PNG]"
+              "WhenOpened": "2026-05-04T12:29:26.893Z"
             },
             {
               "$type": "Document",
@@ -77,8 +75,7 @@
               "RelativeToolTip": "main.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-05-04T12:29:05.049Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-04T12:29:05.049Z"
             }
           ]
         }
