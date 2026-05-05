@@ -22,7 +22,7 @@ Image* g_storyFrames[8] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 int g_storyFrameIndex = 0;
 int g_storyTick = 0;
 const int STORY_FRAME_COUNT = 8;
-const int STORY_FRAME_DURATION = 63; // 16ms 타이머 기준 약 1초
+const int STORY_FRAME_DURATION = 43; // 16ms 타이머 기준 약 1초
 
 // 처음 실행하면 72번 오프닝, SPACE를 누르면 73~81번 스토리 진행 후 1스테이지 시작
 bool g_isOpening = true;
