@@ -306,6 +306,8 @@
     <Image Include="res\빨아들이는 효과 2.png" />
     <Image Include="res\빨아들이는 효과.png" />
     <Image Include="res\소화하는 커비.png" />
+    <Image Include="res\어두운 2스테이지 배경.png" />
+    <Image Include="res\어두운 2스테이지 배경0.png" />
     <Image Include="res\여자1.png" />
     <Image Include="res\커비 걷기 1단계.png" />
     <Image Include="res\커비 걷기 2단계.png" />

@@ -32,6 +32,9 @@ bool g_isStory = false;
 // 81번: 악몽 속에서 떨고 있는 남자 아이
 Image* g_studentBoyFrame = NULL;
 
+// 83번: 악몽 속에서 떨고 있는 여자 아이
+Image* g_studentGirlFrame = NULL;
+
 // 84~87번: 다음 맵으로 넘어가는 문 열림 애니메이션
 Image* g_doorFrames[4] = { NULL, NULL, NULL, NULL };
 const int DOOR_FRAME_COUNT = 4;
@@ -64,6 +67,15 @@ RescueChild g_stage1Boy;
 StageDoor g_stage1Door;
 int g_stage1ChildTotal = 1;
 int g_stage1ChildRescued = 0;
+
+// 2스테이지 구출/문 상태
+const int STAGE2_CHILD_COUNT = 4;
+RescueChild g_stage2Children[STAGE2_CHILD_COUNT];
+int g_stage2ChildFrameType[STAGE2_CHILD_COUNT] = { 81, 83, 81, 83 };
+StageDoor g_stage2Door;
+int g_stage2ChildTotal = STAGE2_CHILD_COUNT;
+int g_stage2ChildRescued = 0;
+
 int g_currentStage = 1;
 bool g_isChangingMap = false;
 int g_rescueAnimTick = 0;
@@ -109,6 +121,14 @@ Bitmap* g_backgroundScaled = NULL; // 렉 줄이기용: 늘린 배경을 미리 만들어 둠
 // 23번: 오른쪽에 이어지는 맵 2
 Image* g_background2 = NULL;
 Bitmap* g_background2Scaled = NULL; // 렉 줄이기용: 늘린 배경을 미리 만들어 둠
+
+// 88번: 2스테이지 앞쪽 배경(달 있는 곳)
+Image* g_stage2BackgroundFront = NULL;
+Bitmap* g_stage2BackgroundFrontScaled = NULL;
+
+// 89번: 2스테이지 뒤쪽 배경(달 없는 곳)
+Image* g_stage2BackgroundBack = NULL;
+Bitmap* g_stage2BackgroundBackScaled = NULL;
 
 // 24번: 몬스터를 먹은 뒤 커진 커비 가만히 있는 프레임
 Image* g_powerIdleFrame = NULL;
@@ -527,6 +547,49 @@ SolidBlock g_solidBlocks[] =
 
 int g_solidBlockCount = sizeof(g_solidBlocks) / sizeof(g_solidBlocks[0]);
 
+// =========================
+// 2스테이지 충돌체: 88번(0~999), 89번(1000~1999)
+// 대충 잡은 값이라 F1 디버그 켜고 조금씩 조정하면 됨
+// =========================
+SolidBlock g_stage2SolidBlocks[] =
+{
+    // PNG88 달 있는 앞쪽 맵
+    { { 0, 370, 230, 650 }, L"S2_FRONT_LEFT_GROUND" },
+    { { 330, 285, 580, 335 }, L"S2_FRONT_MIDDLE_PLATFORM" },
+    { { 265, 535, 675, 650 }, L"S2_FRONT_BOTTOM_GROUND" },
+    { { 520, 455, 595, 535 }, L"S2_FRONT_ROCK" },
+    { { 650, 525, 1000, 650 }, L"S2_FRONT_RIGHT_LOW" },
+    { { 720, 445, 1000, 650 }, L"S2_FRONT_RIGHT_STEP" },
+    { { 825, 345, 1000, 650 }, L"S2_FRONT_RUIN_GROUND" },
+    { { 850, 120, 1000, 170 }, L"S2_FRONT_RUIN_TOP" },
+
+    // PNG89 달 없는 뒤쪽 맵
+    { { 1000, 405, 1250, 650 }, L"S2_BACK_LEFT_GROUND" },
+    { { 1080, 185, 1190, 220 }, L"S2_BACK_LEFT_FLOAT_1" },
+    { { 1190, 270, 1280, 305 }, L"S2_BACK_LEFT_FLOAT_2" },
+    { { 1260, 450, 1310, 650 }, L"S2_BACK_SMALL_PILLAR" },
+    { { 1340, 415, 1415, 650 }, L"S2_BACK_LEFT_LOW" },
+    { { 1425, 335, 1685, 650 }, L"S2_BACK_CENTER_BUILDING" },
+    { { 1685, 405, 1885, 650 }, L"S2_BACK_RIGHT_LOW" },
+    { { 1680, 185, 1885, 220 }, L"S2_BACK_RIGHT_FLOAT" },
+    { { 1900, 305, 2000, 650 }, L"S2_BACK_FAR_RIGHT" }
+};
+
+int g_stage2SolidBlockCount = sizeof(g_stage2SolidBlocks) / sizeof(g_stage2SolidBlocks[0]);
+
+SolidBlock* GetCurrentSolidBlocks(int* count)
+{
+    if (g_currentStage == 2)
+    {
+        *count = g_stage2SolidBlockCount;
+        return g_stage2SolidBlocks;
+    }
+
+    *count = g_solidBlockCount;
+    return g_solidBlocks;
+}
+
+
 // 카메라 / 월드 크기
 // 배경 PNG22가 0~999, PNG23이 1000~1999에 붙는 구조
 const int BG_PART_W = 1000;
@@ -738,13 +801,16 @@ bool IsRectHit(RECT a, RECT b)
 
 bool HitSolidBlock(RECT rc, RECT* hitBlock)
 {
-    for (int i = 0; i < g_solidBlockCount; i++)
+    int blockCount = 0;
+    SolidBlock* blocks = GetCurrentSolidBlocks(&blockCount);
+
+    for (int i = 0; i < blockCount; i++)
     {
-        if (IsRectHit(rc, g_solidBlocks[i].rc))
+        if (IsRectHit(rc, blocks[i].rc))
         {
             if (hitBlock != NULL)
             {
-                *hitBlock = g_solidBlocks[i].rc;
+                *hitBlock = blocks[i].rc;
             }
 
             return true;
@@ -769,17 +835,20 @@ bool IsWoodPlatformBlock(LPCWSTR name)
 
 bool HitSolidBlockForBalloon(RECT rc, RECT* hitBlock)
 {
-    for (int i = 0; i < g_solidBlockCount; i++)
+    int blockCount = 0;
+    SolidBlock* blocks = GetCurrentSolidBlocks(&blockCount);
+
+    for (int i = 0; i < blockCount; i++)
     {
         // 풍선 상태에서는 나무발판만 통과 가능하게 함
-        if (IsWoodPlatformBlock(g_solidBlocks[i].name))
+        if (IsWoodPlatformBlock(blocks[i].name))
             continue;
 
-        if (IsRectHit(rc, g_solidBlocks[i].rc))
+        if (IsRectHit(rc, blocks[i].rc))
         {
             if (hitBlock != NULL)
             {
-                *hitBlock = g_solidBlocks[i].rc;
+                *hitBlock = blocks[i].rc;
             }
 
             return true;
@@ -794,9 +863,12 @@ bool FindGroundUnderHitBox(RECT hitBox, int* groundY)
     int bestY = 999999;
     bool found = false;
 
-    for (int i = 0; i < g_solidBlockCount; i++)
+    int blockCount = 0;
+    SolidBlock* blocks = GetCurrentSolidBlocks(&blockCount);
+
+    for (int i = 0; i < blockCount; i++)
     {
-        RECT block = g_solidBlocks[i].rc;
+        RECT block = blocks[i].rc;
 
         bool overlapX = hitBox.right > block.left && hitBox.left < block.right;
 
@@ -1372,88 +1444,181 @@ RECT GetDoorRect(StageDoor door)
     return rc;
 }
 
-void InitRescueObjects()
+void InitMonsters();
+
+void InitStage1RescueObjects()
 {
     // 81번 남자 아이: 두 번째 나무 발판 위쪽에 배치
     g_stage1Boy.active = true;
     g_stage1Boy.rescued = false;
-    g_stage1Boy.w = 47;   // 기존보다 5 크게
-    g_stage1Boy.h = 59;   // 기존보다 5 크게
+    g_stage1Boy.w = 47;
+    g_stage1Boy.h = 59;
     g_stage1Boy.x = 1450;
-    g_stage1Boy.y = 339 - g_stage1Boy.h + 7; // y값 7 증가
+    g_stage1Boy.y = 339 - g_stage1Boy.h + 7;
 
     // 84~87번 문: 1스테이지 맨 오른쪽 언덕 위에 배치
     g_stage1Door.active = true;
     g_stage1Door.opening = false;
     g_stage1Door.opened = false;
-    g_stage1Door.w = 81;   // 기존보다 5 크게
-    g_stage1Door.h = 101;  // 기존보다 5 크게
+    g_stage1Door.w = 81;
+    g_stage1Door.h = 101;
     g_stage1Door.x = 1868;
-    g_stage1Door.y = 114 - g_stage1Door.h + 7; // y값 7 증가
+    g_stage1Door.y = 114 - g_stage1Door.h + 7;
     g_stage1Door.frameIndex = 0;
     g_stage1Door.tick = 0;
 
     g_stage1ChildTotal = 1;
     g_stage1ChildRescued = 0;
-    g_currentStage = 1;
+}
+
+void InitStage2RescueObjects()
+{
+    for (int i = 0; i < STAGE2_CHILD_COUNT; i++)
+    {
+        g_stage2Children[i].active = true;
+        g_stage2Children[i].rescued = false;
+        g_stage2Children[i].w = 47;
+        g_stage2Children[i].h = 59;
+    }
+
+    // 88번 달 있는 앞쪽 맵
+    g_stage2Children[0].x = 105;
+    g_stage2Children[0].y = 370 - g_stage2Children[0].h + 7;
+
+    g_stage2Children[1].x = 455;
+    g_stage2Children[1].y = 285 - g_stage2Children[1].h + 7;
+
+    // 89번 달 없는 뒤쪽 맵
+    g_stage2Children[2].x = 1435;
+    g_stage2Children[2].y = 335 - g_stage2Children[2].h + 7;
+
+    g_stage2Children[3].x = 1780;
+    g_stage2Children[3].y = 205 - g_stage2Children[3].h + 7;
+
+    // 89번 달 없는 맵의 오른쪽 위 빨간 표시 위치에 문 배치
+    g_stage2Door.active = true;
+    g_stage2Door.opening = false;
+    g_stage2Door.opened = false;
+    g_stage2Door.w = 81;
+    g_stage2Door.h = 101;
+    g_stage2Door.x = 1670;
+    g_stage2Door.y = 188 - g_stage2Door.h + 7;
+    g_stage2Door.frameIndex = 0;
+    g_stage2Door.tick = 0;
+
+    g_stage2ChildTotal = STAGE2_CHILD_COUNT;
+    g_stage2ChildRescued = 0;
+}
+
+void InitRescueObjects()
+{
+    if (g_currentStage == 2)
+        InitStage2RescueObjects();
+    else
+        InitStage1RescueObjects();
+
     g_isChangingMap = false;
     g_rescueAnimTick = 0;
 }
 
 void CheckRescueChildTouch()
 {
-    if (g_currentStage != 1)
-        return;
-
-    if (!g_stage1Boy.active || g_stage1Boy.rescued)
-        return;
-
     RECT kirbyRc = GetKirbyBodyRect();
-    RECT childRc = GetChildRect(g_stage1Boy);
 
-    if (IsRectHit(kirbyRc, childRc))
+    if (g_currentStage == 1)
     {
-        g_stage1Boy.active = false;
-        g_stage1Boy.rescued = true;
-        g_stage1ChildRescued++;
+        if (!g_stage1Boy.active || g_stage1Boy.rescued)
+            return;
 
-        if (g_stage1ChildRescued >= g_stage1ChildTotal)
+        RECT childRc = GetChildRect(g_stage1Boy);
+
+        if (IsRectHit(kirbyRc, childRc))
         {
-            g_stage1Door.opening = true;
+            g_stage1Boy.active = false;
+            g_stage1Boy.rescued = true;
+            g_stage1ChildRescued++;
+
+            if (g_stage1ChildRescued >= g_stage1ChildTotal)
+            {
+                g_stage1Door.opening = true;
+            }
+        }
+        return;
+    }
+
+    if (g_currentStage == 2)
+    {
+        for (int i = 0; i < STAGE2_CHILD_COUNT; i++)
+        {
+            if (!g_stage2Children[i].active || g_stage2Children[i].rescued)
+                continue;
+
+            RECT childRc = GetChildRect(g_stage2Children[i]);
+
+            if (IsRectHit(kirbyRc, childRc))
+            {
+                g_stage2Children[i].active = false;
+                g_stage2Children[i].rescued = true;
+                g_stage2ChildRescued++;
+
+                if (g_stage2ChildRescued >= g_stage2ChildTotal)
+                {
+                    g_stage2Door.opening = true;
+                }
+            }
+        }
+    }
+}
+
+void UpdateDoorOpen(StageDoor* door)
+{
+    if (door == NULL)
+        return;
+
+    if (door->opening && !door->opened)
+    {
+        door->tick++;
+
+        if (door->tick >= DOOR_OPEN_FRAME_TICK)
+        {
+            door->tick = 0;
+
+            if (door->frameIndex < DOOR_FRAME_COUNT - 1)
+            {
+                door->frameIndex++;
+            }
+            else
+            {
+                door->opened = true;
+                door->opening = false;
+            }
         }
     }
 }
 
 void UpdateRescueObjects()
 {
-    if (g_currentStage != 1)
-        return;
-
     g_rescueAnimTick++;
 
-    if (g_stage1ChildRescued >= g_stage1ChildTotal && !g_stage1Door.opened)
+    if (g_currentStage == 1)
     {
-        g_stage1Door.opening = true;
+        if (g_stage1ChildRescued >= g_stage1ChildTotal && !g_stage1Door.opened)
+        {
+            g_stage1Door.opening = true;
+        }
+
+        UpdateDoorOpen(&g_stage1Door);
+        return;
     }
 
-    if (g_stage1Door.opening && !g_stage1Door.opened)
+    if (g_currentStage == 2)
     {
-        g_stage1Door.tick++;
-
-        if (g_stage1Door.tick >= DOOR_OPEN_FRAME_TICK)
+        if (g_stage2ChildRescued >= g_stage2ChildTotal && !g_stage2Door.opened)
         {
-            g_stage1Door.tick = 0;
-
-            if (g_stage1Door.frameIndex < DOOR_FRAME_COUNT - 1)
-            {
-                g_stage1Door.frameIndex++;
-            }
-            else
-            {
-                g_stage1Door.opened = true;
-                g_stage1Door.opening = false;
-            }
+            g_stage2Door.opening = true;
         }
+
+        UpdateDoorOpen(&g_stage2Door);
     }
 }
 
@@ -1463,7 +1628,6 @@ void GoNextMap(HWND hWnd)
         return;
 
     g_isChangingMap = true;
-    g_currentStage = 2;
 
     StopMove();
     isAbsorb = false;
@@ -1473,68 +1637,107 @@ void GoNextMap(HWND hWnd)
     balloonTick = 0;
     spaceKeyHeld = false;
 
-    kirbyX = 55;
-    kirbyY = 470;
-    kirbyVY = 0.0f;
-    cameraX = 0;
+    if (g_currentStage == 1)
+    {
+        // 능력 상태는 건드리지 않고 2스테이지로 이동
+        g_currentStage = 2;
+        kirbyX = 70;
+        kirbyY = 330;
+        kirbyVY = 0.0f;
+        cameraX = 0;
+        InitRescueObjects();
+        InitMonsters();
+        UpdateCamera(hWnd);
+        g_isChangingMap = false;
+        return;
+    }
 
-    UpdateCamera(hWnd);
+    // 2스테이지 이후 맵은 아직 연결 전. 문에 들어가면 일단 시작 위치로 정지.
+    if (g_currentStage == 2)
+    {
+        kirbyX = 70;
+        kirbyY = 330;
+        kirbyVY = 0.0f;
+        cameraX = 0;
+        UpdateCamera(hWnd);
+        g_isChangingMap = false;
+    }
 }
 
 void CheckDoorTouch(HWND hWnd)
 {
-    if (g_currentStage != 1)
-        return;
-
-    if (!g_stage1Door.active || !g_stage1Door.opened)
-        return;
-
     RECT kirbyRc = GetKirbyBodyRect();
-    RECT doorRc = GetDoorRect(g_stage1Door);
 
-    if (IsRectHit(kirbyRc, doorRc))
+    if (g_currentStage == 1)
     {
-        GoNextMap(hWnd);
+        if (!g_stage1Door.active || !g_stage1Door.opened)
+            return;
+
+        RECT doorRc = GetDoorRect(g_stage1Door);
+        if (IsRectHit(kirbyRc, doorRc))
+        {
+            GoNextMap(hWnd);
+        }
+        return;
     }
+
+    if (g_currentStage == 2)
+    {
+        if (!g_stage2Door.active || !g_stage2Door.opened)
+            return;
+
+        RECT doorRc = GetDoorRect(g_stage2Door);
+        if (IsRectHit(kirbyRc, doorRc))
+        {
+            GoNextMap(hWnd);
+        }
+    }
+}
+
+void DrawDoorObject(Graphics& graphics, StageDoor door)
+{
+    if (!door.active)
+        return;
+
+    int frame = door.frameIndex;
+    if (frame < 0) frame = 0;
+    if (frame >= DOOR_FRAME_COUNT) frame = DOOR_FRAME_COUNT - 1;
+
+    DrawWorldImage(graphics, g_doorFrames[frame], door.x, door.y, door.w, door.h);
+}
+
+void DrawChildObject(Graphics& graphics, RescueChild child, int frameType)
+{
+    if (!child.active || child.rescued)
+        return;
+
+    Image* childFrame = g_studentBoyFrame;
+    if (frameType == 83 && g_studentGirlFrame != NULL)
+        childFrame = g_studentGirlFrame;
+
+    int shakeX = (g_rescueAnimTick / 4) % 2 == 0 ? -1 : 1;
+    DrawWorldImage(graphics, childFrame, child.x + shakeX, child.y, child.w, child.h);
 }
 
 void DrawRescueObjects(Graphics& graphics)
 {
-    if (g_currentStage != 1)
-        return;
-
-    if (g_stage1Door.active)
+    if (g_currentStage == 1)
     {
-        int frame = g_stage1Door.frameIndex;
-        if (frame < 0) frame = 0;
-        if (frame >= DOOR_FRAME_COUNT) frame = DOOR_FRAME_COUNT - 1;
-
-        DrawWorldImage(
-            graphics,
-            g_doorFrames[frame],
-            g_stage1Door.x,
-            g_stage1Door.y,
-            g_stage1Door.w,
-            g_stage1Door.h
-        );
+        DrawDoorObject(graphics, g_stage1Door);
+        DrawChildObject(graphics, g_stage1Boy, 81);
+        return;
     }
 
-    if (g_stage1Boy.active && !g_stage1Boy.rescued)
+    if (g_currentStage == 2)
     {
-        // 아이가 악몽 속에서 떠는 느낌을 주려고 좌우로 1픽셀 흔들림
-        int shakeX = (g_rescueAnimTick / 4) % 2 == 0 ? -1 : 1;
+        DrawDoorObject(graphics, g_stage2Door);
 
-        DrawWorldImage(
-            graphics,
-            g_studentBoyFrame,
-            g_stage1Boy.x + shakeX,
-            g_stage1Boy.y,
-            g_stage1Boy.w,
-            g_stage1Boy.h
-        );
+        for (int i = 0; i < STAGE2_CHILD_COUNT; i++)
+        {
+            DrawChildObject(graphics, g_stage2Children[i], g_stage2ChildFrameType[i]);
+        }
     }
 }
-
 
 void UpdatePowerProjectile()
 {
@@ -2416,24 +2619,39 @@ public:
     void Draw(Graphics& graphics);
 };
 
-const int MONSTER_COUNT = 4; // 1스테이지에서는 폭탄병 제거. 폭탄병은 다른 스테이지에서 다시 추가하면 됨
+const int MONSTER_COUNT = 5; // 2스테이지에서는 폭탄병까지 사용
 Monster g_monsters[MONSTER_COUNT];
 
 void InitMonsters()
 {
-    // 기존 몬스터 1마리
-    g_monsters[0].Init(666, 470, 606, 1015, -1);
+    for (int i = 0; i < MONSTER_COUNT; i++)
+    {
+        g_monsters[i].active = false;
+        g_monsters[i].isDeadEffect = false;
+    }
 
-    // 추가 몬스터 2마리 - 18~21번 걷기 프레임, 16~17번 점프 공격 프레임 그대로 사용
-    g_monsters[1].Init(1200, 470, 1034, 1611, -1);
-    g_monsters[2].Init(1488, 379, 1378, 1666, 1);
+    if (g_currentStage == 1)
+    {
+        // 1스테이지: 기존 구성 유지, 폭탄병은 생성하지 않음
+        g_monsters[0].Init(666, 470, 606, 1015, -1);
+        g_monsters[1].Init(1200, 470, 1034, 1611, -1);
+        g_monsters[2].Init(1488, 379, 1378, 1666, 1);
+        // 불속성 몬스터는 문 앞쪽 빨간 원으로 표시한 구간만 돌아다니게 제한
+        g_monsters[3].Init(1805, 100, 1720, 1860, -1, 1);
+        g_monsters[4].active = false;
+        return;
+    }
 
-    // 불 속성 몬스터 1번. 48번 기본 프레임, 49번 원거리 공격 프레임 사용
-    g_monsters[3].Init(1844, 100, 1700, 1989, -1, 1);
-
-    // 폭탄병은 다른 스테이지에서 사용할 예정이라 1스테이지에서는 생성하지 않음.
-    // 나중에 다시 쓰려면 MONSTER_COUNT를 5로 바꾸고 아래 코드를 복구하면 됨.
-    // g_monsters[4].Init(786, 105, 738, 994, 1, 2);
+    if (g_currentStage == 2)
+    {
+        // 2스테이지: 일반몹 2마리, 불몹 2마리, 폭탄몹 1마리
+        g_monsters[0].Init(95, 320, 10, 230, 1, 0);
+        g_monsters[1].Init(455, 235, 330, 580, -1, 0);
+        g_monsters[2].Init(1450, 285, 1425, 1685, -1, 1);
+        g_monsters[3].Init(1815, 360, 1685, 1885, 1, 1);
+        g_monsters[4].Init(1780, 145, 1690, 1880, 1, 2);
+        return;
+    }
 }
 
 void StartBombKirbyTransform();
@@ -3661,6 +3879,7 @@ void LoadAllImages(HWND hWnd)
     g_storyFrames[6] = LoadPNGFromResource(g_hInst, IDB_PNG79);
 
     g_studentBoyFrame = LoadPNGFromResource(g_hInst, IDB_PNG81);
+    g_studentGirlFrame = LoadPNGFromResource(g_hInst, IDB_PNG83);
     g_doorFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG84);
     g_doorFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG85);
     g_doorFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG86);
@@ -3701,8 +3920,12 @@ void LoadAllImages(HWND hWnd)
 
     g_background = LoadPNGFromResource(g_hInst, IDB_PNG22);
     g_background2 = LoadPNGFromResource(g_hInst, IDB_PNG23);
+    g_stage2BackgroundFront = LoadPNGFromResource(g_hInst, IDB_PNG88);
+    g_stage2BackgroundBack = LoadPNGFromResource(g_hInst, IDB_PNG89);
     g_backgroundScaled = CreateScaledBitmap(g_background, BG_PART_W, BG_PART_H);
     g_background2Scaled = CreateScaledBitmap(g_background2, BG_PART_W, BG_PART_H);
+    g_stage2BackgroundFrontScaled = CreateScaledBitmap(g_stage2BackgroundFront, BG_PART_W, BG_PART_H);
+    g_stage2BackgroundBackScaled = CreateScaledBitmap(g_stage2BackgroundBack, BG_PART_W, BG_PART_H);
 
     g_powerIdleFrame = LoadPNGFromResource(g_hInst, IDB_PNG24);
 
@@ -3752,10 +3975,9 @@ void LoadAllImages(HWND hWnd)
     g_bombAttackFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG63);
     g_bombAttackFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG64);
     g_bombProjectileFrame = LoadPNGFromResource(g_hInst, IDB_PNG65);
-    // 1스테이지에서는 폭탄병을 쓰지 않으므로 PNG66, PNG67은 로드하지 않아 렉과 메모리 사용을 줄임.
-    // 다른 스테이지에서 폭탄병을 다시 쓸 때 아래 두 줄을 LoadPNGFromResource로 복구하면 됨.
-    g_bombMonsterFrame = NULL;
-    g_bombMonsterDeadFrame = NULL;
+    // 2스테이지에서 폭탄병을 사용하므로 PNG66, PNG67도 로드
+    g_bombMonsterFrame = LoadPNGFromResource(g_hInst, IDB_PNG66);
+    g_bombMonsterDeadFrame = LoadPNGFromResource(g_hInst, IDB_PNG67);
     g_bombTransformFrame = LoadPNGFromResource(g_hInst, IDB_PNG68);
 
     g_dashWindFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG27);
@@ -3787,6 +4009,12 @@ void DeleteAllImages()
     {
         delete g_studentBoyFrame;
         g_studentBoyFrame = NULL;
+    }
+
+    if (g_studentGirlFrame != NULL)
+    {
+        delete g_studentGirlFrame;
+        g_studentGirlFrame = NULL;
     }
 
     for (int i = 0; i < DOOR_FRAME_COUNT; i++)
@@ -3894,6 +4122,18 @@ void DeleteAllImages()
         g_background2Scaled = NULL;
     }
 
+    if (g_stage2BackgroundFrontScaled != NULL)
+    {
+        delete g_stage2BackgroundFrontScaled;
+        g_stage2BackgroundFrontScaled = NULL;
+    }
+
+    if (g_stage2BackgroundBackScaled != NULL)
+    {
+        delete g_stage2BackgroundBackScaled;
+        g_stage2BackgroundBackScaled = NULL;
+    }
+
     if (g_background != NULL)
     {
         delete g_background;
@@ -3904,6 +4144,18 @@ void DeleteAllImages()
     {
         delete g_background2;
         g_background2 = NULL;
+    }
+
+    if (g_stage2BackgroundFront != NULL)
+    {
+        delete g_stage2BackgroundFront;
+        g_stage2BackgroundFront = NULL;
+    }
+
+    if (g_stage2BackgroundBack != NULL)
+    {
+        delete g_stage2BackgroundBack;
+        g_stage2BackgroundBack = NULL;
     }
 
     if (g_powerIdleFrame != NULL)
@@ -4125,9 +4377,13 @@ void DrawDebugInfo(HDC memDC, HWND hWnd)
     HPEN oldPen = (HPEN)SelectObject(memDC, redPen);
 
     // 충돌체를 화면 좌표로 바꿔서 표시
-    for (int i = 0; i < g_solidBlockCount; i++)
+    // 현재 스테이지에 맞는 충돌체를 보여줘야 하므로 GetCurrentSolidBlocks() 사용
+    int debugBlockCount = 0;
+    SolidBlock* debugBlocks = GetCurrentSolidBlocks(&debugBlockCount);
+
+    for (int i = 0; i < debugBlockCount; i++)
     {
-        RECT rc = g_solidBlocks[i].rc;
+        RECT rc = debugBlocks[i].rc;
         rc.left -= cameraX;
         rc.right -= cameraX;
 
@@ -4280,8 +4536,20 @@ void DrawScene(HDC hdc, HWND hWnd)
     int bg1X = -cameraX;
     int bg2X = BG_PART_W - cameraX;
 
-    Image* bg1Image = (g_backgroundScaled != NULL) ? (Image*)g_backgroundScaled : g_background;
-    Image* bg2Image = (g_background2Scaled != NULL) ? (Image*)g_background2Scaled : g_background2;
+    Image* bg1Image = NULL;
+    Image* bg2Image = NULL;
+
+    if (g_currentStage == 2)
+    {
+        // 2스테이지: 88번(달 있는 앞쪽) + 89번(달 없는 뒤쪽)
+        bg1Image = (g_stage2BackgroundFrontScaled != NULL) ? (Image*)g_stage2BackgroundFrontScaled : g_stage2BackgroundFront;
+        bg2Image = (g_stage2BackgroundBackScaled != NULL) ? (Image*)g_stage2BackgroundBackScaled : g_stage2BackgroundBack;
+    }
+    else
+    {
+        bg1Image = (g_backgroundScaled != NULL) ? (Image*)g_backgroundScaled : g_background;
+        bg2Image = (g_background2Scaled != NULL) ? (Image*)g_background2Scaled : g_background2;
+    }
 
     if (bg1Image != NULL && bg1X + BG_PART_W > 0 && bg1X < rt.right)
     {
@@ -4506,6 +4774,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
         ResizeWindowToClient(hWnd, BG_PART_W, BG_PART_H);
 
         LoadAllImages(hWnd);
+        g_currentStage = 1;
         InitMonsters();
         InitRescueObjects();
 
