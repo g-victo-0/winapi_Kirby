@@ -28,6 +28,47 @@ const int STORY_FRAME_DURATION = 22; // 40ms 타이머 기준 약 0.9초
 bool g_isOpening = true;
 bool g_isStory = false;
 
+
+// 81번: 악몽 속에서 떨고 있는 남자 아이
+Image* g_studentBoyFrame = NULL;
+
+// 84~87번: 다음 맵으로 넘어가는 문 열림 애니메이션
+Image* g_doorFrames[4] = { NULL, NULL, NULL, NULL };
+const int DOOR_FRAME_COUNT = 4;
+
+struct RescueChild
+{
+    bool active;
+    bool rescued;
+    int x;
+    int y;
+    int w;
+    int h;
+};
+
+struct StageDoor
+{
+    bool active;
+    bool opening;
+    bool opened;
+    int x;
+    int y;
+    int w;
+    int h;
+    int frameIndex;
+    int tick;
+};
+
+// 1스테이지 구출/문 상태
+RescueChild g_stage1Boy;
+StageDoor g_stage1Door;
+int g_stage1ChildTotal = 1;
+int g_stage1ChildRescued = 0;
+int g_currentStage = 1;
+bool g_isChangingMap = false;
+int g_rescueAnimTick = 0;
+const int DOOR_OPEN_FRAME_TICK = 8; // 값이 클수록 문이 천천히 열림
+
 // 1번: 커비 가만히 있는 자세
 Image* g_idleFrame = NULL;
 
@@ -1305,6 +1346,193 @@ RECT GetKirbyBodyRect()
     rc.bottom = kirbyY + kirbyH;
 
     return rc;
+}
+
+
+void UpdateCamera(HWND hWnd);
+void DrawWorldImage(Graphics& graphics, Image* image, int x, int y, int w, int h);
+
+RECT GetChildRect(RescueChild child)
+{
+    RECT rc;
+    rc.left = child.x;
+    rc.top = child.y;
+    rc.right = child.x + child.w;
+    rc.bottom = child.y + child.h;
+    return rc;
+}
+
+RECT GetDoorRect(StageDoor door)
+{
+    RECT rc;
+    rc.left = door.x;
+    rc.top = door.y;
+    rc.right = door.x + door.w;
+    rc.bottom = door.y + door.h;
+    return rc;
+}
+
+void InitRescueObjects()
+{
+    // 81번 남자 아이: 두 번째 나무 발판 위쪽에 배치
+    g_stage1Boy.active = true;
+    g_stage1Boy.rescued = false;
+    g_stage1Boy.w = 47;   // 기존보다 5 크게
+    g_stage1Boy.h = 59;   // 기존보다 5 크게
+    g_stage1Boy.x = 1450;
+    g_stage1Boy.y = 339 - g_stage1Boy.h + 7; // y값 7 증가
+
+    // 84~87번 문: 1스테이지 맨 오른쪽 언덕 위에 배치
+    g_stage1Door.active = true;
+    g_stage1Door.opening = false;
+    g_stage1Door.opened = false;
+    g_stage1Door.w = 81;   // 기존보다 5 크게
+    g_stage1Door.h = 101;  // 기존보다 5 크게
+    g_stage1Door.x = 1868;
+    g_stage1Door.y = 114 - g_stage1Door.h + 7; // y값 7 증가
+    g_stage1Door.frameIndex = 0;
+    g_stage1Door.tick = 0;
+
+    g_stage1ChildTotal = 1;
+    g_stage1ChildRescued = 0;
+    g_currentStage = 1;
+    g_isChangingMap = false;
+    g_rescueAnimTick = 0;
+}
+
+void CheckRescueChildTouch()
+{
+    if (g_currentStage != 1)
+        return;
+
+    if (!g_stage1Boy.active || g_stage1Boy.rescued)
+        return;
+
+    RECT kirbyRc = GetKirbyBodyRect();
+    RECT childRc = GetChildRect(g_stage1Boy);
+
+    if (IsRectHit(kirbyRc, childRc))
+    {
+        g_stage1Boy.active = false;
+        g_stage1Boy.rescued = true;
+        g_stage1ChildRescued++;
+
+        if (g_stage1ChildRescued >= g_stage1ChildTotal)
+        {
+            g_stage1Door.opening = true;
+        }
+    }
+}
+
+void UpdateRescueObjects()
+{
+    if (g_currentStage != 1)
+        return;
+
+    g_rescueAnimTick++;
+
+    if (g_stage1ChildRescued >= g_stage1ChildTotal && !g_stage1Door.opened)
+    {
+        g_stage1Door.opening = true;
+    }
+
+    if (g_stage1Door.opening && !g_stage1Door.opened)
+    {
+        g_stage1Door.tick++;
+
+        if (g_stage1Door.tick >= DOOR_OPEN_FRAME_TICK)
+        {
+            g_stage1Door.tick = 0;
+
+            if (g_stage1Door.frameIndex < DOOR_FRAME_COUNT - 1)
+            {
+                g_stage1Door.frameIndex++;
+            }
+            else
+            {
+                g_stage1Door.opened = true;
+                g_stage1Door.opening = false;
+            }
+        }
+    }
+}
+
+void GoNextMap(HWND hWnd)
+{
+    if (g_isChangingMap)
+        return;
+
+    g_isChangingMap = true;
+    g_currentStage = 2;
+
+    StopMove();
+    isAbsorb = false;
+    isSpace = false;
+    isSpaceRelease = false;
+    isCrouch = false;
+    balloonTick = 0;
+    spaceKeyHeld = false;
+
+    kirbyX = 55;
+    kirbyY = 470;
+    kirbyVY = 0.0f;
+    cameraX = 0;
+
+    UpdateCamera(hWnd);
+}
+
+void CheckDoorTouch(HWND hWnd)
+{
+    if (g_currentStage != 1)
+        return;
+
+    if (!g_stage1Door.active || !g_stage1Door.opened)
+        return;
+
+    RECT kirbyRc = GetKirbyBodyRect();
+    RECT doorRc = GetDoorRect(g_stage1Door);
+
+    if (IsRectHit(kirbyRc, doorRc))
+    {
+        GoNextMap(hWnd);
+    }
+}
+
+void DrawRescueObjects(Graphics& graphics)
+{
+    if (g_currentStage != 1)
+        return;
+
+    if (g_stage1Door.active)
+    {
+        int frame = g_stage1Door.frameIndex;
+        if (frame < 0) frame = 0;
+        if (frame >= DOOR_FRAME_COUNT) frame = DOOR_FRAME_COUNT - 1;
+
+        DrawWorldImage(
+            graphics,
+            g_doorFrames[frame],
+            g_stage1Door.x,
+            g_stage1Door.y,
+            g_stage1Door.w,
+            g_stage1Door.h
+        );
+    }
+
+    if (g_stage1Boy.active && !g_stage1Boy.rescued)
+    {
+        // 아이가 악몽 속에서 떠는 느낌을 주려고 좌우로 1픽셀 흔들림
+        int shakeX = (g_rescueAnimTick / 4) % 2 == 0 ? -1 : 1;
+
+        DrawWorldImage(
+            graphics,
+            g_studentBoyFrame,
+            g_stage1Boy.x + shakeX,
+            g_stage1Boy.y,
+            g_stage1Boy.w,
+            g_stage1Boy.h
+        );
+    }
 }
 
 
@@ -3432,6 +3660,12 @@ void LoadAllImages(HWND hWnd)
     g_storyFrames[5] = LoadPNGFromResource(g_hInst, IDB_PNG78);
     g_storyFrames[6] = LoadPNGFromResource(g_hInst, IDB_PNG79);
 
+    g_studentBoyFrame = LoadPNGFromResource(g_hInst, IDB_PNG81);
+    g_doorFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG84);
+    g_doorFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG85);
+    g_doorFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG86);
+    g_doorFrames[3] = LoadPNGFromResource(g_hInst, IDB_PNG87);
+
     g_idleFrame = LoadPNGFromResource(g_hInst, IDB_PNG1);
 
     g_walkFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG2);
@@ -3528,167 +3762,8 @@ void LoadAllImages(HWND hWnd)
     g_dashWindFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG28);
     g_dashWindFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG29);
 
-    if (g_openingFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG72 오프닝 화면 PNG 로드 실패", L"로드 실패", MB_OK);
+    // 로드 실패 MessageBox 검사들은 실행 중 불필요한 팝업이라 제거함.
 
-    for (int i = 0; i < STORY_FRAME_COUNT; i++)
-    {
-        if (g_storyFrames[i] == NULL)
-        {
-            MessageBox(hWnd, L"스토리 PNG 로드 실패: IDB_PNG73 ~ IDB_PNG79 확인", L"로드 실패", MB_OK);
-            break;
-        }
-    }
-
-    if (g_idleFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG1 가만히 있는 커비 로드 실패", L"로드 실패", MB_OK);
-
-    for (int i = 0; i < walkFrameCount; i++)
-    {
-        if (g_walkFrames[i] == NULL)
-        {
-            MessageBox(hWnd, L"커비 걷기 PNG 로드 실패: IDB_PNG2 ~ IDB_PNG5 확인", L"로드 실패", MB_OK);
-            break;
-        }
-    }
-
-    for (int i = 0; i < spaceFrameCount; i++)
-    {
-        if (g_spaceFrames[i] == NULL)
-        {
-            MessageBox(hWnd, L"커비 풍선 PNG 로드 실패: IDB_PNG6 ~ IDB_PNG8 확인", L"로드 실패", MB_OK);
-            break;
-        }
-    }
-
-    for (int i = 0; i < absorbFrameCount; i++)
-    {
-        if (g_absorbFrames[i] == NULL)
-        {
-            MessageBox(hWnd, L"커비 흡수 PNG 로드 실패: IDB_PNG9 ~ IDB_PNG11 확인", L"로드 실패", MB_OK);
-            break;
-        }
-    }
-
-    if (g_crouchFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG12 앉기 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    if (g_spaceReleaseEffect == NULL)
-        MessageBox(hWnd, L"IDB_PNG13 SPACE 해제 이펙트 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    for (int i = 0; i < 2; i++)
-    {
-        if (g_absorbFrontEffectFrames[i] == NULL)
-        {
-            MessageBox(hWnd, L"빨아들이기 앞쪽 이펙트 PNG 로드 실패: IDB_PNG14 ~ IDB_PNG15 확인", L"로드 실패", MB_OK);
-            break;
-        }
-    }
-
-    for (int i = 0; i < monsterJumpFrameCount; i++)
-    {
-        if (g_monsterJumpFrames[i] == NULL)
-        {
-            MessageBox(hWnd, L"몬스터 점프 공격 PNG 로드 실패: IDB_PNG16 ~ IDB_PNG17 확인", L"로드 실패", MB_OK);
-            break;
-        }
-    }
-
-    for (int i = 0; i < monsterFrameCount; i++)
-    {
-        if (g_monsterFrames[i] == NULL)
-        {
-            MessageBox(hWnd, L"몬스터 걷기 PNG 로드 실패: IDB_PNG18 ~ IDB_PNG21 확인", L"로드 실패", MB_OK);
-            break;
-        }
-    }
-
-    if (g_monsterDeadFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG35 몬스터 사망 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    if (g_background == NULL)
-        MessageBox(hWnd, L"IDB_PNG22 맵 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    if (g_background2 == NULL)
-        MessageBox(hWnd, L"IDB_PNG23 오른쪽 맵 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    if (g_powerIdleFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG24 커진 커비 대기 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    for (int i = 0; i < powerWalkFrameCount; i++)
-    {
-        if (g_powerWalkFrames[i] == NULL)
-        {
-            MessageBox(hWnd, L"커진 커비 걷기 PNG 로드 실패: IDB_PNG25, 26, 30, 31, 32 확인", L"로드 실패", MB_OK);
-            break;
-        }
-    }
-
-    if (g_powerAttackFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG33 커진 커비 공격 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    if (g_powerProjectileFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG34 투사체 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    if (g_powerDigestFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG36 소화 프레임 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    if (g_kirbyHitFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG37 커비 피격 프레임 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    if (g_hpBarFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG38 체력바 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    if (g_fireTransformFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG39 불 속성 변신 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    if (g_fireAttackKirbyFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG45 불 속성 커비 공격 자세 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    if (g_fireBalloonStartFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG51 불 속성 풍선 시작 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    for (int i = 0; i < 2; i++)
-    {
-        if (g_fireBalloonFrames[i] == NULL)
-        {
-            MessageBox(hWnd, L"불 속성 풍선 PNG 로드 실패: IDB_PNG52 ~ IDB_PNG53 확인", L"로드 실패", MB_OK);
-            break;
-        }
-    }
-
-    if (g_fireIdleFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG40 불 속성 커비 기본 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    for (int i = 0; i < FIRE_WALK_FRAME_COUNT; i++)
-    {
-        if (g_fireWalkFrames[i] == NULL)
-        {
-            MessageBox(hWnd, L"불 속성 커비 걷기 PNG 로드 실패: IDB_PNG41 ~ IDB_PNG44 확인", L"로드 실패", MB_OK);
-            break;
-        }
-    }
-
-    if (g_fireBreathFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG46 불 뿜기 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    if (g_fireBallFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG47 화염구 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    if (g_fireMonsterFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG48 불 속성 몬스터 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    if (g_fireMonsterAttackFrame == NULL)
-        MessageBox(hWnd, L"IDB_PNG49 불 속성 몬스터 공격 PNG 로드 실패", L"로드 실패", MB_OK);
-
-    for (int i = 0; i < dashFrameCount; i++)
-    {
-        if (g_dashWindFrames[i] == NULL)
-        {
-            MessageBox(hWnd, L"달리기 바람 PNG 로드 실패: IDB_PNG27 ~ IDB_PNG29 확인", L"로드 실패", MB_OK);
-            break;
-        }
-    }
 }
 
 void DeleteAllImages()
@@ -3705,6 +3780,21 @@ void DeleteAllImages()
         {
             delete g_storyFrames[i];
             g_storyFrames[i] = NULL;
+        }
+    }
+
+    if (g_studentBoyFrame != NULL)
+    {
+        delete g_studentBoyFrame;
+        g_studentBoyFrame = NULL;
+    }
+
+    for (int i = 0; i < DOOR_FRAME_COUNT; i++)
+    {
+        if (g_doorFrames[i] != NULL)
+        {
+            delete g_doorFrames[i];
+            g_doorFrames[i] = NULL;
         }
     }
 
@@ -4150,7 +4240,7 @@ void DrawScene(HDC hdc, HWND hWnd)
 
             SetBkMode(memDC, TRANSPARENT);
             SetTextColor(memDC, RGB(255, 255, 255));
-            TextOut(memDC, 20, 20, L"IDB_PNG72 오프닝 이미지 로드 실패", 26);
+
         }
 
         BitBlt(hdc, 0, 0, rt.right, rt.bottom, memDC, 0, 0, SRCCOPY);
@@ -4178,7 +4268,7 @@ void DrawScene(HDC hdc, HWND hWnd)
 
             SetBkMode(memDC, TRANSPARENT);
             SetTextColor(memDC, RGB(255, 255, 255));
-            TextOut(memDC, 20, 20, L"IDB_PNG73~79 스토리 이미지 로드 실패", 27);
+
         }
 
         BitBlt(hdc, 0, 0, rt.right, rt.bottom, memDC, 0, 0, SRCCOPY);
@@ -4218,6 +4308,8 @@ void DrawScene(HDC hdc, HWND hWnd)
     {
         g_monsters[i].Draw(graphics);
     }
+
+    DrawRescueObjects(graphics);
 
     DrawDashWind(graphics);
 
@@ -4415,6 +4507,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
         LoadAllImages(hWnd);
         InitMonsters();
+        InitRescueObjects();
 
         // WAV 리소스 배경음악 재생
         // resource.h에 있는 실제 소리 ID 이름이 다르면 IDR_WAVE1만 바꾸면 됨
@@ -4495,6 +4588,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             UpdateHPBarAnimation();
             UpdatePowerProjectile();
             UpdateAbilityStar();
+            CheckRescueChildTouch();
+            UpdateRescueObjects();
+            CheckDoorTouch(hWnd);
             // 폭탄병은 제거했지만, 나중에 폭탄 커비를 다시 쓸 수 있으니 투사체 갱신 코드는 유지
             UpdateBombAttack();
             UpdateBombObjects();
