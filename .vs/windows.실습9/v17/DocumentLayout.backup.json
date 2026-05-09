@@ -11,6 +11,9 @@
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:Resource.rc||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uAE30\uBCF8 \uB9F5.png||{58961B49-13E0-48C0-9258-13CBC4D40279}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
@@ -28,7 +31,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -36,13 +39,24 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "\uAE30\uBCF8 \uB9F5.png",
+              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uAE30\uBCF8 \uB9F5.png",
+              "RelativeDocumentMoniker": "..\\..\\..\\Desktop\\\uAE30\uBCF8 \uB9F5.png",
+              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uAE30\uBCF8 \uB9F5.png",
+              "RelativeToolTip": "..\\..\\..\\Desktop\\\uAE30\uBCF8 \uB9F5.png",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
+              "WhenOpened": "2026-05-08T05:12:19.608Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
               "Title": "game.cpp",
               "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\game.cpp",
               "RelativeDocumentMoniker": "game.cpp",
-              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\game.cpp",
-              "RelativeToolTip": "game.cpp",
-              "ViewState": "AgIAAAQAAAAAAAAAAAAUwBIAAAAAAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\game.cpp*",
+              "RelativeToolTip": "game.cpp*",
+              "ViewState": "AgIAANgBAAAAAAAAAAAowPABAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-05-05T08:52:16.022Z",
               "EditorCaption": ""
@@ -55,13 +69,13 @@
               "RelativeDocumentMoniker": "Resource.rc",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\Resource.rc",
               "RelativeToolTip": "Resource.rc",
-              "ViewState": "AgIAAEMAAAAAAAAAAAAowEgAAAAmAAAAAAAAAA==",
+              "ViewState": "AgIAAGUAAAAAAAAAAAAgwH0AAAA2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
               "WhenOpened": "2026-05-04T12:30:26.526Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "\uCEE4\uBE44 \uAE30\uBCF8.png - PNG [26x27, 32\uBE44\uD2B8, PNG]",
               "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png",
               "RelativeDocumentMoniker": "..\\..\\..\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png",
@@ -72,7 +86,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "\uCEE4\uBE44 \uC549\uAE30.png - PNG [26x25, 32\uBE44\uD2B8, PNG]",
               "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png",
               "RelativeDocumentMoniker": "..\\..\\..\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png",
@@ -83,7 +97,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "main.cpp",
               "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\main.cpp",
               "RelativeDocumentMoniker": "main.cpp",

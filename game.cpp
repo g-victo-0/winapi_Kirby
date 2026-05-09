@@ -17,14 +17,14 @@ ULONG_PTR g_gdiplusToken;
 // 72번: 오프닝 화면
 Image* g_openingFrame = NULL;
 
-// 73~81번: 오프닝 뒤에 자동으로 넘어가는 스토리 화면
-Image* g_storyFrames[8] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+// 73~79번: 오프닝 뒤에 자동으로 넘어가는 스토리 화면
+Image* g_storyFrames[7] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 int g_storyFrameIndex = 0;
 int g_storyTick = 0;
-const int STORY_FRAME_COUNT = 8;
-const int STORY_FRAME_DURATION = 30; // 16ms 타이머 기준 약 1초
+const int STORY_FRAME_COUNT = 7;
+const int STORY_FRAME_DURATION = 22; // 40ms 타이머 기준 약 0.9초
 
-// 처음 실행하면 72번 오프닝, SPACE를 누르면 73~81번 스토리 진행 후 1스테이지 시작
+// 처음 실행하면 72번 오프닝, SPACE를 누르면 73~79번 스토리 진행 후 1스테이지 시작
 bool g_isOpening = true;
 bool g_isStory = false;
 
@@ -63,9 +63,11 @@ Image* g_fireMonsterDeadFrame = NULL;
 
 // 22번: 맵 1
 Image* g_background = NULL;
+Bitmap* g_backgroundScaled = NULL; // 렉 줄이기용: 늘린 배경을 미리 만들어 둠
 
 // 23번: 오른쪽에 이어지는 맵 2
 Image* g_background2 = NULL;
+Bitmap* g_background2Scaled = NULL; // 렉 줄이기용: 늘린 배경을 미리 만들어 둠
 
 // 24번: 몬스터를 먹은 뒤 커진 커비 가만히 있는 프레임
 Image* g_powerIdleFrame = NULL;
@@ -363,7 +365,7 @@ int monsterJumpFrameCount = 2;
 const int MONSTER_DEAD_DURATION = 30; // 16ms 타이머 기준 약 0.5초 동안 35번 프레임 표시
 
 // 커비 위치/크기
-int kirbyX = 50;
+int kirbyX = 55;
 int kirbyY = 470;
 int kirbyW = 48;
 int kirbyH = 48;
@@ -449,49 +451,159 @@ SolidBlock g_solidBlocks[] =
     // PNG22 첫 번째 맵 충돌체
     // 예전에 쓰던 충돌체 다시 유지
     // =========================
-    { { 0,   565, 260, 613 }, L"MAP1_GROUND_1" },
-    { { 230, 545, 330, 620 }, L"MAP1_BLOCK_1" },
-    { { 305, 565, 447, 616 }, L"MAP1_GROUND_2" },
-    { { 430, 545, 485, 616 }, L"MAP1_PILLAR" },
-    { { 475, 565, 550, 631 }, L"MAP1_GROUND_3" },
-    { { 535, 545, 917, 619 }, L"MAP1_MONSTER_AREA" },
+    { { 0, 545, 289, 613 }, L"MAP1_GROUND_1" },
+    { { 132, 512, 237, 620 }, L"MAP1_BLOCK_1" },
+    { { 280, 545, 600, 616 }, L"MAP1_GROUND_2" },
+    { { 404, 512, 449, 616 }, L"MAP1_PILLAR" },
+    //{ { 528, 545, 611, 632 }, L"MAP1_GROUND_3" }, 사용 X 
+    { { 594, 545, 1018, 618 }, L"MAP1_MONSTER_AREA" },
 
     // =========================
     // PNG23 두 번째 맵 충돌체
-    // PNG23은 월드 x = 900부터 시작하므로, 화면에서 보이는 x좌표에 +900을 해줌
+    // PNG23은 월드 x = 1000부터 시작하므로, 화면에서 보이는 x좌표에 +1000을 해줌
     // 사진 보고 대충 맞춘 값이라 F1 눌러서 좌표 확인하면서 조금씩 조절하면 됨
     // =========================
 
     // 왼쪽 아래 긴 땅
-    { { 900, 545, 1500, 619 }, L"MAP2_LEFT_GROUND" },
+    { { 1000, 545, 1666, 618 }, L"MAP2_LEFT_GROUND" },
 
     // 가운데 아래 바위 기둥
-    { { 1455, 453, 1600, 619 }, L"MAP2_SMALL_ROCK" },
+    { { 1617, 453, 1777, 618 }, L"MAP2_SMALL_ROCK" },
 
     // 오른쪽 큰 절벽/벽
-    { { 1530, 135, 1800, 619 }, L"MAP2_BIG_CLIFF" },
+    { { 1700, 135, 2000, 618 }, L"MAP2_BIG_CLIFF" },
 
     // 오른쪽 큰 절벽 위에서 왼쪽으로 튀어나온 발판 부분
-    { { 1460, 135, 1800, 210 }, L"MAP2_TOP_LEDGE" },
+    { { 1570, 114, 2000, 195 }, L"MAP2_TOP_LEDGE" },
 
     // 나무 발판들
-    { { 1052, 223, 1245, 250 }, L"MAP2_WOOD_1" },
-    { { 1240, 135, 1390, 160 }, L"MAP2_WOOD_2" },
-    { { 1285, 281, 1435, 305 }, L"MAP2_WOOD_3" },
-    { { 1285, 369, 1435, 392 }, L"MAP2_WOOD_4" },
-    { { 1240, 453, 1500, 482 }, L"MAP2_WOOD_5" }
+    { { 1328, 439, 1750, 470 }, L"MAP2_WOOD_1" },
+    { { 1381, 339, 1555, 365 }, L"MAP2_WOOD_2" },
+    { { 1381, 239, 1556, 265 }, L"MAP2_WOOD_3" },
+    { { 1108, 185, 1339, 210 }, L"MAP2_WOOD_4" },
+    { { 1320, 112, 1501, 136 }, L"MAP2_WOOD_5" }
 };
 
 int g_solidBlockCount = sizeof(g_solidBlocks) / sizeof(g_solidBlocks[0]);
 
 // 카메라 / 월드 크기
-// 배경 PNG22가 0~899, PNG23이 900~1799에 붙는 구조
-const int BG_PART_W = 900;
+// 배경 PNG22가 0~999, PNG23이 1000~1999에 붙는 구조
+const int BG_PART_W = 1000;
 const int BG_PART_H = 650;
 const int WORLD_W = BG_PART_W * 2;
 const int WORLD_H = BG_PART_H;
 
 int cameraX = 0;
+
+
+// 렉 줄이기용: 백버퍼를 매번 만들지 않고 재사용함
+const UINT GAME_TIMER_MS = 40; // 렉 줄이기용. 약 25FPS라 GDI+ PNG가 훨씬 덜 버벅임
+HDC g_backDC = NULL;
+HBITMAP g_backBitmap = NULL;
+HBITMAP g_backOldBitmap = NULL;
+int g_backW = 0;
+int g_backH = 0;
+
+void ReleaseBackBuffer()
+{
+    if (g_backDC != NULL)
+    {
+        if (g_backOldBitmap != NULL)
+        {
+            SelectObject(g_backDC, g_backOldBitmap);
+            g_backOldBitmap = NULL;
+        }
+        DeleteDC(g_backDC);
+        g_backDC = NULL;
+    }
+
+    if (g_backBitmap != NULL)
+    {
+        DeleteObject(g_backBitmap);
+        g_backBitmap = NULL;
+    }
+
+    g_backW = 0;
+    g_backH = 0;
+}
+
+bool PrepareBackBuffer(HDC hdc, int w, int h)
+{
+    if (w <= 0 || h <= 0)
+        return false;
+
+    if (g_backDC != NULL && g_backBitmap != NULL && g_backW == w && g_backH == h)
+        return true;
+
+    ReleaseBackBuffer();
+
+    g_backDC = CreateCompatibleDC(hdc);
+    if (g_backDC == NULL)
+        return false;
+
+    g_backBitmap = CreateCompatibleBitmap(hdc, w, h);
+    if (g_backBitmap == NULL)
+    {
+        ReleaseBackBuffer();
+        return false;
+    }
+
+    g_backOldBitmap = (HBITMAP)SelectObject(g_backDC, g_backBitmap);
+    g_backW = w;
+    g_backH = h;
+    return true;
+}
+
+
+
+Bitmap* CreateScaledBitmap(Image* source, int w, int h)
+{
+    if (source == NULL)
+        return NULL;
+
+    Bitmap* bmp = new Bitmap(w, h, PixelFormat32bppARGB);
+    if (bmp == NULL || bmp->GetLastStatus() != Ok)
+    {
+        delete bmp;
+        return NULL;
+    }
+
+    Graphics g(bmp);
+    g.SetCompositingQuality(CompositingQualityHighSpeed);
+    g.SetSmoothingMode(SmoothingModeNone);
+    g.SetInterpolationMode(InterpolationModeNearestNeighbor);
+    g.SetPixelOffsetMode(PixelOffsetModeHalf);
+    g.DrawImage(source, 0, 0, w, h);
+
+    return bmp;
+}
+
+void ResizeWindowToClient(HWND hWnd, int clientW, int clientH)
+{
+    RECT rc = { 0, 0, clientW, clientH };
+    AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
+    SetWindowPos(hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE | SWP_NOZORDER);
+}
+
+bool IsVisibleWorld(int x, int y, int w, int h)
+{
+    if (x + w < cameraX) return false;
+    if (x > cameraX + g_backW) return false;
+    if (y + h < 0) return false;
+    if (y > g_backH) return false;
+    return true;
+}
+
+void DrawWorldImage(Graphics& graphics, Image* image, int x, int y, int w, int h)
+{
+    if (image == NULL)
+        return;
+
+    if (!IsVisibleWorld(x, y, w, h))
+        return;
+
+    graphics.DrawImage(image, x, y, w, h);
+}
 
 // F1 디버그 모드
 bool g_debugMode = false;
@@ -1386,9 +1498,9 @@ void UpdateKirbyPosition(HWND hWnd)
         isOnGround = true;
     }
 
-    if (kirbyY + kirbyH > rt.bottom)
+    if (kirbyY + kirbyH > WORLD_H)
     {
-        kirbyY = rt.bottom - kirbyH;
+        kirbyY = WORLD_H - kirbyH;
         kirbyVY = 0;
         isOnGround = true;
     }
@@ -1721,6 +1833,14 @@ public:
                 jumpAttackFrameIndex = 0;
                 jumpAttackCooldown = 45;
             }
+        }
+
+        // 새 배경 높이(495)에 맞춰 몬스터가 바닥 아래로 끝없이 떨어지는 것을 막음
+        if (y + h > WORLD_H)
+        {
+            y = WORLD_H - h;
+            vy = 0;
+            onGround = true;
         }
     }
 
@@ -2068,24 +2188,24 @@ public:
     void Draw(Graphics& graphics);
 };
 
-const int MONSTER_COUNT = 5;
+const int MONSTER_COUNT = 4; // 1스테이지에서는 폭탄병 제거. 폭탄병은 다른 스테이지에서 다시 추가하면 됨
 Monster g_monsters[MONSTER_COUNT];
 
 void InitMonsters()
 {
     // 기존 몬스터 1마리
-    g_monsters[0].Init(600, 470, 546, 914, -1);
+    g_monsters[0].Init(666, 470, 606, 1015, -1);
 
     // 추가 몬스터 2마리 - 18~21번 걷기 프레임, 16~17번 점프 공격 프레임 그대로 사용
-    g_monsters[1].Init(1080, 470, 930, 1450, -1);
-    g_monsters[2].Init(1340, 380, 1240, 1500, 1);
+    g_monsters[1].Init(1200, 470, 1034, 1611, -1);
+    g_monsters[2].Init(1488, 379, 1378, 1666, 1);
 
     // 불 속성 몬스터 1번. 48번 기본 프레임, 49번 원거리 공격 프레임 사용
-    g_monsters[3].Init(1660, 100, 1530, 1790, -1, 1);
+    g_monsters[3].Init(1844, 100, 1700, 1989, -1, 1);
 
-    // 폭탄 몬스터 2번. 66번 프레임으로 하늘에서 좌우로 이동하고 폭탄을 떨어뜨림
-    // 불 속성 몬스터 위치(1660 근처)와 겹치지 않도록 왼쪽 구간에 배치
-    g_monsters[4].Init(980, 80, 920, 1240, 1, 2);
+    // 폭탄병은 다른 스테이지에서 사용할 예정이라 1스테이지에서는 생성하지 않음.
+    // 나중에 다시 쓰려면 MONSTER_COUNT를 5로 바꾸고 아래 코드를 복구하면 됨.
+    // g_monsters[4].Init(786, 105, 738, 994, 1, 2);
 }
 
 void StartBombKirbyTransform();
@@ -2466,7 +2586,8 @@ void DrawAbilityStar(Graphics& graphics)
     if (g_powerProjectileFrame == NULL)
         return;
 
-    graphics.DrawImage(
+    DrawWorldImage(
+        graphics,
         g_powerProjectileFrame,
         (int)abilityStarX,
         (int)abilityStarY,
@@ -2779,7 +2900,7 @@ void DrawBombObjects(Graphics& graphics)
         if (!g_bombs[i].active)
             continue;
 
-        graphics.DrawImage(g_bombProjectileFrame, g_bombs[i].x, g_bombs[i].y, g_bombs[i].w, g_bombs[i].h);
+        DrawWorldImage(graphics, g_bombProjectileFrame, g_bombs[i].x, g_bombs[i].y, g_bombs[i].w, g_bombs[i].h);
     }
 }
 
@@ -2941,6 +3062,9 @@ void DrawImageFlipX(Graphics& graphics, Image* image, int x, int y, int w, int h
     if (image == NULL)
         return;
 
+    if (!IsVisibleWorld(x, y, w, h))
+        return;
+
     GraphicsState state = graphics.Save();
 
     graphics.TranslateTransform((REAL)(x + w), (REAL)y);
@@ -2962,12 +3086,15 @@ void DrawKirbyImage(Graphics& graphics, Image* image)
     }
     else
     {
-        graphics.DrawImage(image, kirbyX, kirbyY, kirbyW, kirbyH);
+        DrawWorldImage(graphics, image, kirbyX, kirbyY, kirbyW, kirbyH);
     }
 }
 
 void Monster::Draw(Graphics& graphics)
 {
+    if (!IsVisibleWorld(x, y, w, h))
+        return;
+
     if (isDeadEffect)
     {
         Image* deadFrame = g_monsterDeadFrame;
@@ -2992,7 +3119,7 @@ void Monster::Draw(Graphics& graphics)
         }
         else
         {
-            graphics.DrawImage(deadFrame, x, y, w, h);
+            DrawWorldImage(graphics, deadFrame, x, y, w, h);
         }
 
         return;
@@ -3014,7 +3141,7 @@ void Monster::Draw(Graphics& graphics)
         }
         else
         {
-            graphics.DrawImage(jumpFrame, x, y, w, h);
+            DrawWorldImage(graphics, jumpFrame, x, y, w, h);
         }
 
         return;
@@ -3044,7 +3171,7 @@ void Monster::Draw(Graphics& graphics)
     }
     else
     {
-        graphics.DrawImage(frame, x, y, w, h);
+        DrawWorldImage(graphics, frame, x, y, w, h);
     }
 }
 
@@ -3086,7 +3213,8 @@ void DrawDashWind(Graphics& graphics)
     {
         int windX = kirbyX - windW + 10;
 
-        graphics.DrawImage(
+        DrawWorldImage(
+            graphics,
             g_dashWindFrames[dashFrameIndex],
             windX,
             windY,
@@ -3122,7 +3250,8 @@ void DrawSpaceReleaseEffect(Graphics& graphics)
     {
         int effectX = kirbyX + kirbyW - 4;
 
-        graphics.DrawImage(
+        DrawWorldImage(
+            graphics,
             g_spaceReleaseEffect,
             effectX,
             effectY,
@@ -3173,7 +3302,8 @@ void DrawAbsorbFrontEffect(Graphics& graphics)
     {
         int effectX = kirbyX + kirbyW - 2;
 
-        graphics.DrawImage(
+        DrawWorldImage(
+            graphics,
             effect,
             effectX,
             effectY,
@@ -3204,7 +3334,8 @@ void DrawPowerProjectile(Graphics& graphics)
     }
     else
     {
-        graphics.DrawImage(
+        DrawWorldImage(
+            graphics,
             g_powerProjectileFrame,
             powerProjectileX,
             powerProjectileY,
@@ -3232,7 +3363,7 @@ void DrawFireBreath(Graphics& graphics)
     }
     else
     {
-        graphics.DrawImage(g_fireBreathFrame, rc.left, rc.top, w, h);
+        DrawWorldImage(graphics, g_fireBreathFrame, rc.left, rc.top, w, h);
     }
 }
 
@@ -3250,7 +3381,7 @@ void DrawFireBall(Graphics& graphics)
     }
     else
     {
-        graphics.DrawImage(g_fireBallFrame, fireBallX, fireBallY, fireBallW, fireBallH);
+        DrawWorldImage(graphics, g_fireBallFrame, fireBallX, fireBallY, fireBallW, fireBallH);
     }
 }
 
@@ -3277,7 +3408,8 @@ void DrawEnemyFireBalls(Graphics& graphics)
         }
         else
         {
-            graphics.DrawImage(
+            DrawWorldImage(
+                graphics,
                 g_fireMonsterAttackFrame,
                 g_enemyFireBalls[i].x,
                 g_enemyFireBalls[i].y,
@@ -3299,7 +3431,6 @@ void LoadAllImages(HWND hWnd)
     g_storyFrames[4] = LoadPNGFromResource(g_hInst, IDB_PNG77);
     g_storyFrames[5] = LoadPNGFromResource(g_hInst, IDB_PNG78);
     g_storyFrames[6] = LoadPNGFromResource(g_hInst, IDB_PNG79);
-    g_storyFrames[7] = LoadPNGFromResource(g_hInst, IDB_PNG80);
 
     g_idleFrame = LoadPNGFromResource(g_hInst, IDB_PNG1);
 
@@ -3336,6 +3467,8 @@ void LoadAllImages(HWND hWnd)
 
     g_background = LoadPNGFromResource(g_hInst, IDB_PNG22);
     g_background2 = LoadPNGFromResource(g_hInst, IDB_PNG23);
+    g_backgroundScaled = CreateScaledBitmap(g_background, BG_PART_W, BG_PART_H);
+    g_background2Scaled = CreateScaledBitmap(g_background2, BG_PART_W, BG_PART_H);
 
     g_powerIdleFrame = LoadPNGFromResource(g_hInst, IDB_PNG24);
 
@@ -3385,8 +3518,10 @@ void LoadAllImages(HWND hWnd)
     g_bombAttackFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG63);
     g_bombAttackFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG64);
     g_bombProjectileFrame = LoadPNGFromResource(g_hInst, IDB_PNG65);
-    g_bombMonsterFrame = LoadPNGFromResource(g_hInst, IDB_PNG66);
-    g_bombMonsterDeadFrame = LoadPNGFromResource(g_hInst, IDB_PNG67);
+    // 1스테이지에서는 폭탄병을 쓰지 않으므로 PNG66, PNG67은 로드하지 않아 렉과 메모리 사용을 줄임.
+    // 다른 스테이지에서 폭탄병을 다시 쓸 때 아래 두 줄을 LoadPNGFromResource로 복구하면 됨.
+    g_bombMonsterFrame = NULL;
+    g_bombMonsterDeadFrame = NULL;
     g_bombTransformFrame = LoadPNGFromResource(g_hInst, IDB_PNG68);
 
     g_dashWindFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG27);
@@ -3400,7 +3535,7 @@ void LoadAllImages(HWND hWnd)
     {
         if (g_storyFrames[i] == NULL)
         {
-            MessageBox(hWnd, L"스토리 PNG 로드 실패: IDB_PNG73 ~ IDB_PNG80 확인", L"로드 실패", MB_OK);
+            MessageBox(hWnd, L"스토리 PNG 로드 실패: IDB_PNG73 ~ IDB_PNG79 확인", L"로드 실패", MB_OK);
             break;
         }
     }
@@ -3655,6 +3790,18 @@ void DeleteAllImages()
     {
         delete g_fireMonsterDeadFrame;
         g_fireMonsterDeadFrame = NULL;
+    }
+
+    if (g_backgroundScaled != NULL)
+    {
+        delete g_backgroundScaled;
+        g_backgroundScaled = NULL;
+    }
+
+    if (g_background2Scaled != NULL)
+    {
+        delete g_background2Scaled;
+        g_background2Scaled = NULL;
     }
 
     if (g_background != NULL)
@@ -3972,11 +4119,19 @@ void DrawScene(HDC hdc, HWND hWnd)
     RECT rt;
     GetClientRect(hWnd, &rt);
 
-    HDC memDC = CreateCompatibleDC(hdc);
-    HBITMAP memBitmap = CreateCompatibleBitmap(hdc, rt.right, rt.bottom);
-    HBITMAP oldBitmap = (HBITMAP)SelectObject(memDC, memBitmap);
+    if (!PrepareBackBuffer(hdc, rt.right, rt.bottom))
+        return;
+
+    HDC memDC = g_backDC;
+
+    // 이전 프레임 잔상이 남지 않게 먼저 전체를 지움
+    HBRUSH clearBrush = CreateSolidBrush(RGB(0, 0, 0));
+    FillRect(memDC, &rt, clearBrush);
+    DeleteObject(clearBrush);
 
     Graphics graphics(memDC);
+    graphics.SetCompositingQuality(CompositingQualityHighSpeed);
+    graphics.SetSmoothingMode(SmoothingModeNone);
     graphics.SetInterpolationMode(InterpolationModeNearestNeighbor);
     graphics.SetPixelOffsetMode(PixelOffsetModeHalf);
 
@@ -4000,13 +4155,10 @@ void DrawScene(HDC hdc, HWND hWnd)
 
         BitBlt(hdc, 0, 0, rt.right, rt.bottom, memDC, 0, 0, SRCCOPY);
 
-        SelectObject(memDC, oldBitmap);
-        DeleteObject(memBitmap);
-        DeleteDC(memDC);
         return;
     }
 
-    // 스토리 화면 상태이면 73~81번 PNG를 0.7초마다 보여주고 게임 화면은 아직 그리지 않음
+    // 스토리 화면 상태이면 73~79번 PNG를 순서대로 보여주고 게임 화면은 아직 그리지 않음
     if (g_isStory)
     {
         Image* storyFrame = NULL;
@@ -4026,32 +4178,35 @@ void DrawScene(HDC hdc, HWND hWnd)
 
             SetBkMode(memDC, TRANSPARENT);
             SetTextColor(memDC, RGB(255, 255, 255));
-            TextOut(memDC, 20, 20, L"IDB_PNG73~81 스토리 이미지 로드 실패", 27);
+            TextOut(memDC, 20, 20, L"IDB_PNG73~79 스토리 이미지 로드 실패", 27);
         }
 
         BitBlt(hdc, 0, 0, rt.right, rt.bottom, memDC, 0, 0, SRCCOPY);
 
-        SelectObject(memDC, oldBitmap);
-        DeleteObject(memBitmap);
-        DeleteDC(memDC);
         return;
     }
 
     // 배경은 월드 좌표 기준으로 이어 붙여서 그리고, 화면에는 cameraX만큼 밀려 보이게 함
-    if (g_background != NULL)
+    int bg1X = -cameraX;
+    int bg2X = BG_PART_W - cameraX;
+
+    Image* bg1Image = (g_backgroundScaled != NULL) ? (Image*)g_backgroundScaled : g_background;
+    Image* bg2Image = (g_background2Scaled != NULL) ? (Image*)g_background2Scaled : g_background2;
+
+    if (bg1Image != NULL && bg1X + BG_PART_W > 0 && bg1X < rt.right)
     {
-        graphics.DrawImage(g_background, 0 - cameraX, 0, BG_PART_W, BG_PART_H);
+        graphics.DrawImage(bg1Image, bg1X, 0, BG_PART_W, BG_PART_H);
     }
-    else
+    else if (bg1Image == NULL)
     {
         HBRUSH bgBrush = CreateSolidBrush(RGB(180, 220, 255));
         FillRect(memDC, &rt, bgBrush);
         DeleteObject(bgBrush);
     }
 
-    if (g_background2 != NULL)
+    if (bg2Image != NULL && bg2X + BG_PART_W > 0 && bg2X < rt.right)
     {
-        graphics.DrawImage(g_background2, BG_PART_W - cameraX, 0, BG_PART_W, BG_PART_H);
+        graphics.DrawImage(bg2Image, bg2X, 0, BG_PART_W, BG_PART_H);
     }
 
     // 커비/몬스터/이펙트는 전부 월드 좌표로 움직이고,
@@ -4186,7 +4341,8 @@ void DrawScene(HDC hdc, HWND hWnd)
             }
             else
             {
-                graphics.DrawImage(
+                DrawWorldImage(
+                    graphics,
                     crouchImage,
                     kirbyX,
                     kirbyY + crouchDrawOffsetY,
@@ -4242,9 +4398,6 @@ void DrawScene(HDC hdc, HWND hWnd)
 
     BitBlt(hdc, 0, 0, rt.right, rt.bottom, memDC, 0, 0, SRCCOPY);
 
-    SelectObject(memDC, oldBitmap);
-    DeleteObject(memBitmap);
-    DeleteDC(memDC);
 }
 
 
@@ -4257,6 +4410,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
     switch (iMessage)
     {
     case WM_CREATE:
+        // 배경 이미지 크기(1000 x 650)에 맞춰 클라이언트 영역을 딱 맞춤.
+        ResizeWindowToClient(hWnd, BG_PART_W, BG_PART_H);
+
         LoadAllImages(hWnd);
         InitMonsters();
 
@@ -4270,17 +4426,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
         UpdateCamera(hWnd);
 
-        SetTimer(hWnd, 1, 16, NULL);
-        SetTimer(hWnd, 2, 120, NULL);
-        SetTimer(hWnd, 3, 180, NULL);
-        SetTimer(hWnd, 5, 160, NULL);
-        SetTimer(hWnd, 7, 120, NULL);
+        SetTimer(hWnd, 1, GAME_TIMER_MS, NULL);
+        SetTimer(hWnd, 2, 150, NULL); // 걷기 프레임. 너무 빠르면 불필요하게 페인트가 많아짐
+        SetTimer(hWnd, 3, 200, NULL); // 풍선 프레임
+        SetTimer(hWnd, 5, 180, NULL); // 흡수 프레임
+        SetTimer(hWnd, 7, 160, NULL); // 몬스터 프레임
         break;
 
     case WM_TIMER:
         if (g_isOpening)
         {
-            InvalidateRect(hWnd, NULL, FALSE);
+            // 오프닝은 정지 화면이라 계속 다시 그릴 필요 없음
             return 0;
         }
 
@@ -4312,10 +4468,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                         bombBalloonStartFrameDone = false;
                         UpdateCamera(hWnd);
                     }
+
+                    InvalidateRect(hWnd, NULL, FALSE);
                 }
             }
 
-            InvalidateRect(hWnd, NULL, FALSE);
             return 0;
         }
 
@@ -4338,6 +4495,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             UpdateHPBarAnimation();
             UpdatePowerProjectile();
             UpdateAbilityStar();
+            // 폭탄병은 제거했지만, 나중에 폭탄 커비를 다시 쓸 수 있으니 투사체 갱신 코드는 유지
             UpdateBombAttack();
             UpdateBombObjects();
             UpdateEnemyFireBalls();
@@ -4417,7 +4575,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 bombWalkFrameIndex = 0;
             }
 
-            InvalidateRect(hWnd, NULL, FALSE);
+            // 메인 타이머에서만 다시 그려서 중복 페인트를 줄임
         }
         else if (wParam == 3)
         {
@@ -4487,7 +4645,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 bombBalloonStartFrameDone = false;
             }
 
-            InvalidateRect(hWnd, NULL, FALSE);
+            // 메인 타이머에서만 다시 그려서 중복 페인트를 줄임
         }
         else if (wParam == 5)
         {
@@ -4502,7 +4660,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                     absorbFrameIndex = absorbFrameCount - 1;
                 }
 
-                InvalidateRect(hWnd, NULL, FALSE);
+                // 메인 타이머에서만 다시 그려서 중복 페인트를 줄임
             }
         }
         else if (wParam == 7)
@@ -4511,7 +4669,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             {
                 g_monsters[i].NextFrame();
             }
-            InvalidateRect(hWnd, NULL, FALSE);
+            // 메인 타이머에서만 다시 그려서 중복 페인트를 줄임
         }
         break;
 
@@ -4911,7 +5069,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
         InvalidateRect(hWnd, NULL, FALSE);
         break;
 
+    case WM_SIZE:
+        ReleaseBackBuffer();
+        InvalidateRect(hWnd, NULL, FALSE);
+        break;
+
     case WM_DESTROY:
+        ReleaseBackBuffer();
+
         // 프로그램 종료 시 소리 정지
         PlaySound(NULL, NULL, 0);
 
