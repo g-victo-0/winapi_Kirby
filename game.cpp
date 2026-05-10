@@ -393,6 +393,9 @@ bool isGameOver = false;
 int gameOverTick = 0;
 const int GAME_OVER_DELAY = 30; // HP 표시가 0이 된 뒤 약 0.5초 후 종료
 
+// 낙사 게임오버 상태. HP가 0이 된 게임오버와 메시지를 다르게 보여주기 위해 따로 저장
+bool g_kirbyFallGameOver = false;
+
 // 34번 투사체 상태
 bool isPowerProjectileActive = false;
 int powerProjectileX = 0;
@@ -563,25 +566,32 @@ int g_solidBlockCount = sizeof(g_solidBlocks) / sizeof(g_solidBlocks[0]);
 SolidBlock g_stage2SolidBlocks[] =
 {
     // PNG88 달 있는 앞쪽 맵
-    { { 0, 370, 230, 650 }, L"S2_FRONT_LEFT_GROUND" },
-    { { 330, 285, 580, 335 }, L"S2_FRONT_MIDDLE_PLATFORM" },
-    { { 265, 535, 675, 650 }, L"S2_FRONT_BOTTOM_GROUND" },
-    { { 520, 455, 595, 535 }, L"S2_FRONT_ROCK" },
-    { { 650, 525, 1000, 650 }, L"S2_FRONT_RIGHT_LOW" },
-    { { 720, 445, 1000, 650 }, L"S2_FRONT_RIGHT_STEP" },
-    { { 825, 345, 1000, 650 }, L"S2_FRONT_RUIN_GROUND" },
-    { { 850, 120, 1000, 170 }, L"S2_FRONT_RUIN_TOP" },
+    { { 0, 482, 250, 650 }, L"S2_FRONT_LEFT_GROUND" },
+    { { 345, 482, 1000, 650 }, L"S2_FRONT_MIDDLE_PLATFORM" },
+    { { 265, 482, 333, 650 }, L"S2_FRONT_BOTTOM_GROUND" },
+    { { 424, 329, 685, 650 }, L"S2_FRONT_ROCK" },
+    { { 908, 329, 1000, 650 }, L"S2_FRONT_RIGHT_LOW" },
+
+    // 발판 
+    { { 76, 225, 180, 261 }, L"MAP_WOOD1" },
+
+    { { 180, 300, 262, 334 }, L"MAP_WOOD2" },
+    { { 732, 233, 851, 270 }, L"MAP_WOOD3" },
 
     // PNG89 달 없는 뒤쪽 맵
-    { { 1000, 405, 1250, 650 }, L"S2_BACK_LEFT_GROUND" },
-    { { 1080, 185, 1190, 220 }, L"S2_BACK_LEFT_FLOAT_1" },
-    { { 1190, 270, 1280, 305 }, L"S2_BACK_LEFT_FLOAT_2" },
-    { { 1260, 450, 1310, 650 }, L"S2_BACK_SMALL_PILLAR" },
-    { { 1340, 415, 1415, 650 }, L"S2_BACK_LEFT_LOW" },
-    { { 1425, 335, 1685, 650 }, L"S2_BACK_CENTER_BUILDING" },
-    { { 1685, 405, 1885, 650 }, L"S2_BACK_RIGHT_LOW" },
-    { { 1680, 185, 1885, 220 }, L"S2_BACK_RIGHT_FLOAT" },
-    { { 1900, 305, 2000, 650 }, L"S2_BACK_FAR_RIGHT" }
+
+    { { 995, 358, 1230, 650 }, L"S2_BACK_LEFT_GROUND" },
+
+
+    { { 1000, 537, 2000, 650 }, L"S2_BACK_SMALL_PILLAR" },
+    { { 1703, 529, 1771, 650 }, L"S2_BACK_LEFT_LOW" },
+    { { 1810,529, 1880, 650 }, L"S2_BACK_CENTER_BUILDING" },
+
+    { { 1730, 330, 2000, 391 }, L"S2_BACK_RIGHT_LOW" },
+
+    //발판
+    { { 1330, 283, 1581, 337 }, L"MAP_WOOD4" },
+
 };
 
 int g_stage2SolidBlockCount = sizeof(g_stage2SolidBlocks) / sizeof(g_stage2SolidBlocks[0]);
@@ -613,7 +623,6 @@ SolidBlock g_stage3SolidBlocks[] =
     { { 0, 0, 12, 650 }, L"S3_90_LEFT_LIMIT" },
 
     // PNG91 두 번째 구간: x = 1000 ~ 1999
-    // 90/91 연결부는 크게 막지 않음. 자연스럽게 넘어가게 일부러 왼쪽 벽 제거.
     { { 1040, 530, 1245, 650 }, L"S3_91_LEFT_BOTTOM_GROUND" },
     { { 1165, 390, 1515, 425 }, L"S3_91_MAIN_LEDGE" },
     { { 1165, 425, 1545, 650 }, L"S3_91_MAIN_GROUND" },
@@ -991,6 +1000,30 @@ void StopMove()
     moveRight = false;
     moveUp = false;
     moveDown = false;
+}
+
+void StartKirbyFallGameOver()
+{
+    if (isGameOver)
+        return;
+
+    g_kirbyFallGameOver = true;
+    isGameOver = true;
+    gameOverTick = 0;
+
+    StopMove();
+    isAbsorb = false;
+    isSpace = false;
+    isSpaceRelease = false;
+    isCrouch = false;
+    balloonTick = 0;
+    spaceKeyHeld = false;
+    kirbyVY = 0.0f;
+}
+
+bool IsKirbyBelowDeathLine()
+{
+    return kirbyY > WORLD_H + 80;
 }
 
 void StartJump()
@@ -1539,18 +1572,18 @@ void InitStage2RescueObjects()
     }
 
     // 88번 달 있는 앞쪽 맵
-    g_stage2Children[0].x = 105;
+    g_stage2Children[0].x = 105 ;
     g_stage2Children[0].y = 370 - g_stage2Children[0].h + 7;
 
-    g_stage2Children[1].x = 455;
-    g_stage2Children[1].y = 285 - g_stage2Children[1].h + 7;
+    g_stage2Children[1].x = 530;
+    g_stage2Children[1].y = 342 - g_stage2Children[1].h + 7;
 
     // 89번 달 없는 뒤쪽 맵
     g_stage2Children[2].x = 1435;
-    g_stage2Children[2].y = 335 - g_stage2Children[2].h + 7;
+    g_stage2Children[2].y = 286 - g_stage2Children[2].h + 7;
 
-    g_stage2Children[3].x = 1780;
-    g_stage2Children[3].y = 205 - g_stage2Children[3].h + 7;
+    g_stage2Children[3].x = 1931;
+    g_stage2Children[3].y = 546 - g_stage2Children[3].h + 7;
 
     // 89번 달 없는 맵의 오른쪽 위 빨간 표시 위치에 문 배치
     g_stage2Door.active = true;
@@ -1558,8 +1591,8 @@ void InitStage2RescueObjects()
     g_stage2Door.opened = false;
     g_stage2Door.w = 81;
     g_stage2Door.h = 101;
-    g_stage2Door.x = 1670;
-    g_stage2Door.y = 188 - g_stage2Door.h + 7;
+    g_stage2Door.x = 1871;
+    g_stage2Door.y = 332 - g_stage2Door.h + 7;
     g_stage2Door.frameIndex = 0;
     g_stage2Door.tick = 0;
 
@@ -1871,6 +1904,9 @@ void UpdatePowerProjectile()
 
 void UpdateKirbyPosition(HWND hWnd)
 {
+    if (isGameOver)
+        return;
+
     if (isAbsorb)
     {
         return;
@@ -1953,8 +1989,9 @@ void UpdateKirbyPosition(HWND hWnd)
         if (kirbyY < 0)
             kirbyY = 0;
 
-        if (kirbyY + kirbyH > WORLD_H)
-            kirbyY = WORLD_H - kirbyH;
+        // 아래쪽은 막지 않음. 구멍이나 화면 아래로 빠지면 낙사 처리
+        if (IsKirbyBelowDeathLine())
+            StartKirbyFallGameOver();
 
         return;
     }
@@ -2037,11 +2074,11 @@ void UpdateKirbyPosition(HWND hWnd)
         isOnGround = true;
     }
 
-    if (kirbyY + kirbyH > WORLD_H)
+    // 예전처럼 WORLD_H에서 멈추게 하면 구멍으로 떨어져도 바닥에 붙어버림.
+    // 이제는 아래로 충분히 빠지면 게임오버 처리함.
+    if (IsKirbyBelowDeathLine())
     {
-        kirbyY = WORLD_H - kirbyH;
-        kirbyVY = 0;
-        isOnGround = true;
+        StartKirbyFallGameOver();
     }
 }
 
@@ -2296,11 +2333,57 @@ public:
         bombDropCooldown = 100;
     }
 
+    bool HasSafeGroundBelowX(int testX)
+    {
+        int blockCount = 0;
+        SolidBlock* blocks = GetCurrentSolidBlocks(&blockCount);
+
+        for (int i = 0; i < blockCount; i++)
+        {
+            RECT block = blocks[i].rc;
+
+            if (testX >= block.left + 6 && testX <= block.right - 6 && block.top >= y)
+                return true;
+        }
+
+        return false;
+    }
+
+    bool HasGroundAhead(int nextX)
+    {
+        int footX;
+
+        if (dir < 0)
+            footX = nextX + MONSTER_HIT_LEFT - 6;
+        else
+            footX = nextX + w - MONSTER_HIT_RIGHT + 6;
+
+        int footY = y + h - MONSTER_HIT_BOTTOM;
+
+        RECT probe;
+        probe.left = footX - 3;
+        probe.right = footX + 3;
+        probe.top = footY + 2;
+        probe.bottom = footY + 34;
+
+        return HitSolidBlock(probe, NULL);
+    }
+
     void UpdateFlyingBombMonster()
     {
         TryBombDropAttack();
 
-        x += speed * dir;
+        int nextX = x + speed * dir;
+
+        // 3스테이지 폭탄 몬스터도 구멍 위로 계속 넘어가지 않게,
+        // 아래에 발판/땅이 없는 쪽으로 가려 하면 방향을 바꿈.
+        if (g_currentStage == 3 && !HasSafeGroundBelowX(nextX + w / 2))
+        {
+            dir *= -1;
+            nextX = x + speed * dir;
+        }
+
+        x = nextX;
 
         if (x < leftLimit)
         {
@@ -2374,12 +2457,15 @@ public:
             }
         }
 
-        // 새 배경 높이(495)에 맞춰 몬스터가 바닥 아래로 끝없이 떨어지는 것을 막음
-        if (y + h > WORLD_H)
+        // 몬스터가 구멍 아래로 떨어지면 완전히 제거
+        if (y > WORLD_H + 80)
         {
-            y = WORLD_H - h;
-            vy = 0;
-            onGround = true;
+            active = false;
+            isDeadEffect = false;
+            isAttack = false;
+            isJumpAttack = false;
+            vy = 0.0f;
+            return;
         }
     }
 
@@ -2665,6 +2751,14 @@ public:
         }
 
         int nextX = x + speed * dir;
+
+        // 땅 몬스터는 발판 끝이나 구멍 쪽으로 계속 걸어가지 않고 되돌아감
+        if (onGround && !HasGroundAhead(nextX))
+        {
+            dir *= -1;
+            nextX = x + speed * dir;
+        }
+
         RECT nextHitX = GetMonsterHitBox(nextX, y, w, h);
         RECT hitBlock;
 
@@ -2764,9 +2858,9 @@ void InitMonsters()
     if (g_currentStage == 3)
     {
         // 3스테이지: 날아다니는 폭탄 몬스터 3마리
-        g_monsters[0].Init(300, 255, 210, 530, 1, 2);
-        g_monsters[1].Init(800, 150, 720, 945, -1, 2);
-        g_monsters[2].Init(1320, 250, 1160, 1520, 1, 2);
+        g_monsters[0].Init(300, 255, 255, 640, 1, 2);
+        g_monsters[1].Init(820, 150, 790, 945, -1, 2);
+        g_monsters[2].Init(1320, 250, 1185, 1495, 1, 2);
         g_monsters[3].Init(1770, 150, 1635, 1900, -1, 2);
         g_monsters[3].active = false; // 요청대로 실제 배치는 3마리만 사용
         g_monsters[4].active = false;
@@ -5045,7 +5139,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
                 if (gameOverTick >= GAME_OVER_DELAY)
                 {
-                    MessageBox(hWnd, L"체력이 0%가 되었습니다. 게임 오버!", L"GAME OVER", MB_OK);
+                    if (g_kirbyFallGameOver)
+                        MessageBox(hWnd, L"아래로 떨어졌습니다. 게임 오버!", L"GAME OVER", MB_OK);
+                    else
+                        MessageBox(hWnd, L"체력이 0%가 되었습니다. 게임 오버!", L"GAME OVER", MB_OK);
+
                     DestroyWindow(hWnd);
                     return 0;
                 }
@@ -5593,7 +5691,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 absorbFrontEffectTick = 0;
             }
             break;
-        }
+        } 
 
         InvalidateRect(hWnd, NULL, FALSE);
         break;
