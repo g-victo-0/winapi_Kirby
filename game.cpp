@@ -609,30 +609,32 @@ SolidBlock g_stage3SolidBlocks[] =
     // =========================
 
     // PNG90 첫 번째 구간: x = 0 ~ 999
-    { { 35, 535, 225, 650 }, L"S3_90_LEFT_BOTTOM_GROUND" },
-    { { 135, 388, 292, 424 }, L"S3_90_LEFT_LEDGE" },
-    { { 250, 398, 665, 430 }, L"S3_90_CENTER_LONG_LEDGE" },
-    { { 250, 430, 690, 650 }, L"S3_90_CENTER_GROUND" },
-    { { 690, 295, 735, 650 }, L"S3_90_CENTER_PILLAR" },
-    { { 775, 392, 970, 430 }, L"S3_90_RIGHT_LEDGE" },
-    { { 775, 430, 1000, 650 }, L"S3_90_RIGHT_GROUND" },
-    { { 820, 138, 946, 168 }, L"S3_90_TOP_LEDGE" },
+    { { 0, 585, 265, 650 }, L"S3_90_LEFT_BOTTOM_GROUND" },
+    { { 410, 586, 464, 650 }, L"S3_90_LEFT_LEDGE" },
+    { { 498, 565, 553, 650 }, L"S3_90_CENTER_LONG_LEDGE" },
+    { { 644, 539, 702, 650 }, L"S3_90_CENTER_GROUND" },
+    { { 718, 539, 791, 650 }, L"S3_90_CENTER_PILLAR" },
+    { { 806, 539, 875, 650 }, L"S3_90_RIGHT_LEDGE" },
+    { { 892, 539, 1000, 650 }, L"S3_90_RIGHT_GROUND" },
+   
 
     // 화면 끝에 걸리는 정도만 막는 얇은 벽
     // 예전처럼 x=0~115, x=945~1000 전체를 막으면 충돌범위가 너무 어색하게 커짐
     { { 0, 0, 12, 650 }, L"S3_90_LEFT_LIMIT" },
 
     // PNG91 두 번째 구간: x = 1000 ~ 1999
-    { { 1040, 530, 1245, 650 }, L"S3_91_LEFT_BOTTOM_GROUND" },
-    { { 1165, 390, 1515, 425 }, L"S3_91_MAIN_LEDGE" },
-    { { 1165, 425, 1545, 650 }, L"S3_91_MAIN_GROUND" },
-    { { 1535, 295, 1590, 650 }, L"S3_91_CENTER_PILLAR" },
-    { { 1635, 390, 1855, 425 }, L"S3_91_RIGHT_LEDGE" },
+    { { 1000, 536, 2000, 650 }, L"S3_90_TOP_LEDGE" },
+    { { 1182, 406, 2000, 650 }, L"S3_91_LEFT_BOTTOM_GROUND" },
+    { { 1143, 476, 1190, 491 }, L"S3_91_MAIN_LEDGE" },
+    { { 1100, 406, 1187, 424 }, L"S3_91_MAIN_GROUNDWOOD" },
+    { { 1186, 406, 2000 , 650 }, L"S3_91_CENTER_PILLAR" },
+
+    { { 1852, 288, 1855, 425 }, L"S3_91_RIGHT_LEDGE" },
     { { 1635, 425, 2000, 650 }, L"S3_91_RIGHT_GROUND" },
     { { 1800, 205, 1960, 238 }, L"S3_91_TOP_LEDGE" },
 
     // 맵 끝 벽만 얇게
-    { { 1988, 0, 2000, 650 }, L"S3_91_RIGHT_LIMIT" }
+    { { 1900, 0, 2000, 650 }, L"S3_91_RIGHT_LIMIT" }
 };
 
 int g_stage3SolidBlockCount = sizeof(g_stage3SolidBlocks) / sizeof(g_stage3SolidBlocks[0]);
