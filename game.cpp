@@ -76,6 +76,9 @@ StageDoor g_stage2Door;
 int g_stage2ChildTotal = STAGE2_CHILD_COUNT;
 int g_stage2ChildRescued = 0;
 
+// 3스테이지 문 상태. 3스테이지는 구출 없이 문만 적당한 위치에 배치
+StageDoor g_stage3Door;
+
 int g_currentStage = 1;
 bool g_isChangingMap = false;
 int g_rescueAnimTick = 0;
@@ -129,6 +132,12 @@ Bitmap* g_stage2BackgroundFrontScaled = NULL;
 // 89번: 2스테이지 뒤쪽 배경(달 없는 곳)
 Image* g_stage2BackgroundBack = NULL;
 Bitmap* g_stage2BackgroundBackScaled = NULL;
+
+// 90~91번: 3스테이지 배경
+Image* g_stage3BackgroundFront = NULL;
+Bitmap* g_stage3BackgroundFrontScaled = NULL;
+Image* g_stage3BackgroundBack = NULL;
+Bitmap* g_stage3BackgroundBackScaled = NULL;
 
 // 24번: 몬스터를 먹은 뒤 커진 커비 가만히 있는 프레임
 Image* g_powerIdleFrame = NULL;
@@ -577,12 +586,60 @@ SolidBlock g_stage2SolidBlocks[] =
 
 int g_stage2SolidBlockCount = sizeof(g_stage2SolidBlocks) / sizeof(g_stage2SolidBlocks[0]);
 
+// =========================
+// 3스테이지 충돌체: 90번(0~999), 91번(1000~1999)
+// 90/91 배경을 BG_PART_W x BG_PART_H로 늘려 그리는 기준 좌표
+// =========================
+SolidBlock g_stage3SolidBlocks[] =
+{
+    // =========================
+    // 3스테이지 충돌체 수정본
+    // 큰 네모로 막지 않고, 실제 발판/기둥 위주로 작게 잡음
+    // F1 디버그 빨간 박스가 너무 커 보이던 부분을 줄임
+    // =========================
+
+    // PNG90 첫 번째 구간: x = 0 ~ 999
+    { { 35, 535, 225, 650 }, L"S3_90_LEFT_BOTTOM_GROUND" },
+    { { 135, 388, 292, 424 }, L"S3_90_LEFT_LEDGE" },
+    { { 250, 398, 665, 430 }, L"S3_90_CENTER_LONG_LEDGE" },
+    { { 250, 430, 690, 650 }, L"S3_90_CENTER_GROUND" },
+    { { 690, 295, 735, 650 }, L"S3_90_CENTER_PILLAR" },
+    { { 775, 392, 970, 430 }, L"S3_90_RIGHT_LEDGE" },
+    { { 775, 430, 1000, 650 }, L"S3_90_RIGHT_GROUND" },
+    { { 820, 138, 946, 168 }, L"S3_90_TOP_LEDGE" },
+
+    // 화면 끝에 걸리는 정도만 막는 얇은 벽
+    // 예전처럼 x=0~115, x=945~1000 전체를 막으면 충돌범위가 너무 어색하게 커짐
+    { { 0, 0, 12, 650 }, L"S3_90_LEFT_LIMIT" },
+
+    // PNG91 두 번째 구간: x = 1000 ~ 1999
+    // 90/91 연결부는 크게 막지 않음. 자연스럽게 넘어가게 일부러 왼쪽 벽 제거.
+    { { 1040, 530, 1245, 650 }, L"S3_91_LEFT_BOTTOM_GROUND" },
+    { { 1165, 390, 1515, 425 }, L"S3_91_MAIN_LEDGE" },
+    { { 1165, 425, 1545, 650 }, L"S3_91_MAIN_GROUND" },
+    { { 1535, 295, 1590, 650 }, L"S3_91_CENTER_PILLAR" },
+    { { 1635, 390, 1855, 425 }, L"S3_91_RIGHT_LEDGE" },
+    { { 1635, 425, 2000, 650 }, L"S3_91_RIGHT_GROUND" },
+    { { 1800, 205, 1960, 238 }, L"S3_91_TOP_LEDGE" },
+
+    // 맵 끝 벽만 얇게
+    { { 1988, 0, 2000, 650 }, L"S3_91_RIGHT_LIMIT" }
+};
+
+int g_stage3SolidBlockCount = sizeof(g_stage3SolidBlocks) / sizeof(g_stage3SolidBlocks[0]);
+
 SolidBlock* GetCurrentSolidBlocks(int* count)
 {
     if (g_currentStage == 2)
     {
         *count = g_stage2SolidBlockCount;
         return g_stage2SolidBlocks;
+    }
+
+    if (g_currentStage == 3)
+    {
+        *count = g_stage3SolidBlockCount;
+        return g_stage3SolidBlocks;
     }
 
     *count = g_solidBlockCount;
@@ -1510,10 +1567,26 @@ void InitStage2RescueObjects()
     g_stage2ChildRescued = 0;
 }
 
+void InitStage3RescueObjects()
+{
+    // 3스테이지 오른쪽 위쪽 발판에 문 배치
+    g_stage3Door.active = true;
+    g_stage3Door.opening = false;
+    g_stage3Door.opened = true;
+    g_stage3Door.w = 81;
+    g_stage3Door.h = 101;
+    g_stage3Door.x = 1875;
+    g_stage3Door.y = 205 - g_stage3Door.h + 7;
+    g_stage3Door.frameIndex = DOOR_FRAME_COUNT - 1;
+    g_stage3Door.tick = 0;
+}
+
 void InitRescueObjects()
 {
     if (g_currentStage == 2)
         InitStage2RescueObjects();
+    else if (g_currentStage == 3)
+        InitStage3RescueObjects();
     else
         InitStage1RescueObjects();
 
@@ -1619,6 +1692,12 @@ void UpdateRescueObjects()
         }
 
         UpdateDoorOpen(&g_stage2Door);
+        return;
+    }
+
+    if (g_currentStage == 3)
+    {
+        UpdateDoorOpen(&g_stage3Door);
     }
 }
 
@@ -1652,14 +1731,24 @@ void GoNextMap(HWND hWnd)
         return;
     }
 
-    // 2스테이지 이후 맵은 아직 연결 전. 문에 들어가면 일단 시작 위치로 정지.
     if (g_currentStage == 2)
     {
-        kirbyX = 70;
-        kirbyY = 330;
+        // 2스테이지 문에 들어가면 3스테이지로 이동
+        g_currentStage = 3;
+        kirbyX = 145;
+        kirbyY = 500;
         kirbyVY = 0.0f;
         cameraX = 0;
+        InitRescueObjects();
+        InitMonsters();
         UpdateCamera(hWnd);
+        g_isChangingMap = false;
+        return;
+    }
+
+    if (g_currentStage == 3)
+    {
+        // 3스테이지 이후는 아직 다음 맵 연결 전
         g_isChangingMap = false;
     }
 }
@@ -1687,6 +1776,19 @@ void CheckDoorTouch(HWND hWnd)
             return;
 
         RECT doorRc = GetDoorRect(g_stage2Door);
+        if (IsRectHit(kirbyRc, doorRc))
+        {
+            GoNextMap(hWnd);
+        }
+        return;
+    }
+
+    if (g_currentStage == 3)
+    {
+        if (!g_stage3Door.active || !g_stage3Door.opened)
+            return;
+
+        RECT doorRc = GetDoorRect(g_stage3Door);
         if (IsRectHit(kirbyRc, doorRc))
         {
             GoNextMap(hWnd);
@@ -1736,6 +1838,12 @@ void DrawRescueObjects(Graphics& graphics)
         {
             DrawChildObject(graphics, g_stage2Children[i], g_stage2ChildFrameType[i]);
         }
+        return;
+    }
+
+    if (g_currentStage == 3)
+    {
+        DrawDoorObject(graphics, g_stage3Door);
     }
 }
 
@@ -2650,6 +2758,18 @@ void InitMonsters()
         g_monsters[2].Init(1450, 285, 1425, 1685, -1, 1);
         g_monsters[3].Init(1815, 360, 1685, 1885, 1, 1);
         g_monsters[4].Init(1780, 145, 1690, 1880, 1, 2);
+        return;
+    }
+
+    if (g_currentStage == 3)
+    {
+        // 3스테이지: 날아다니는 폭탄 몬스터 3마리
+        g_monsters[0].Init(300, 255, 210, 530, 1, 2);
+        g_monsters[1].Init(800, 150, 720, 945, -1, 2);
+        g_monsters[2].Init(1320, 250, 1160, 1520, 1, 2);
+        g_monsters[3].Init(1770, 150, 1635, 1900, -1, 2);
+        g_monsters[3].active = false; // 요청대로 실제 배치는 3마리만 사용
+        g_monsters[4].active = false;
         return;
     }
 }
@@ -3922,10 +4042,18 @@ void LoadAllImages(HWND hWnd)
     g_background2 = LoadPNGFromResource(g_hInst, IDB_PNG23);
     g_stage2BackgroundFront = LoadPNGFromResource(g_hInst, IDB_PNG88);
     g_stage2BackgroundBack = LoadPNGFromResource(g_hInst, IDB_PNG89);
+
+    // 3스테이지 배경.
+    // 여기 빠져 있으면 90/91 리소스를 넣어도 게임에서는 NULL이 돼서 파란 fallback 배경만 나옴.
+    g_stage3BackgroundFront = LoadPNGFromResource(g_hInst, IDB_PNG90);
+    g_stage3BackgroundBack = LoadPNGFromResource(g_hInst, IDB_PNG91);
+
     g_backgroundScaled = CreateScaledBitmap(g_background, BG_PART_W, BG_PART_H);
     g_background2Scaled = CreateScaledBitmap(g_background2, BG_PART_W, BG_PART_H);
     g_stage2BackgroundFrontScaled = CreateScaledBitmap(g_stage2BackgroundFront, BG_PART_W, BG_PART_H);
     g_stage2BackgroundBackScaled = CreateScaledBitmap(g_stage2BackgroundBack, BG_PART_W, BG_PART_H);
+    g_stage3BackgroundFrontScaled = CreateScaledBitmap(g_stage3BackgroundFront, BG_PART_W, BG_PART_H);
+    g_stage3BackgroundBackScaled = CreateScaledBitmap(g_stage3BackgroundBack, BG_PART_W, BG_PART_H);
 
     g_powerIdleFrame = LoadPNGFromResource(g_hInst, IDB_PNG24);
 
@@ -4134,6 +4262,18 @@ void DeleteAllImages()
         g_stage2BackgroundBackScaled = NULL;
     }
 
+    if (g_stage3BackgroundFrontScaled != NULL)
+    {
+        delete g_stage3BackgroundFrontScaled;
+        g_stage3BackgroundFrontScaled = NULL;
+    }
+
+    if (g_stage3BackgroundBackScaled != NULL)
+    {
+        delete g_stage3BackgroundBackScaled;
+        g_stage3BackgroundBackScaled = NULL;
+    }
+
     if (g_background != NULL)
     {
         delete g_background;
@@ -4156,6 +4296,18 @@ void DeleteAllImages()
     {
         delete g_stage2BackgroundBack;
         g_stage2BackgroundBack = NULL;
+    }
+
+    if (g_stage3BackgroundFront != NULL)
+    {
+        delete g_stage3BackgroundFront;
+        g_stage3BackgroundFront = NULL;
+    }
+
+    if (g_stage3BackgroundBack != NULL)
+    {
+        delete g_stage3BackgroundBack;
+        g_stage3BackgroundBack = NULL;
     }
 
     if (g_powerIdleFrame != NULL)
@@ -4545,6 +4697,12 @@ void DrawScene(HDC hdc, HWND hWnd)
         bg1Image = (g_stage2BackgroundFrontScaled != NULL) ? (Image*)g_stage2BackgroundFrontScaled : g_stage2BackgroundFront;
         bg2Image = (g_stage2BackgroundBackScaled != NULL) ? (Image*)g_stage2BackgroundBackScaled : g_stage2BackgroundBack;
     }
+    else if (g_currentStage == 3)
+    {
+        // 3스테이지: 90번 + 91번
+        bg1Image = (g_stage3BackgroundFrontScaled != NULL) ? (Image*)g_stage3BackgroundFrontScaled : g_stage3BackgroundFront;
+        bg2Image = (g_stage3BackgroundBackScaled != NULL) ? (Image*)g_stage3BackgroundBackScaled : g_stage3BackgroundBack;
+    }
     else
     {
         bg1Image = (g_backgroundScaled != NULL) ? (Image*)g_backgroundScaled : g_background;
@@ -4557,9 +4715,15 @@ void DrawScene(HDC hdc, HWND hWnd)
     }
     else if (bg1Image == NULL)
     {
-        HBRUSH bgBrush = CreateSolidBrush(RGB(180, 220, 255));
+        // 배경 리소스 로드 실패 시 파란 화면으로 보이지 않게 검은색으로 처리
+        HBRUSH bgBrush = CreateSolidBrush(RGB(0, 0, 0));
         FillRect(memDC, &rt, bgBrush);
         DeleteObject(bgBrush);
+
+        SetBkMode(memDC, TRANSPARENT);
+        SetTextColor(memDC, RGB(255, 80, 180));
+        if (g_currentStage == 3)
+            TextOut(memDC, 20, 20, L"3스테이지 배경 IDB_PNG90 / IDB_PNG91 로드 실패", 42);
     }
 
     if (bg2Image != NULL && bg2X + BG_PART_W > 0 && bg2X < rt.right)

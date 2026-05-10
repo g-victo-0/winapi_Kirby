@@ -262,6 +262,8 @@
     <Image Include="..\..\..\Desktop\풀 숲 배경.png" />
     <Image Include="..\..\..\Desktop\풀 올라가기 배경.png" />
     <Image Include="..\..\..\Downloads\Game-Boy-Advance-Kirby-_-the-Amazing-Mirror-Playable-Characters-Beam-Kirby-_1_.png" />
+    <Image Include="res\3스테이지 배경 2.png" />
+    <Image Include="res\3스테이지 배경.png" />
     <Image Include="res\기몬 맵 공격2.png" />
     <Image Include="res\기본 맵 걸어.png" />
     <Image Include="res\기본 맵 공격1.png" />
