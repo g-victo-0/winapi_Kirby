@@ -1,11 +1,42 @@
 #include "Game.h"
 #include "resource.h"
 #include <mmsystem.h>
+#include <stdlib.h>
+#include <time.h>
 
 #pragma comment(lib, "gdiplus.lib")
 #pragma comment(lib, "winmm.lib")
 
 using namespace Gdiplus;
+
+
+#ifndef IDB_PNG93
+#define IDB_PNG93 93
+#endif
+#ifndef IDB_PNG94
+#define IDB_PNG94 94
+#endif
+#ifndef IDB_PNG95
+#define IDB_PNG95 95
+#endif
+#ifndef IDB_PNG96
+#define IDB_PNG96 96
+#endif
+#ifndef IDB_PNG97
+#define IDB_PNG97 97
+#endif
+#ifndef IDB_PNG98
+#define IDB_PNG98 98
+#endif
+#ifndef IDB_PNG99
+#define IDB_PNG99 99
+#endif
+#ifndef IDB_PNG100
+#define IDB_PNG100 100
+#endif
+#ifndef IDB_PNG101
+#define IDB_PNG101 101
+#endif
 
 
 HINSTANCE g_hInst;
@@ -138,6 +169,21 @@ Image* g_stage3BackgroundFront = NULL;
 Bitmap* g_stage3BackgroundFrontScaled = NULL;
 Image* g_stage3BackgroundBack = NULL;
 Bitmap* g_stage3BackgroundBackScaled = NULL;
+
+// 92번: 마지막 4스테이지 / 보스전 배경
+Image* g_stage4Background = NULL;
+Bitmap* g_stage4BackgroundScaled = NULL;
+
+// 93~101번: 4스테이지 보스 관련 프레임
+Image* g_bossMissilePoseFrame = NULL; // 93번: 미사일 공격 자세
+Image* g_bossDashFrame = NULL;        // 94번: 대각선 돌진
+Image* g_bossIdleMoveFrame = NULL;    // 95번: 보스 기본/이동
+Image* g_bossMissileFrame = NULL;     // 96번: 미사일
+Image* g_bossMouthBombFrame = NULL;   // 97번: 입에서 떨어지는 폭탄
+Image* g_bossTopAttackFrame = NULL;   // 98번: 위쪽 폭탄 공격 자세
+Image* g_bossPhase2Frame = NULL;      // 99번: 2페이즈 기본 모습
+Image* g_bossRainAttackFrame = NULL;  // 100번: 하늘 공격
+Image* g_bossRainBombFrame = NULL;    // 101번: 하늘에서 떨어지는 폭탄
 
 // 24번: 몬스터를 먹은 뒤 커진 커비 가만히 있는 프레임
 Image* g_powerIdleFrame = NULL;
@@ -616,7 +662,7 @@ SolidBlock g_stage3SolidBlocks[] =
     { { 718, 539, 791, 650 }, L"S3_90_CENTER_PILLAR" },
     { { 806, 539, 875, 650 }, L"S3_90_RIGHT_LEDGE" },
     { { 892, 539, 1000, 650 }, L"S3_90_RIGHT_GROUND" },
-   
+
 
     // 화면 끝에 걸리는 정도만 막는 얇은 벽
     // 예전처럼 x=0~115, x=945~1000 전체를 막으면 충돌범위가 너무 어색하게 커짐
@@ -639,6 +685,20 @@ SolidBlock g_stage3SolidBlocks[] =
 
 int g_stage3SolidBlockCount = sizeof(g_stage3SolidBlocks) / sizeof(g_stage3SolidBlocks[0]);
 
+// =========================
+// 4스테이지 충돌체: 92번 보스전 배경
+// 보스전용이라 바닥 하나만 길게 깔아둠
+// =========================
+SolidBlock g_stage4SolidBlocks[] =
+{
+    // 4스테이지는 92번 배경 하나만 사용하는 보스전 맵이라 x = 0 ~ 1000까지만 사용
+    { { 0, 545, 1000, 650 }, L"S4_BOSS_GROUND" },
+    { { 0, 0, 12, 650 }, L"S4_LEFT_LIMIT" },
+    { { 988, 0, 1000, 650 }, L"S4_RIGHT_LIMIT" }
+};
+
+int g_stage4SolidBlockCount = sizeof(g_stage4SolidBlocks) / sizeof(g_stage4SolidBlocks[0]);
+
 SolidBlock* GetCurrentSolidBlocks(int* count)
 {
     if (g_currentStage == 2)
@@ -653,6 +713,12 @@ SolidBlock* GetCurrentSolidBlocks(int* count)
         return g_stage3SolidBlocks;
     }
 
+    if (g_currentStage == 4)
+    {
+        *count = g_stage4SolidBlockCount;
+        return g_stage4SolidBlocks;
+    }
+
     *count = g_solidBlockCount;
     return g_solidBlocks;
 }
@@ -664,6 +730,14 @@ const int BG_PART_W = 1000;
 const int BG_PART_H = 650;
 const int WORLD_W = BG_PART_W * 2;
 const int WORLD_H = BG_PART_H;
+
+int GetCurrentWorldW()
+{
+    if (g_currentStage == 4)
+        return BG_PART_W;
+
+    return WORLD_W;
+}
 
 int cameraX = 0;
 
@@ -1163,8 +1237,10 @@ void SetKirbyPowerSizeKeepBottom()
     if (kirbyY < 0)
         kirbyY = 0;
 
-    if (kirbyX + kirbyW > WORLD_W)
-        kirbyX = WORLD_W - kirbyW;
+    int currentWorldW = GetCurrentWorldW();
+
+    if (kirbyX + kirbyW > currentWorldW)
+        kirbyX = currentWorldW - kirbyW;
 
     if (kirbyY + kirbyH > WORLD_H)
         kirbyY = WORLD_H - kirbyH;
@@ -1353,7 +1429,7 @@ void UpdateFireKirbyStates()
         fireBallPrevX = fireBallX;
         fireBallX += fireBallSpeed * fireBallDir;
 
-        if (fireBallX + fireBallW < 0 || fireBallX > WORLD_W)
+        if (fireBallX + fireBallW < 0 || fireBallX > GetCurrentWorldW())
             isFireBallActive = false;
     }
 }
@@ -1405,7 +1481,7 @@ void UpdateEnemyFireBalls()
         g_enemyFireBalls[i].x += g_enemyFireBalls[i].speed * g_enemyFireBalls[i].dir;
 
         if (g_enemyFireBalls[i].x + g_enemyFireBalls[i].w < 0 ||
-            g_enemyFireBalls[i].x > WORLD_W)
+            g_enemyFireBalls[i].x > GetCurrentWorldW())
         {
             g_enemyFireBalls[i].active = false;
         }
@@ -1538,6 +1614,12 @@ RECT GetDoorRect(StageDoor door)
 
 void InitMonsters();
 
+void InitBossObjects();
+void UpdateBossObjects();
+void DrawBossObjects(Graphics& graphics);
+void CheckKirbyAttacksHitBoss();
+void ResetBossProjectiles();
+
 void InitStage1RescueObjects()
 {
     // 81번 남자 아이: 두 번째 나무 발판 위쪽에 배치
@@ -1574,7 +1656,7 @@ void InitStage2RescueObjects()
     }
 
     // 88번 달 있는 앞쪽 맵
-    g_stage2Children[0].x = 105 ;
+    g_stage2Children[0].x = 105;
     g_stage2Children[0].y = 370 - g_stage2Children[0].h + 7;
 
     g_stage2Children[1].x = 530;
@@ -1622,6 +1704,10 @@ void InitRescueObjects()
         InitStage2RescueObjects();
     else if (g_currentStage == 3)
         InitStage3RescueObjects();
+    else if (g_currentStage == 4)
+    {
+        // 4스테이지는 보스전 배경만 먼저 사용. 문/학생 없음.
+    }
     else
         InitStage1RescueObjects();
 
@@ -1783,7 +1869,21 @@ void GoNextMap(HWND hWnd)
 
     if (g_currentStage == 3)
     {
-        // 3스테이지 이후는 아직 다음 맵 연결 전
+        // 3스테이지 문에 들어가면 마지막 4스테이지/보스전으로 이동
+        g_currentStage = 4;
+        kirbyX = 80;
+        kirbyY = 480;
+        kirbyVY = 0.0f;
+        cameraX = 0;
+        InitRescueObjects();
+        InitMonsters();
+        UpdateCamera(hWnd);
+        g_isChangingMap = false;
+        return;
+    }
+
+    if (g_currentStage == 4)
+    {
         g_isChangingMap = false;
     }
 }
@@ -1898,7 +1998,7 @@ void UpdatePowerProjectile()
         return;
 
     // 화면 밖이 아니라 전체 월드 밖으로 나가면 제거
-    if (powerProjectileX + powerProjectileW < 0 || powerProjectileX > WORLD_W)
+    if (powerProjectileX + powerProjectileW < 0 || powerProjectileX > GetCurrentWorldW())
     {
         isPowerProjectileActive = false;
     }
@@ -1985,8 +2085,10 @@ void UpdateKirbyPosition(HWND hWnd)
         if (kirbyX < 0)
             kirbyX = 0;
 
-        if (kirbyX + kirbyW > WORLD_W)
-            kirbyX = WORLD_W - kirbyW;
+        int currentWorldW = GetCurrentWorldW();
+
+        if (kirbyX + kirbyW > currentWorldW)
+            kirbyX = currentWorldW - kirbyW;
 
         if (kirbyY < 0)
             kirbyY = 0;
@@ -2034,8 +2136,10 @@ void UpdateKirbyPosition(HWND hWnd)
     if (kirbyX < 0)
         kirbyX = 0;
 
-    if (kirbyX + kirbyW > WORLD_W)
-        kirbyX = WORLD_W - kirbyW;
+    int currentWorldW = GetCurrentWorldW();
+
+    if (kirbyX + kirbyW > currentWorldW)
+        kirbyX = currentWorldW - kirbyW;
 
     kirbyVY += gravity;
 
@@ -2105,8 +2209,14 @@ void UpdateCamera(HWND hWnd)
     if (cameraX < 0)
         cameraX = 0;
 
-    if (cameraX > WORLD_W - screenW)
-        cameraX = WORLD_W - screenW;
+    int currentWorldW = GetCurrentWorldW();
+    int maxCameraX = currentWorldW - screenW;
+
+    if (maxCameraX < 0)
+        maxCameraX = 0;
+
+    if (cameraX > maxCameraX)
+        cameraX = maxCameraX;
 }
 
 class Monster
@@ -2868,6 +2978,13 @@ void InitMonsters()
         g_monsters[4].active = false;
         return;
     }
+
+    if (g_currentStage == 4)
+    {
+        // 4스테이지 보스전: 일반 몬스터는 쓰지 않고 보스만 초기화
+        InitBossObjects();
+        return;
+    }
 }
 
 void StartBombKirbyTransform();
@@ -3233,9 +3350,11 @@ void UpdateAbilityStar()
         abilityStarVX = -abilityStarVX;
     }
 
-    if (abilityStarX + abilityStarW > WORLD_W)
+    int currentWorldW = GetCurrentWorldW();
+
+    if (abilityStarX + abilityStarW > currentWorldW)
     {
-        abilityStarX = (float)(WORLD_W - abilityStarW);
+        abilityStarX = (float)(currentWorldW - abilityStarW);
         abilityStarVX = -abilityStarVX;
     }
 }
@@ -3531,7 +3650,7 @@ void UpdateBombObjects()
             continue;
         }
 
-        if (g_bombs[i].x + g_bombs[i].w < 0 || g_bombs[i].x > WORLD_W || g_bombs[i].y > WORLD_H + 100)
+        if (g_bombs[i].x + g_bombs[i].w < 0 || g_bombs[i].x > GetCurrentWorldW() || g_bombs[i].y > WORLD_H + 100)
         {
             g_bombs[i].active = false;
         }
@@ -3836,6 +3955,738 @@ void Monster::Draw(Graphics& graphics)
         DrawWorldImage(graphics, frame, x, y, w, h);
     }
 }
+
+
+// =========================
+// 4스테이지 보스전
+// 95: 기본/이동, 93: 미사일 공격 자세, 96: 미사일
+// 94: 대각선 돌진, 99: 2페이즈 기본, 98: 2페이즈 상단 폭탄 자세, 97: 입 폭탄
+// 100/101: 보스맵 입장 후 계속 위에서 떨어지는 공격
+// =========================
+const int BOSS_MAX_HP = 360;
+const int BOSS_W = 72;   // 커비 기본 크기 48의 1.5배
+const int BOSS_H = 72;   // 커비 기본 크기 48의 1.5배
+const int BOSS_PHASE2_W = 200; // 2페이즈 99번 모습을 더 크게 표시
+const int BOSS_PHASE2_H = 95;
+const int BOSS_GROUND_Y = 545 - BOSS_H;
+const int BOSS_PHASE2_GROUND_Y = 545 - BOSS_PHASE2_H;
+const int BOSS_TOP_Y = 65;
+const float BOSS_DASH_GRAVITY = 0.42f;
+
+enum BossState
+{
+    BOSS_STATE_IDLE = 0,
+    BOSS_STATE_MISSILE = 1,
+    BOSS_STATE_DASH = 2,
+    BOSS_STATE_TOP_BOMB = 3,
+    BOSS_STATE_RISE_TOP = 4,
+    BOSS_STATE_DESCEND = 5
+};
+
+struct BossObject
+{
+    bool active;
+    bool phase2;
+    int hp;
+    int x;
+    int y;
+    int w;
+    int h;
+    int dir;
+    int state;
+    int actionTick;
+    int missileCooldown;
+    int dashCooldown;
+    int topBombCooldown;
+    int hitCooldown;
+    float vx;
+    float vy;
+};
+
+BossObject g_boss;
+
+const int BOSS_PROJECTILE_MAX = 40;
+struct BossProjectile
+{
+    bool active;
+    int type; // 0=96 미사일, 1=97 입 폭탄, 2=100 낙하 공격, 3=101 낙하 폭탄, 4=2페이즈 가로 공
+    int x;
+    int y;
+    int w;
+    int h;
+    float vx;
+    float vy;
+};
+
+BossProjectile g_bossProjectiles[BOSS_PROJECTILE_MAX];
+int g_bossRainAttackCooldown = 0;
+int g_bossRainBombCooldown = 0;
+int g_bossSideBallCooldown = 0;
+
+int RandomRange(int minValue, int maxValue)
+{
+    if (maxValue <= minValue)
+        return minValue;
+
+    return minValue + rand() % (maxValue - minValue + 1);
+}
+
+RECT GetBossRect()
+{
+    RECT rc;
+    rc.left = g_boss.x;
+    rc.top = g_boss.y;
+    rc.right = g_boss.x + g_boss.w;
+    rc.bottom = g_boss.y + g_boss.h;
+    return rc;
+}
+
+void ResetBossProjectiles()
+{
+    for (int i = 0; i < BOSS_PROJECTILE_MAX; i++)
+    {
+        g_bossProjectiles[i].active = false;
+        g_bossProjectiles[i].type = 0;
+        g_bossProjectiles[i].x = 0;
+        g_bossProjectiles[i].y = 0;
+        g_bossProjectiles[i].w = 0;
+        g_bossProjectiles[i].h = 0;
+        g_bossProjectiles[i].vx = 0.0f;
+        g_bossProjectiles[i].vy = 0.0f;
+    }
+}
+
+void FaceBossToKirby()
+{
+    int kirbyCenterX = kirbyX + kirbyW / 2;
+    int bossCenterX = g_boss.x + g_boss.w / 2;
+
+    if (kirbyCenterX < bossCenterX)
+        g_boss.dir = -1;
+    else
+        g_boss.dir = 1;
+}
+
+int GetBossGroundY()
+{
+    if (g_boss.phase2)
+        return BOSS_PHASE2_GROUND_Y;
+
+    return BOSS_GROUND_Y;
+}
+
+void StartBossPhase2()
+{
+    if (g_boss.phase2)
+        return;
+
+    int oldBottom = g_boss.y + g_boss.h;
+
+    g_boss.phase2 = true;
+    g_boss.w = BOSS_PHASE2_W;
+    g_boss.h = BOSS_PHASE2_H;
+    g_boss.y = oldBottom - g_boss.h;
+
+    if (g_boss.y > BOSS_PHASE2_GROUND_Y)
+        g_boss.y = BOSS_PHASE2_GROUND_Y;
+
+    if (g_boss.x + g_boss.w > BG_PART_W - 70)
+        g_boss.x = BG_PART_W - 70 - g_boss.w;
+
+    // 2페이즈부터는 미사일/대각선 돌진을 쓰지 않으므로 진행 중이면 정리
+    if (g_boss.state == BOSS_STATE_MISSILE || g_boss.state == BOSS_STATE_DASH)
+    {
+        g_boss.state = BOSS_STATE_IDLE;
+        g_boss.y = BOSS_PHASE2_GROUND_Y;
+        g_boss.vx = (float)(2 * g_boss.dir);
+        g_boss.vy = 0.0f;
+    }
+}
+
+void InitBossObjects()
+{
+    ResetBossProjectiles();
+
+    g_boss.active = true;
+    g_boss.phase2 = false;
+    g_boss.hp = BOSS_MAX_HP;
+    g_boss.w = BOSS_W;
+    g_boss.h = BOSS_H;
+    g_boss.x = 820;
+    g_boss.y = BOSS_GROUND_Y;
+    g_boss.dir = -1;
+    g_boss.state = BOSS_STATE_IDLE;
+    g_boss.actionTick = 0;
+    g_boss.missileCooldown = 45;
+    g_boss.dashCooldown = 110;
+    g_boss.topBombCooldown = 150;
+    g_boss.hitCooldown = 0;
+    g_boss.vx = -2.0f;
+    g_boss.vy = 0.0f;
+
+    g_bossRainAttackCooldown = 18;
+    g_bossRainBombCooldown = 35;
+    g_bossSideBallCooldown = 70;
+}
+
+void SpawnBossProjectile(int type, int x, int y, int w, int h, float vx, float vy)
+{
+    for (int i = 0; i < BOSS_PROJECTILE_MAX; i++)
+    {
+        if (!g_bossProjectiles[i].active)
+        {
+            g_bossProjectiles[i].active = true;
+            g_bossProjectiles[i].type = type;
+            g_bossProjectiles[i].x = x;
+            g_bossProjectiles[i].y = y;
+            g_bossProjectiles[i].w = w;
+            g_bossProjectiles[i].h = h;
+            g_bossProjectiles[i].vx = vx;
+            g_bossProjectiles[i].vy = vy;
+            return;
+        }
+    }
+}
+
+void SpawnBossMissile()
+{
+    if (!g_boss.active)
+        return;
+
+    int missileW = kirbyW * 2;
+    int missileH = kirbyH * 2;
+
+    FaceBossToKirby();
+
+    int missileX;
+    if (g_boss.dir < 0)
+        missileX = g_boss.x - missileW + 8;
+    else
+        missileX = g_boss.x + g_boss.w - 8;
+
+    int missileY = g_boss.y + g_boss.h / 2 - missileH / 2;
+
+    SpawnBossProjectile(0, missileX, missileY, missileW, missileH, 9.0f * g_boss.dir, 0.0f);
+}
+
+void SpawnBossRainAttack()
+{
+    // 100번 낙하 공격은 기존 크기의 절반 정도로 줄임
+    int x = RandomRange(30, BG_PART_W - 60);
+    SpawnBossProjectile(2, x, -40, 26, 26, 0.0f, 6.0f);
+}
+
+void SpawnBossRainBomb()
+{
+    // 101번 낙하 폭탄도 기존 크기의 절반 정도로 줄임
+    int x = RandomRange(30, BG_PART_W - 60);
+    SpawnBossProjectile(3, x, -45, 29, 29, 0.0f, 5.2f);
+}
+
+void SpawnBossSideBall()
+{
+    // 2페이즈부터 추가되는 가로 이동 공. 화면 왼쪽/오른쪽에서 랜덤하게 들어옴
+    int ballSize = 34;
+    int y = RandomRange(205, 430);
+    int dir = RandomRange(0, 1) == 0 ? 1 : -1;
+    int x = (dir > 0) ? -ballSize : BG_PART_W;
+
+    SpawnBossProjectile(4, x, y, ballSize, ballSize, 6.0f * dir, 0.0f);
+}
+
+void SpawnBossMouthBomb()
+{
+    if (!g_boss.active)
+        return;
+
+    int bombW = 54;
+    int bombH = 54;
+    int bombX = g_boss.x + g_boss.w / 2 - bombW / 2;
+    int bombY = g_boss.y + g_boss.h - 14;
+
+    SpawnBossProjectile(1, bombX, bombY, bombW, bombH, 0.0f, 5.8f);
+}
+
+void DamageBoss(int damage)
+{
+    if (g_currentStage != 4)
+        return;
+
+    if (!g_boss.active)
+        return;
+
+    if (damage <= 0)
+        return;
+
+    g_boss.hp -= damage;
+    g_boss.hitCooldown = 8;
+
+    if (g_boss.hp <= BOSS_MAX_HP / 2)
+        StartBossPhase2();
+
+    if (g_boss.hp <= 0)
+    {
+        g_boss.hp = 0;
+        g_boss.active = false;
+        ResetBossProjectiles();
+    }
+}
+
+void CheckKirbyAttacksHitBoss()
+{
+    if (g_currentStage != 4)
+        return;
+
+    if (!g_boss.active)
+        return;
+
+    if (g_boss.hitCooldown > 0)
+        return;
+
+    RECT bossRc = GetBossRect();
+
+    if (isPowerProjectileActive)
+    {
+        RECT powerRc = GetPowerProjectileSweepRect();
+        if (IsRectHit(powerRc, bossRc))
+        {
+            isPowerProjectileActive = false;
+            DamageBoss(35);
+            return;
+        }
+    }
+
+    if (isFireBallActive)
+    {
+        RECT fireBallRc = GetFireBallSweepRect();
+        if (IsRectHit(fireBallRc, bossRc))
+        {
+            isFireBallActive = false;
+            DamageBoss(18);
+            return;
+        }
+    }
+
+    if (isFireBreath)
+    {
+        RECT breathRc = GetFireBreathRect();
+        if (IsRectHit(breathRc, bossRc))
+        {
+            DamageBoss(5);
+            return;
+        }
+    }
+
+    for (int i = 0; i < BOMB_OBJECT_MAX; i++)
+    {
+        if (!g_bombs[i].active || g_bombs[i].fromEnemy)
+            continue;
+
+        RECT bombRc;
+        bombRc.left = g_bombs[i].x;
+        bombRc.top = g_bombs[i].y;
+        bombRc.right = g_bombs[i].x + g_bombs[i].w;
+        bombRc.bottom = g_bombs[i].y + g_bombs[i].h;
+
+        if (IsRectHit(bombRc, bossRc))
+        {
+            SpawnBombExplosion(g_bombs[i].x + g_bombs[i].w / 2, g_bombs[i].y + g_bombs[i].h / 2);
+            g_bombs[i].active = false;
+            DamageBoss(28);
+            return;
+        }
+    }
+}
+
+void CheckBossBodyHitKirby()
+{
+    if (!g_boss.active)
+        return;
+
+    if (isAbsorb || isKirbyHit || kirbyHitCooldownTick > 0)
+        return;
+
+    RECT kirbyRc = GetKirbyBodyRect();
+    RECT bossRc = GetBossRect();
+
+    if (IsRectHit(kirbyRc, bossRc))
+    {
+        StartKirbyHitEffect();
+    }
+}
+
+void UpdateBossProjectiles()
+{
+    RECT kirbyRc = GetKirbyBodyRect();
+
+    for (int i = 0; i < BOSS_PROJECTILE_MAX; i++)
+    {
+        if (!g_bossProjectiles[i].active)
+            continue;
+
+        g_bossProjectiles[i].x += (int)g_bossProjectiles[i].vx;
+        g_bossProjectiles[i].y += (int)g_bossProjectiles[i].vy;
+
+        RECT rc;
+        rc.left = g_bossProjectiles[i].x;
+        rc.top = g_bossProjectiles[i].y;
+        rc.right = g_bossProjectiles[i].x + g_bossProjectiles[i].w;
+        rc.bottom = g_bossProjectiles[i].y + g_bossProjectiles[i].h;
+
+        if (!isAbsorb && !isKirbyHit && kirbyHitCooldownTick <= 0 && IsRectHit(kirbyRc, rc))
+        {
+            g_bossProjectiles[i].active = false;
+            StartKirbyHitEffect();
+            continue;
+        }
+
+        if (g_bossProjectiles[i].x + g_bossProjectiles[i].w < -100 ||
+            g_bossProjectiles[i].x > BG_PART_W + 100 ||
+            g_bossProjectiles[i].y > WORLD_H + 120)
+        {
+            g_bossProjectiles[i].active = false;
+        }
+    }
+}
+
+void UpdateBossObjects()
+{
+    if (g_currentStage != 4)
+        return;
+
+    // 보스가 죽으면 위에서 떨어지는 공격/가로 공도 전부 사라지고 더 이상 생성되지 않음
+    if (!g_boss.active)
+    {
+        ResetBossProjectiles();
+        return;
+    }
+
+    // 4스테이지에 들어온 순간부터 100번/101번 낙하 공격은 계속 떨어짐
+    g_bossRainAttackCooldown--;
+    if (g_bossRainAttackCooldown <= 0)
+    {
+        SpawnBossRainAttack();
+        g_bossRainAttackCooldown = RandomRange(18, 35);
+    }
+
+    g_bossRainBombCooldown--;
+    if (g_bossRainBombCooldown <= 0)
+    {
+        SpawnBossRainBomb();
+        g_bossRainBombCooldown = RandomRange(30, 55);
+    }
+
+    // 2페이즈부터는 세로 낙하 공격 말고 가로로 지나가는 공도 추가
+    if (g_boss.phase2)
+    {
+        g_bossSideBallCooldown--;
+        if (g_bossSideBallCooldown <= 0)
+        {
+            SpawnBossSideBall();
+            g_bossSideBallCooldown = RandomRange(45, 75);
+        }
+    }
+
+    UpdateBossProjectiles();
+
+    if (g_boss.hitCooldown > 0)
+        g_boss.hitCooldown--;
+
+    if (g_boss.hp <= BOSS_MAX_HP / 2)
+        StartBossPhase2();
+
+    if (g_boss.state == BOSS_STATE_MISSILE)
+    {
+        g_boss.actionTick--;
+
+        if (g_boss.actionTick == 14)
+            SpawnBossMissile();
+
+        if (g_boss.actionTick <= 0)
+        {
+            g_boss.state = BOSS_STATE_IDLE;
+            g_boss.missileCooldown = g_boss.phase2 ? 60 : 85;
+        }
+
+        CheckBossBodyHitKirby();
+        return;
+    }
+
+    if (g_boss.state == BOSS_STATE_DASH)
+    {
+        int groundY = GetBossGroundY();
+
+        // 대각선 돌진은 위로 뛰어오른 뒤 포물선처럼 내려오게 함.
+        // 예전처럼 시간 끝나자마자 바닥으로 순간이동하지 않고, 바닥에 닿을 때 끝남.
+        g_boss.x += (int)g_boss.vx;
+        g_boss.y += (int)g_boss.vy;
+        g_boss.vy += BOSS_DASH_GRAVITY;
+
+        if (g_boss.x < 40)
+        {
+            g_boss.x = 40;
+            g_boss.vx = -g_boss.vx;
+            g_boss.dir = 1;
+        }
+
+        if (g_boss.x + g_boss.w > BG_PART_W - 40)
+        {
+            g_boss.x = BG_PART_W - 40 - g_boss.w;
+            g_boss.vx = -g_boss.vx;
+            g_boss.dir = -1;
+        }
+
+        CheckBossBodyHitKirby();
+
+        if (g_boss.y >= groundY && g_boss.vy > 0.0f)
+        {
+            g_boss.y = groundY;
+            g_boss.state = BOSS_STATE_IDLE;
+            g_boss.vx = (float)(2 * g_boss.dir);
+            g_boss.vy = 0.0f;
+            g_boss.dashCooldown = g_boss.phase2 ? 95 : 130;
+            return;
+        }
+
+        return;
+    }
+
+    if (g_boss.state == BOSS_STATE_RISE_TOP)
+    {
+        // 갑자기 순간이동하지 않고 천천히 위로 올라감
+        if (g_boss.y > BOSS_TOP_Y)
+        {
+            g_boss.y -= 4;
+            if (g_boss.y < BOSS_TOP_Y)
+                g_boss.y = BOSS_TOP_Y;
+        }
+        else
+        {
+            g_boss.y = BOSS_TOP_Y;
+            g_boss.state = BOSS_STATE_TOP_BOMB;
+            g_boss.actionTick = 95;
+            g_boss.vx = (g_boss.x < BG_PART_W / 2) ? 3.0f : -3.0f;
+        }
+
+        CheckBossBodyHitKirby();
+        return;
+    }
+
+    if (g_boss.state == BOSS_STATE_DESCEND)
+    {
+        int groundY = GetBossGroundY();
+
+        // 마지막 97번 폭탄을 떨어뜨린 뒤 바로 내려오면 폭탄이랑 같이 내려오는 것처럼 보여서
+        // 약 0.5초 정도 위에서 멈췄다가 내려오게 함. GAME_TIMER_MS가 40ms라 13틱이면 약 0.52초.
+        if (g_boss.actionTick > 0)
+        {
+            g_boss.actionTick--;
+            CheckBossBodyHitKirby();
+            return;
+        }
+
+        g_boss.y += 5;
+        if (g_boss.y >= groundY)
+        {
+            g_boss.y = groundY;
+            g_boss.state = BOSS_STATE_IDLE;
+            g_boss.topBombCooldown = RandomRange(120, 180);
+        }
+
+        CheckBossBodyHitKirby();
+        return;
+    }
+
+    if (g_boss.state == BOSS_STATE_TOP_BOMB)
+    {
+        // 특정 높이에 도달하면 좌우로 움직이면서 97번 폭탄을 떨어뜨림
+        g_boss.actionTick--;
+        g_boss.x += (int)g_boss.vx;
+
+        if (g_boss.x < 70)
+        {
+            g_boss.x = 70;
+            g_boss.vx = 3.0f;
+            g_boss.dir = 1;
+        }
+
+        if (g_boss.x + g_boss.w > BG_PART_W - 70)
+        {
+            g_boss.x = BG_PART_W - 70 - g_boss.w;
+            g_boss.vx = -3.0f;
+            g_boss.dir = -1;
+        }
+
+        if (g_boss.actionTick % 12 == 0)
+            SpawnBossMouthBomb();
+
+        if (g_boss.actionTick <= 0)
+        {
+            g_boss.state = BOSS_STATE_DESCEND;
+            g_boss.actionTick = 13; // 마지막 폭탄 투하 후 약 0.5초 대기
+        }
+
+        CheckBossBodyHitKirby();
+        return;
+    }
+
+    // 기본 이동: 95번, 2페이즈 이후는 99번 모습
+    g_boss.x += 2 * g_boss.dir;
+
+    if (g_boss.x < 70)
+    {
+        g_boss.x = 70;
+        g_boss.dir = 1;
+    }
+
+    if (g_boss.x + g_boss.w > BG_PART_W - 70)
+    {
+        g_boss.x = BG_PART_W - 70 - g_boss.w;
+        g_boss.dir = -1;
+    }
+
+    if (g_boss.missileCooldown > 0)
+        g_boss.missileCooldown--;
+
+    if (g_boss.dashCooldown > 0)
+        g_boss.dashCooldown--;
+
+    if (g_boss.phase2 && g_boss.topBombCooldown > 0)
+        g_boss.topBombCooldown--;
+
+    // 2페이즈부터는 미사일 발사와 대각선 돌진 공격을 비활성화
+    if (!g_boss.phase2 && g_boss.missileCooldown <= 0)
+    {
+        FaceBossToKirby(); // 미사일 자세부터 커비를 바라보게 함
+        g_boss.state = BOSS_STATE_MISSILE;
+        g_boss.actionTick = 28;
+        return;
+    }
+
+    if (!g_boss.phase2 && g_boss.dashCooldown <= 0)
+    {
+        FaceBossToKirby();
+        g_boss.vx = 5.6f * g_boss.dir;
+        g_boss.vy = -8.2f;
+        g_boss.state = BOSS_STATE_DASH;
+        g_boss.actionTick = 0;
+        return;
+    }
+
+    if (g_boss.phase2 && g_boss.topBombCooldown <= 0)
+    {
+        FaceBossToKirby();
+        g_boss.state = BOSS_STATE_RISE_TOP;
+        g_boss.vx = 0.0f;
+        g_boss.vy = 0.0f;
+        return;
+    }
+
+    CheckBossBodyHitKirby();
+}
+
+void DrawBossHpBar(Graphics& graphics)
+{
+    if (g_currentStage != 4 || !g_boss.active)
+        return;
+
+    int barX = 280;
+    int barY = 24;
+    int barW = 440;
+    int barH = 16;
+
+    SolidBrush backBrush(Color(180, 20, 10, 30));
+    SolidBrush hpBrush(Color(220, 160, 40, 220));
+    Pen borderPen(Color(230, 230, 190, 255), 2);
+
+    graphics.FillRectangle(&backBrush, barX, barY, barW, barH);
+
+    int hpW = barW * g_boss.hp / BOSS_MAX_HP;
+    if (hpW < 0) hpW = 0;
+    if (hpW > barW) hpW = barW;
+
+    graphics.FillRectangle(&hpBrush, barX, barY, hpW, barH);
+    graphics.DrawRectangle(&borderPen, barX, barY, barW, barH);
+}
+
+void DrawBossProjectiles(Graphics& graphics)
+{
+    for (int i = 0; i < BOSS_PROJECTILE_MAX; i++)
+    {
+        if (!g_bossProjectiles[i].active)
+            continue;
+
+        Image* img = g_bossMissileFrame;
+
+        if (g_bossProjectiles[i].type == 1)
+            img = g_bossMouthBombFrame;
+        else if (g_bossProjectiles[i].type == 2)
+            img = g_bossRainAttackFrame;
+        else if (g_bossProjectiles[i].type == 3)
+            img = g_bossRainBombFrame;
+        else if (g_bossProjectiles[i].type == 4)
+            img = g_bossRainBombFrame;
+
+        if (img == NULL)
+            continue;
+
+        // 96번 미사일 원본 방향이 반대라서 vx > 0일 때 좌우반전
+        if (g_bossProjectiles[i].type == 0 && g_bossProjectiles[i].vx > 0)
+        {
+            DrawImageFlipX(
+                graphics,
+                img,
+                g_bossProjectiles[i].x,
+                g_bossProjectiles[i].y,
+                g_bossProjectiles[i].w,
+                g_bossProjectiles[i].h
+            );
+        }
+        else
+        {
+            DrawWorldImage(
+                graphics,
+                img,
+                g_bossProjectiles[i].x,
+                g_bossProjectiles[i].y,
+                g_bossProjectiles[i].w,
+                g_bossProjectiles[i].h
+            );
+        }
+    }
+}
+
+void DrawBossObjects(Graphics& graphics)
+{
+    if (g_currentStage != 4)
+        return;
+
+    DrawBossProjectiles(graphics);
+
+    if (!g_boss.active)
+        return;
+
+    Image* bossFrame = g_bossIdleMoveFrame;
+
+    if (g_boss.state == BOSS_STATE_MISSILE && g_bossMissilePoseFrame != NULL)
+        bossFrame = g_bossMissilePoseFrame;
+    else if (g_boss.state == BOSS_STATE_DASH && g_bossDashFrame != NULL)
+        bossFrame = g_bossDashFrame;
+    else if (g_boss.state == BOSS_STATE_TOP_BOMB && g_bossTopAttackFrame != NULL)
+        bossFrame = g_bossTopAttackFrame;
+    else if (g_boss.phase2 && g_bossPhase2Frame != NULL)
+        bossFrame = g_bossPhase2Frame;
+
+    if (bossFrame == NULL)
+        return;
+
+    // 보스 원본 프레임 방향이 기존 코드와 반대라서 좌우반전 조건을 뒤집음
+    if (g_boss.dir > 0)
+        DrawImageFlipX(graphics, bossFrame, g_boss.x, g_boss.y, g_boss.w, g_boss.h);
+    else
+        DrawWorldImage(graphics, bossFrame, g_boss.x, g_boss.y, g_boss.w, g_boss.h);
+}
+
 
 void DrawDashWind(Graphics& graphics)
 {
@@ -4144,12 +4995,27 @@ void LoadAllImages(HWND hWnd)
     g_stage3BackgroundFront = LoadPNGFromResource(g_hInst, IDB_PNG90);
     g_stage3BackgroundBack = LoadPNGFromResource(g_hInst, IDB_PNG91);
 
+    // 4스테이지 보스전 배경: 92번 프레임
+    g_stage4Background = LoadPNGFromResource(g_hInst, IDB_PNG92);
+
+    // 4스테이지 보스전 프레임 93~101
+    g_bossMissilePoseFrame = LoadPNGFromResource(g_hInst, IDB_PNG93);
+    g_bossDashFrame = LoadPNGFromResource(g_hInst, IDB_PNG94);
+    g_bossIdleMoveFrame = LoadPNGFromResource(g_hInst, IDB_PNG95);
+    g_bossMissileFrame = LoadPNGFromResource(g_hInst, IDB_PNG96);
+    g_bossMouthBombFrame = LoadPNGFromResource(g_hInst, IDB_PNG97);
+    g_bossTopAttackFrame = LoadPNGFromResource(g_hInst, IDB_PNG98);
+    g_bossPhase2Frame = LoadPNGFromResource(g_hInst, IDB_PNG99);
+    g_bossRainAttackFrame = LoadPNGFromResource(g_hInst, IDB_PNG100);
+    g_bossRainBombFrame = LoadPNGFromResource(g_hInst, IDB_PNG101);
+
     g_backgroundScaled = CreateScaledBitmap(g_background, BG_PART_W, BG_PART_H);
     g_background2Scaled = CreateScaledBitmap(g_background2, BG_PART_W, BG_PART_H);
     g_stage2BackgroundFrontScaled = CreateScaledBitmap(g_stage2BackgroundFront, BG_PART_W, BG_PART_H);
     g_stage2BackgroundBackScaled = CreateScaledBitmap(g_stage2BackgroundBack, BG_PART_W, BG_PART_H);
     g_stage3BackgroundFrontScaled = CreateScaledBitmap(g_stage3BackgroundFront, BG_PART_W, BG_PART_H);
     g_stage3BackgroundBackScaled = CreateScaledBitmap(g_stage3BackgroundBack, BG_PART_W, BG_PART_H);
+    g_stage4BackgroundScaled = CreateScaledBitmap(g_stage4Background, BG_PART_W, BG_PART_H);
 
     g_powerIdleFrame = LoadPNGFromResource(g_hInst, IDB_PNG24);
 
@@ -4370,6 +5236,12 @@ void DeleteAllImages()
         g_stage3BackgroundBackScaled = NULL;
     }
 
+    if (g_stage4BackgroundScaled != NULL)
+    {
+        delete g_stage4BackgroundScaled;
+        g_stage4BackgroundScaled = NULL;
+    }
+
     if (g_background != NULL)
     {
         delete g_background;
@@ -4404,6 +5276,66 @@ void DeleteAllImages()
     {
         delete g_stage3BackgroundBack;
         g_stage3BackgroundBack = NULL;
+    }
+
+    if (g_stage4Background != NULL)
+    {
+        delete g_stage4Background;
+        g_stage4Background = NULL;
+    }
+
+    if (g_bossMissilePoseFrame != NULL)
+    {
+        delete g_bossMissilePoseFrame;
+        g_bossMissilePoseFrame = NULL;
+    }
+
+    if (g_bossDashFrame != NULL)
+    {
+        delete g_bossDashFrame;
+        g_bossDashFrame = NULL;
+    }
+
+    if (g_bossIdleMoveFrame != NULL)
+    {
+        delete g_bossIdleMoveFrame;
+        g_bossIdleMoveFrame = NULL;
+    }
+
+    if (g_bossMissileFrame != NULL)
+    {
+        delete g_bossMissileFrame;
+        g_bossMissileFrame = NULL;
+    }
+
+    if (g_bossMouthBombFrame != NULL)
+    {
+        delete g_bossMouthBombFrame;
+        g_bossMouthBombFrame = NULL;
+    }
+
+    if (g_bossTopAttackFrame != NULL)
+    {
+        delete g_bossTopAttackFrame;
+        g_bossTopAttackFrame = NULL;
+    }
+
+    if (g_bossPhase2Frame != NULL)
+    {
+        delete g_bossPhase2Frame;
+        g_bossPhase2Frame = NULL;
+    }
+
+    if (g_bossRainAttackFrame != NULL)
+    {
+        delete g_bossRainAttackFrame;
+        g_bossRainAttackFrame = NULL;
+    }
+
+    if (g_bossRainBombFrame != NULL)
+    {
+        delete g_bossRainBombFrame;
+        g_bossRainBombFrame = NULL;
     }
 
     if (g_powerIdleFrame != NULL)
@@ -4799,6 +5731,12 @@ void DrawScene(HDC hdc, HWND hWnd)
         bg1Image = (g_stage3BackgroundFrontScaled != NULL) ? (Image*)g_stage3BackgroundFrontScaled : g_stage3BackgroundFront;
         bg2Image = (g_stage3BackgroundBackScaled != NULL) ? (Image*)g_stage3BackgroundBackScaled : g_stage3BackgroundBack;
     }
+    else if (g_currentStage == 4)
+    {
+        // 4스테이지: 92번 보스전 배경 하나만 사용
+        bg1Image = (g_stage4BackgroundScaled != NULL) ? (Image*)g_stage4BackgroundScaled : g_stage4Background;
+        bg2Image = NULL;
+    }
     else
     {
         bg1Image = (g_backgroundScaled != NULL) ? (Image*)g_backgroundScaled : g_background;
@@ -4820,6 +5758,8 @@ void DrawScene(HDC hdc, HWND hWnd)
         SetTextColor(memDC, RGB(255, 80, 180));
         if (g_currentStage == 3)
             TextOut(memDC, 20, 20, L"3스테이지 배경 IDB_PNG90 / IDB_PNG91 로드 실패", 42);
+        else if (g_currentStage == 4)
+            TextOut(memDC, 20, 20, L"4스테이지 배경 IDB_PNG92 로드 실패", 31);
     }
 
     if (bg2Image != NULL && bg2X + BG_PART_W > 0 && bg2X < rt.right)
@@ -4847,6 +5787,7 @@ void DrawScene(HDC hdc, HWND hWnd)
     DrawBombObjects(graphics);
     DrawBombExplosions(graphics);
     DrawEnemyFireBalls(graphics);
+    DrawBossObjects(graphics);
 
     if (isKirbyHit)
     {
@@ -5011,6 +5952,7 @@ void DrawScene(HDC hdc, HWND hWnd)
 
     // 화면 고정 UI: 카메라 영향을 받지 않는 체력바
     DrawHPBar(graphics);
+    DrawBossHpBar(graphics);
 
     graphics.Flush();
 
@@ -5030,6 +5972,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
     switch (iMessage)
     {
     case WM_CREATE:
+        srand((unsigned int)time(NULL));
+
         // 배경 이미지 크기(1000 x 650)에 맞춰 클라이언트 영역을 딱 맞춤.
         ResizeWindowToClient(hWnd, BG_PART_W, BG_PART_H);
 
@@ -5124,8 +6068,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             UpdateBombAttack();
             UpdateBombObjects();
             UpdateEnemyFireBalls();
+            UpdateBossObjects();
             CheckPowerProjectileHitMonsters();
             CheckFireAttacksHitMonsters();
+            CheckKirbyAttacksHitBoss();
 
             for (int i = 0; i < MONSTER_COUNT; i++)
             {
@@ -5365,8 +6311,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             if (kirbyX < 0)
                 kirbyX = 0;
 
-            if (kirbyX + kirbyW > WORLD_W)
-                kirbyX = WORLD_W - kirbyW;
+            int currentWorldW = GetCurrentWorldW();
+
+            if (kirbyX + kirbyW > currentWorldW)
+                kirbyX = currentWorldW - kirbyW;
 
             UpdateCamera(hWnd);
 
@@ -5693,7 +6641,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 absorbFrontEffectTick = 0;
             }
             break;
-        } 
+        }
 
         InvalidateRect(hWnd, NULL, FALSE);
         break;

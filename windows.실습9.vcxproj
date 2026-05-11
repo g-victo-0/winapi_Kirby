@@ -288,6 +288,14 @@
     <Image Include="res\배경 7.png" />
     <Image Include="res\배경5.png" />
     <Image Include="res\뱉은 몬스터별.png" />
+    <Image Include="res\보스 1단계 1.png" />
+    <Image Include="res\보스 1단계 공격 효과.png" />
+    <Image Include="res\보스 1단계 공격.png" />
+    <Image Include="res\보스 1단계 비행공격.png" />
+    <Image Include="res\보스 2단계 공격 이펙트.png" />
+    <Image Include="res\보스 2단계 공격.png" />
+    <Image Include="res\보스 2단계 진화.png" />
+    <Image Include="res\보스 배경.png" />
     <Image Include="res\불 몹 공격.png" />
     <Image Include="res\불 몹 죽어.png" />
     <Image Include="res\불 몹.png" />
@@ -352,6 +360,8 @@
     <Image Include="res\폭탄몹 죽어.png" />
     <Image Include="res\풀 숲 배경.png" />
     <Image Include="res\풀 올라가기 배경.png" />
+    <Image Include="res\하늘에서 떨어지느 ㄴ보스 공격.png" />
+    <Image Include="res\하늘에서 떨어지는 보스 공격 2.png" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="..\..\..\Downloads\녹음-_7_.wav" />
