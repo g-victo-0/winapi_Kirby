@@ -323,6 +323,13 @@
     <Image Include="res\어두운 2스테이지 배경.png" />
     <Image Include="res\어두운 2스테이지 배경0.png" />
     <Image Include="res\여자1.png" />
+    <Image Include="res\열쇠.png" />
+    <Image Include="res\최종문1.png" />
+    <Image Include="res\최종문2.png" />
+    <Image Include="res\최종문3.png" />
+    <Image Include="res\최종문4.png" />
+    <Image Include="res\최종보상상자.png" />
+    <Image Include="res\최종보상상자2.png" />
     <Image Include="res\커비 걷기 1단계.png" />
     <Image Include="res\커비 걷기 2단계.png" />
     <Image Include="res\커비 걷기 3단계.png" />

@@ -37,6 +37,45 @@ using namespace Gdiplus;
 #ifndef IDB_PNG101
 #define IDB_PNG101 101
 #endif
+#ifndef IDB_PNG102
+#define IDB_PNG102 102
+#endif
+#ifndef IDB_PNG103
+#define IDB_PNG103 103
+#endif
+#ifndef IDB_PNG104
+#define IDB_PNG104 104
+#endif
+#ifndef IDB_PNG105
+#define IDB_PNG105 105
+#endif
+#ifndef IDB_PNG106
+#define IDB_PNG106 106
+#endif
+#ifndef IDB_PNG107
+#define IDB_PNG107 107
+#endif
+#ifndef IDB_PNG108
+#define IDB_PNG108 108
+#endif
+#ifndef IDB_PNG109
+#define IDB_PNG109 109
+#endif
+#ifndef IDB_PNG110
+#define IDB_PNG110 110
+#endif
+#ifndef IDB_PNG111
+#define IDB_PNG111 111
+#endif
+#ifndef IDB_PNG112
+#define IDB_PNG112 112
+#endif
+#ifndef IDB_PNG113
+#define IDB_PNG113 113
+#endif
+#ifndef IDB_PNG114
+#define IDB_PNG114 114
+#endif
 
 
 HINSTANCE g_hInst;
@@ -190,6 +229,10 @@ Image* g_bossPatternRedBallFrame = NULL;  // 104번: 보스 패턴 빨간 공
 Image* g_bossPatternBlueBallFrame = NULL; // 105번: 보스 패턴 파란 공
 Image* g_bossHalfFloorWarnFrame = NULL;   // 106번: 바닥 절반 경고
 Image* g_bossHalfFloorBoomFrame = NULL;   // 107번: 바닥 절반 폭발
+Image* g_bossDoorFrames[4] = { NULL, NULL, NULL, NULL }; // 108~111번 문 열림
+Image* g_bossKeyFrame = NULL;         // 112번 열쇠
+Image* g_bossChestClosedFrame = NULL; // 113번 닫힌 상자
+Image* g_bossChestOpenFrame = NULL;   // 114번 열린 상자
 
 // 24번: 몬스터를 먹은 뒤 커진 커비 가만히 있는 프레임
 Image* g_powerIdleFrame = NULL;
@@ -368,6 +411,11 @@ int bombAttackFrameIndex = 0;
 int bombAttackTick = 0;
 const int BOMB_ATTACK_FRAME_DURATION = 8;
 bool bombAttackBombSpawned = false;
+bool g_bombSpecialAttackMode = false; // I 필살기 모드
+int g_bombKCooldownTick = 0;          // K 일반 폭탄 쿨타임
+int g_bombICooldownTick = 0;          // I 필살기 쿨타임
+const int BOMB_K_COOLDOWN_MAX = 5;    // GAME_TIMER_MS 40ms 기준 약 0.2초
+const int BOMB_I_COOLDOWN_MAX = 125;  // GAME_TIMER_MS 40ms 기준 약 5초
 
 // 65번 폭탄 투사체와 68번 폭발
 const int BOMB_OBJECT_MAX = 12;
@@ -379,6 +427,8 @@ struct BombObject
     int y;
     int w;
     int h;
+    int damage;
+    bool bounce;
     float vx;
     float vy;
 };
@@ -3576,7 +3626,7 @@ void SpawnBombExplosion(int x, int y)
     }
 }
 
-void SpawnBombObject(int x, int y, float vx, float vy, bool fromEnemy)
+void SpawnBombObjectEx(int x, int y, int w, int h, float vx, float vy, bool fromEnemy, int damage, bool bounce)
 {
     for (int i = 0; i < BOMB_OBJECT_MAX; i++)
     {
@@ -3586,13 +3636,20 @@ void SpawnBombObject(int x, int y, float vx, float vy, bool fromEnemy)
             g_bombs[i].fromEnemy = fromEnemy;
             g_bombs[i].x = x;
             g_bombs[i].y = y;
-            g_bombs[i].w = 34;
-            g_bombs[i].h = 34;
+            g_bombs[i].w = w;
+            g_bombs[i].h = h;
+            g_bombs[i].damage = damage;
+            g_bombs[i].bounce = bounce;
             g_bombs[i].vx = vx;
             g_bombs[i].vy = vy;
             return;
         }
     }
+}
+
+void SpawnBombObject(int x, int y, float vx, float vy, bool fromEnemy)
+{
+    SpawnBombObjectEx(x, y, 34, 34, vx, vy, fromEnemy, 28, false);
 }
 
 void StartBombAttack()
@@ -3603,6 +3660,35 @@ void StartBombAttack()
     if (isBombAttack)
         return;
 
+    if (g_bombKCooldownTick > 0)
+        return;
+
+    g_bombKCooldownTick = BOMB_K_COOLDOWN_MAX;
+    g_bombSpecialAttackMode = false;
+    isBombAttack = true;
+    bombAttackFrameIndex = 0;
+    bombAttackTick = 0;
+    bombAttackBombSpawned = false;
+
+    isSpace = false;
+    isSpaceRelease = false;
+    isCrouch = false;
+    StopMove();
+}
+
+void StartBombSpecialAttack()
+{
+    if (!isBombKirby)
+        return;
+
+    if (isBombAttack)
+        return;
+
+    if (g_bombICooldownTick > 0)
+        return;
+
+    g_bombICooldownTick = BOMB_I_COOLDOWN_MAX;
+    g_bombSpecialAttackMode = true;
     isBombAttack = true;
     bombAttackFrameIndex = 0;
     bombAttackTick = 0;
@@ -3624,9 +3710,26 @@ void UpdateBombAttack()
     if (bombAttackFrameIndex == 1 && !bombAttackBombSpawned)
     {
         int dir = kirbyFaceLeft ? -1 : 1;
-        int bombX = kirbyFaceLeft ? kirbyX - 28 : kirbyX + kirbyW - 6;
-        int bombY = kirbyY + kirbyH / 2 - 22;
-        SpawnBombObject(bombX, bombY, 6.5f * dir, -8.5f, false);
+
+        if (g_bombSpecialAttackMode)
+        {
+            // I 필살기: K 폭탄 프레임을 3배 크기로 던지고 바닥을 계속 튕기며 이동
+            int bigW = 102;
+            int bigH = 102;
+            int bombX = kirbyFaceLeft ? kirbyX - bigW + 8 : kirbyX + kirbyW - 8;
+            int bombY = kirbyY + kirbyH / 2 - bigH / 2;
+
+            SpawnBombObjectEx(bombX, bombY, bigW, bigH, 10.5f * dir, -9.5f, false, 84, true);
+        }
+        else
+        {
+            // K 일반 공격: 폭탄 하나만 빠르게 던짐
+            int bombX = kirbyFaceLeft ? kirbyX - 28 : kirbyX + kirbyW - 6;
+            int bombY = kirbyY + kirbyH / 2 - 22;
+
+            SpawnBombObjectEx(bombX, bombY, 34, 34, 8.5f * dir, -8.5f, false, 28, false);
+        }
+
         bombAttackBombSpawned = true;
     }
 
@@ -3640,6 +3743,7 @@ void UpdateBombAttack()
             isBombAttack = false;
             bombAttackFrameIndex = 0;
             bombAttackBombSpawned = false;
+            g_bombSpecialAttackMode = false;
         }
     }
 }
@@ -3717,6 +3821,13 @@ void UpdateBombObjects()
 
         if (hitGround)
         {
+            if (g_bombs[i].bounce)
+            {
+                // I 필살기 폭탄은 바닥에서 계속 튕기면서 앞으로 굴러가듯 이동
+                g_bombs[i].vy = -8.5f;
+                continue;
+            }
+
             SpawnBombExplosion(g_bombs[i].x + g_bombs[i].w / 2, g_bombs[i].y + g_bombs[i].h);
             g_bombs[i].active = false;
             continue;
@@ -4118,6 +4229,36 @@ int g_bossDeadEffectTick = 0;
 bool g_bossClear = false;
 int g_screenShakeTick = 0;
 
+// 보스 처치 후 보상/문 연출
+bool g_rewardStarted = false;
+bool g_rewardChestActive = false;
+bool g_rewardChestLanded = false;
+bool g_rewardChestOpened = false;
+bool g_rewardKeyVisible = false;
+bool g_rewardKeyTaken = false;
+bool g_rewardDoorActive = false;
+bool g_rewardDoorOpening = false;
+bool g_rewardDoorOpened = false;
+
+int g_rewardChestX = 0;
+int g_rewardChestY = 0;
+int g_rewardChestW = 72;
+int g_rewardChestH = 72;
+int g_rewardChestTargetY = 0;
+
+int g_rewardKeyX = 0;
+int g_rewardKeyY = 0;
+int g_rewardKeyW = 38;
+int g_rewardKeyH = 38;
+int g_rewardKeyTargetY = 0;
+
+int g_rewardDoorX = 0;
+int g_rewardDoorY = 0;
+int g_rewardDoorW = 86;
+int g_rewardDoorH = 116;
+int g_rewardDoorFrameIndex = 0;
+int g_rewardDoorFrameTick = 0;
+
 const int BOSS_WARNING_MAX = 24;
 struct BossWarning
 {
@@ -4258,6 +4399,18 @@ void InitBossObjects()
     g_bossDeadEffectTick = 0;
     g_bossClear = false;
     g_screenShakeTick = 0;
+
+    g_rewardStarted = false;
+    g_rewardChestActive = false;
+    g_rewardChestLanded = false;
+    g_rewardChestOpened = false;
+    g_rewardKeyVisible = false;
+    g_rewardKeyTaken = false;
+    g_rewardDoorActive = false;
+    g_rewardDoorOpening = false;
+    g_rewardDoorOpened = false;
+    g_rewardDoorFrameIndex = 0;
+    g_rewardDoorFrameTick = 0;
 
     g_boss.active = true;
     g_boss.phase2 = false;
@@ -4550,14 +4703,8 @@ void SpawnBossBounceBall()
 
 void SpawnBossHalfFloorAttack()
 {
-    // 바닥 절반에 106번 경고를 깔고 약 1초 뒤 107번 폭발 판정
-    int side = RandomRange(0, 1); // 0=왼쪽, 1=오른쪽
-    int x = (side == 0) ? 0 : BG_PART_W / 2;
-    int y = 545 - 70;
-    int w = BG_PART_W / 2;
-    int h = 70;
-
-    SpawnBossProjectile(12, x, y, w, h, 0.0f, 0.0f);
+    // 바닥 106/107 폭발 패턴 제거
+    return;
 }
 
 void SpawnBossMouthBomb()
@@ -4570,6 +4717,7 @@ void SpawnBossMouthBomb()
     int bombX = g_boss.x + g_boss.w / 2 - bombW / 2;
     int bombY = g_boss.y + g_boss.h - 14;
 
+    // 2페이즈 보스가 위에서 폭탄을 떨어뜨리는 패턴
     SpawnBossProjectile(1, bombX, bombY, bombW, bombH, 0.0f, 8.7f);
 }
 
@@ -4636,7 +4784,7 @@ void CheckKirbyAttacksHitBoss()
         if (IsRectHit(fireBallRc, bossRc))
         {
             isFireBallActive = false;
-            DamageBoss(18);
+            DamageBoss(8);
             return;
         }
     }
@@ -4646,7 +4794,7 @@ void CheckKirbyAttacksHitBoss()
         RECT breathRc = GetFireBreathRect();
         if (IsRectHit(breathRc, bossRc))
         {
-            DamageBoss(5);
+            DamageBoss(14);
             return;
         }
     }
@@ -4666,7 +4814,7 @@ void CheckKirbyAttacksHitBoss()
         {
             SpawnBombExplosion(g_bombs[i].x + g_bombs[i].w / 2, g_bombs[i].y + g_bombs[i].h / 2);
             g_bombs[i].active = false;
-            DamageBoss(28);
+            DamageBoss(g_bombs[i].damage);
             return;
         }
     }
@@ -4701,6 +4849,12 @@ void UpdateBossProjectiles()
     {
         if (!g_bossProjectiles[i].active)
             continue;
+
+        if (g_bossProjectiles[i].type == 12 || g_bossProjectiles[i].type == 13)
+        {
+            g_bossProjectiles[i].active = false;
+            continue;
+        }
 
         g_bossProjectiles[i].tick++;
 
@@ -4787,6 +4941,11 @@ void UpdateBossProjectiles()
     }
 }
 
+void StartBossRewardObjects();
+void UpdateBossRewardObjects();
+void TryBossRewardInteraction();
+void DrawBossRewardObjects(Graphics& graphics);
+
 void UpdateBossObjects()
 {
     if (g_currentStage != 4)
@@ -4802,6 +4961,7 @@ void UpdateBossObjects()
         {
             g_bossDeadEffect = false;
             g_bossDeadEffectTick = 0;
+            StartBossRewardObjects();
         }
 
         ResetBossProjectiles();
@@ -4812,6 +4972,7 @@ void UpdateBossObjects()
     // 보스가 죽으면 위에서 떨어지는 공격/가로 공도 전부 사라지고 더 이상 생성되지 않음
     if (!g_boss.active)
     {
+        UpdateBossRewardObjects();
         ResetBossProjectiles();
         ResetBossWarnings();
         return;
@@ -4938,12 +5099,8 @@ void UpdateBossObjects()
             g_bossBounceCooldown = RandomRange(105, 160);
         }
 
-        g_bossHalfFloorCooldown--;
-        if (g_bossHalfFloorCooldown <= 0)
-        {
-            SpawnBossHalfFloorAttack();
-            g_bossHalfFloorCooldown = RandomRange(150, 220);
-        }
+        // 106/107 바닥 절반 폭발 패턴은 어색해서 제거함.
+        // g_bossHalfFloorCooldown은 더 이상 사용하지 않음.
     }
 
     UpdateBossProjectiles();
@@ -5205,6 +5362,196 @@ void UpdateBossObjects()
     }
 
     CheckBossBodyHitKirby();
+}
+
+void DrawKirbyStatusUI(Graphics& graphics)
+{
+    // 감속/화상 상태는 효과만 적용하고 화면에는 표시하지 않음.
+    return;
+}
+
+RECT MakeRect(int x, int y, int w, int h)
+{
+    RECT rc;
+    rc.left = x;
+    rc.top = y;
+    rc.right = x + w;
+    rc.bottom = y + h;
+    return rc;
+}
+
+void StartBossRewardObjects()
+{
+    if (g_rewardStarted)
+        return;
+
+    g_rewardStarted = true;
+
+    g_rewardChestActive = true;
+    g_rewardChestLanded = false;
+    g_rewardChestOpened = false;
+
+    g_rewardChestW = 88;
+    g_rewardChestH = 88;
+    g_rewardChestX = BG_PART_W / 2 - g_rewardChestW / 2;
+    g_rewardChestY = -g_rewardChestH - 10;
+    // 113/114 프레임 아래쪽에 투명 여백이 있어 떠 보이므로 실제 표시 위치를 아래로 보정
+    g_rewardChestTargetY = 545 - g_rewardChestH + 36;
+
+    g_rewardKeyVisible = false;
+    g_rewardKeyTaken = false;
+    g_rewardKeyW = 44;
+    g_rewardKeyH = 44;
+    g_rewardKeyX = g_rewardChestX + g_rewardChestW / 2 - g_rewardKeyW / 2;
+    g_rewardKeyY = g_rewardChestY + 10;
+    g_rewardKeyTargetY = g_rewardChestTargetY - g_rewardKeyH + 4;
+
+    g_rewardDoorActive = false;
+    g_rewardDoorOpening = false;
+    g_rewardDoorOpened = false;
+    g_rewardDoorW = 150;
+    g_rewardDoorH = 200;
+    g_rewardDoorX = BG_PART_W - g_rewardDoorW - 28;
+    g_rewardDoorY = 545 - g_rewardDoorH + 8;
+    g_rewardDoorFrameIndex = 0;
+    g_rewardDoorFrameTick = 0;
+}
+
+bool IsKirbyNearRect(int x, int y, int w, int h)
+{
+    RECT kirbyRc = GetKirbyBodyRect();
+
+    RECT rc;
+    rc.left = x - 26;
+    rc.top = y - 26;
+    rc.right = x + w + 26;
+    rc.bottom = y + h + 26;
+
+    return IsRectHit(kirbyRc, rc);
+}
+
+void UpdateBossRewardObjects()
+{
+    if (!g_rewardStarted)
+        return;
+
+    if (g_rewardChestActive && !g_rewardChestLanded)
+    {
+        g_rewardChestY += 4;
+        if (g_rewardChestY >= g_rewardChestTargetY)
+        {
+            g_rewardChestY = g_rewardChestTargetY;
+            g_rewardChestLanded = true;
+        }
+    }
+
+    if (g_rewardKeyVisible && !g_rewardKeyTaken)
+    {
+        g_rewardKeyX = g_rewardChestX + g_rewardChestW / 2 - g_rewardKeyW / 2;
+
+        if (g_rewardKeyY > g_rewardKeyTargetY)
+        {
+            g_rewardKeyY -= 2;
+            if (g_rewardKeyY < g_rewardKeyTargetY)
+                g_rewardKeyY = g_rewardKeyTargetY;
+        }
+    }
+
+    if (g_rewardDoorOpening)
+    {
+        g_rewardDoorFrameTick++;
+
+        if (g_rewardDoorFrameTick >= 8)
+        {
+            g_rewardDoorFrameTick = 0;
+
+            if (g_rewardDoorFrameIndex < 3)
+                g_rewardDoorFrameIndex++;
+            else
+            {
+                g_rewardDoorOpening = false;
+                g_rewardDoorOpened = true;
+                g_rewardDoorFrameIndex = 3;
+            }
+        }
+    }
+}
+
+void TryBossRewardInteraction()
+{
+    if (g_currentStage != 4)
+        return;
+
+    if (!g_rewardStarted)
+        return;
+
+    if (g_rewardChestActive && g_rewardChestLanded && !g_rewardChestOpened)
+    {
+        if (IsKirbyNearRect(g_rewardChestX, g_rewardChestY, g_rewardChestW, g_rewardChestH))
+        {
+            g_rewardChestOpened = true;
+            g_rewardKeyVisible = true;
+            g_rewardKeyTaken = false;
+
+            g_rewardKeyX = g_rewardChestX + g_rewardChestW / 2 - g_rewardKeyW / 2;
+            g_rewardKeyY = g_rewardChestY + 20;
+            g_rewardKeyTargetY = g_rewardChestY - g_rewardKeyH + 4;
+
+            g_rewardDoorActive = true;
+            g_rewardDoorFrameIndex = 0;
+            return;
+        }
+    }
+
+    if (g_rewardKeyVisible && !g_rewardKeyTaken)
+    {
+        if (IsKirbyNearRect(g_rewardKeyX, g_rewardKeyY, g_rewardKeyW, g_rewardKeyH))
+        {
+            g_rewardKeyTaken = true;
+            g_rewardKeyVisible = false;
+            return;
+        }
+    }
+
+    if (g_rewardDoorActive && g_rewardKeyTaken && !g_rewardDoorOpened && !g_rewardDoorOpening)
+    {
+        if (IsKirbyNearRect(g_rewardDoorX, g_rewardDoorY, g_rewardDoorW, g_rewardDoorH))
+        {
+            g_rewardDoorOpening = true;
+            g_rewardDoorFrameIndex = 0;
+            g_rewardDoorFrameTick = 0;
+            return;
+        }
+    }
+}
+
+void DrawBossRewardObjects(Graphics& graphics)
+{
+    if (g_currentStage != 4)
+        return;
+
+    if (!g_rewardStarted)
+        return;
+
+    if (g_rewardDoorActive)
+    {
+        Image* doorFrame = g_bossDoorFrames[g_rewardDoorFrameIndex];
+        if (doorFrame != NULL)
+            DrawWorldImage(graphics, doorFrame, g_rewardDoorX, g_rewardDoorY, g_rewardDoorW, g_rewardDoorH);
+    }
+
+    if (g_rewardChestActive)
+    {
+        Image* chestFrame = g_rewardChestOpened ? g_bossChestOpenFrame : g_bossChestClosedFrame;
+        if (chestFrame != NULL)
+            DrawWorldImage(graphics, chestFrame, g_rewardChestX, g_rewardChestY, g_rewardChestW, g_rewardChestH);
+    }
+
+    if (g_rewardKeyVisible && !g_rewardKeyTaken)
+    {
+        if (g_bossKeyFrame != NULL)
+            DrawWorldImage(graphics, g_bossKeyFrame, g_rewardKeyX, g_rewardKeyY, g_rewardKeyW, g_rewardKeyH);
+    }
 }
 
 void DrawBossHpBar(Graphics& graphics)
@@ -5484,6 +5831,7 @@ void DrawBossObjects(Graphics& graphics)
     DrawBossWarnings(graphics);
     DrawBossProjectiles(graphics);
     DrawBossDeathEffect(graphics);
+    DrawBossRewardObjects(graphics);
 
     if (!g_boss.active)
         return;
@@ -5839,6 +6187,13 @@ void LoadAllImages(HWND hWnd)
     g_bossPatternBlueBallFrame = LoadPNGFromResource(g_hInst, IDB_PNG105);
     g_bossHalfFloorWarnFrame = LoadPNGFromResource(g_hInst, IDB_PNG106);
     g_bossHalfFloorBoomFrame = LoadPNGFromResource(g_hInst, IDB_PNG107);
+    g_bossDoorFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG108);
+    g_bossDoorFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG109);
+    g_bossDoorFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG110);
+    g_bossDoorFrames[3] = LoadPNGFromResource(g_hInst, IDB_PNG111);
+    g_bossKeyFrame = LoadPNGFromResource(g_hInst, IDB_PNG112);
+    g_bossChestClosedFrame = LoadPNGFromResource(g_hInst, IDB_PNG113);
+    g_bossChestOpenFrame = LoadPNGFromResource(g_hInst, IDB_PNG114);
 
     g_backgroundScaled = CreateScaledBitmap(g_background, BG_PART_W, BG_PART_H);
     g_background2Scaled = CreateScaledBitmap(g_background2, BG_PART_W, BG_PART_H);
@@ -6203,6 +6558,33 @@ void DeleteAllImages()
     {
         delete g_bossHalfFloorBoomFrame;
         g_bossHalfFloorBoomFrame = NULL;
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (g_bossDoorFrames[i] != NULL)
+        {
+            delete g_bossDoorFrames[i];
+            g_bossDoorFrames[i] = NULL;
+        }
+    }
+
+    if (g_bossKeyFrame != NULL)
+    {
+        delete g_bossKeyFrame;
+        g_bossKeyFrame = NULL;
+    }
+
+    if (g_bossChestClosedFrame != NULL)
+    {
+        delete g_bossChestClosedFrame;
+        g_bossChestClosedFrame = NULL;
+    }
+
+    if (g_bossChestOpenFrame != NULL)
+    {
+        delete g_bossChestOpenFrame;
+        g_bossChestOpenFrame = NULL;
     }
 
     if (g_powerIdleFrame != NULL)
@@ -6828,18 +7210,6 @@ void DrawScene(HDC hdc, HWND hWnd)
         graphics.DrawEllipse(&invPen, kirbyX - 5, kirbyY - 5, kirbyW + 10, kirbyH + 10);
     }
 
-    if (g_kirbySlowTick > 0)
-    {
-        Pen slowPen(Color(210, 80, 170, 255), 2);
-        graphics.DrawEllipse(&slowPen, kirbyX - 9, kirbyY - 9, kirbyW + 18, kirbyH + 18);
-    }
-
-    if (g_kirbyBurnTick > 0)
-    {
-        Pen burnPen(Color(220, 255, 40, 30), 2);
-        graphics.DrawEllipse(&burnPen, kirbyX - 13, kirbyY - 13, kirbyW + 26, kirbyH + 26);
-    }
-
     DrawFireBreath(graphics);
 
     graphics.Restore(worldState);
@@ -6856,6 +7226,7 @@ void DrawScene(HDC hdc, HWND hWnd)
     }
 
     DrawHPBar(graphics);
+    DrawKirbyStatusUI(graphics);
     DrawBossHpBar(graphics);
     DrawBossPatternText(graphics);
 
@@ -6971,6 +7342,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             UpdateRescueObjects();
             CheckDoorTouch(hWnd);
             // 폭탄병은 제거했지만, 나중에 폭탄 커비를 다시 쓸 수 있으니 투사체 갱신 코드는 유지
+            if (g_bombKCooldownTick > 0)
+                g_bombKCooldownTick--;
+
+            if (g_bombICooldownTick > 0)
+                g_bombICooldownTick--;
+
             UpdateBombAttack();
             UpdateBombObjects();
             UpdateEnemyFireBalls();
@@ -7478,6 +7855,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 // 불 속성 커비 I 공격: 47번 화염구 발사
                 SpawnFireBall();
             }
+            else if (isBombKirby)
+            {
+                // 폭탄 커비 I 필살기: 3배 크기 폭탄이 바닥을 튕기며 이동
+                StartBombSpecialAttack();
+            }
+            break;
+
+        case 'U':
+            TryBossRewardInteraction();
             break;
 
         case VK_ESCAPE:
