@@ -105,12 +105,18 @@
 #define IDB_PNG100                      262
 #define IDB_PNG101                      263
 #define IDB_PNG88                       264
+#define IDB_PNG102                      265
+#define IDB_PNG103                      266
+#define IDB_PNG104                      267
+#define IDB_PNG105                      268
+#define IDB_PNG106                      269
+#define IDB_PNG107                      270
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        265
+#define _APS_NEXT_RESOURCE_VALUE        271
 #define _APS_NEXT_COMMAND_VALUE         40002
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101

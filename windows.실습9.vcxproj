@@ -280,6 +280,8 @@
     <Image Include="res\문2.png" />
     <Image Include="res\문3.png" />
     <Image Include="res\문4.png" />
+    <Image Include="res\바닥 폭탄1.png" />
+    <Image Include="res\바닥 폭탄2 터짐.png" />
     <Image Include="res\배경 1.png" />
     <Image Include="res\배경 2.png" />
     <Image Include="res\배경 3.png" />
@@ -296,6 +298,8 @@
     <Image Include="res\보스 2단계 공격.png" />
     <Image Include="res\보스 2단계 진화.png" />
     <Image Include="res\보스 배경.png" />
+    <Image Include="res\보스 죽는 모션1.png" />
+    <Image Include="res\보스 죽는 모션2.png" />
     <Image Include="res\불 몹 공격.png" />
     <Image Include="res\불 몹 죽어.png" />
     <Image Include="res\불 몹.png" />
@@ -361,6 +365,8 @@
     <Image Include="res\풀 숲 배경.png" />
     <Image Include="res\풀 올라가기 배경.png" />
     <Image Include="res\하늘에서 떨어지느 ㄴ보스 공격.png" />
+    <Image Include="res\하늘에서 떨어지는 공1.png" />
+    <Image Include="res\하늘에서 떨어지는 공2.png" />
     <Image Include="res\하늘에서 떨어지는 보스 공격 2.png" />
   </ItemGroup>
   <ItemGroup>
