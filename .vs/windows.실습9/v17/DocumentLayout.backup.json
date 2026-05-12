@@ -151,7 +151,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -166,8 +166,7 @@
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB384.png - PNG [113x112, 32\uBE44\uD2B8, PNG]",
               "RelativeToolTip": "res\\\uCD5C\uC885\uBB384.png - PNG [113x112, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:32:17.5Z",
-              "EditorCaption": " - PNG [113x112, 32\uBE44\uD2B8, PNG]"
+              "WhenOpened": "2026-05-11T13:32:17.5Z"
             },
             {
               "$type": "Document",
@@ -178,8 +177,7 @@
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uC5F4\uC1E0.png - PNG [14x22, 32\uBE44\uD2B8, PNG]",
               "RelativeToolTip": "res\\\uC5F4\uC1E0.png - PNG [14x22, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:33:57.234Z",
-              "EditorCaption": " - PNG [14x22, 32\uBE44\uD2B8, PNG]"
+              "WhenOpened": "2026-05-11T13:33:57.234Z"
             },
             {
               "$type": "Document",
@@ -190,8 +188,7 @@
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC790.png - PNG [31x36, 32\uBE44\uD2B8, PNG]",
               "RelativeToolTip": "res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC790.png - PNG [31x36, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:33:57.327Z",
-              "EditorCaption": " - PNG [31x36, 32\uBE44\uD2B8, PNG]"
+              "WhenOpened": "2026-05-11T13:33:57.327Z"
             },
             {
               "$type": "Document",
@@ -202,8 +199,7 @@
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC7902.png - PNG [35x43, 32\uBE44\uD2B8, PNG]",
               "RelativeToolTip": "res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC7902.png - PNG [35x43, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:33:57.418Z",
-              "EditorCaption": " - PNG [35x43, 32\uBE44\uD2B8, PNG]"
+              "WhenOpened": "2026-05-11T13:33:57.418Z"
             },
             {
               "$type": "Document",
@@ -214,8 +210,20 @@
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC14\uB2E5 \uD3ED\uD0C42 \uD130\uC9D0.png - PNG [15x9, 32\uBE44\uD2B8, PNG]",
               "RelativeToolTip": "res\\\uBC14\uB2E5 \uD3ED\uD0C42 \uD130\uC9D0.png - PNG [15x9, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T07:38:32.275Z",
-              "EditorCaption": " - PNG [15x9, 32\uBE44\uD2B8, PNG]"
+              "WhenOpened": "2026-05-11T07:38:32.275Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "game.cpp",
+              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\game.cpp",
+              "RelativeDocumentMoniker": "game.cpp",
+              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\game.cpp*",
+              "RelativeToolTip": "game.cpp*",
+              "ViewState": "AgIAABAVAAAAAAAAAAAqwCYVAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-05-05T08:52:16.022Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -226,21 +234,7 @@
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB381.png - PNG [111x117, 32\uBE44\uD2B8, PNG]",
               "RelativeToolTip": "res\\\uCD5C\uC885\uBB381.png - PNG [111x117, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:32:17.1Z",
-              "EditorCaption": " - PNG [111x117, 32\uBE44\uD2B8, PNG]"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "game.cpp",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\game.cpp",
-              "RelativeDocumentMoniker": "game.cpp",
-              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\game.cpp*",
-              "RelativeToolTip": "game.cpp*",
-              "ViewState": "AgIAAAEfAAAAAAAAAAAuwCwfAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-05-05T08:52:16.022Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-11T13:32:17.1Z"
             },
             {
               "$type": "Document",
@@ -251,8 +245,7 @@
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB383.png - PNG [111x112, 32\uBE44\uD2B8, PNG]",
               "RelativeToolTip": "res\\\uCD5C\uC885\uBB383.png - PNG [111x112, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:32:17.419Z",
-              "EditorCaption": " - PNG [111x112, 32\uBE44\uD2B8, PNG]"
+              "WhenOpened": "2026-05-11T13:32:17.419Z"
             },
             {
               "$type": "Document",
@@ -263,8 +256,7 @@
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB382.png - PNG [112x113, 32\uBE44\uD2B8, PNG]",
               "RelativeToolTip": "res\\\uCD5C\uC885\uBB382.png - PNG [112x113, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:32:17.261Z",
-              "EditorCaption": " - PNG [112x113, 32\uBE44\uD2B8, PNG]"
+              "WhenOpened": "2026-05-11T13:32:17.261Z"
             },
             {
               "$type": "Document",
@@ -275,8 +267,7 @@
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 3\uB2E8\uACC4.png - PNG [24x27, 32\uBE44\uD2B8, PNG]",
               "RelativeToolTip": "res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 3\uB2E8\uACC4.png - PNG [24x27, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:34:09.748Z",
-              "EditorCaption": " - PNG [24x27, 32\uBE44\uD2B8, PNG]"
+              "WhenOpened": "2026-05-11T13:34:09.748Z"
             },
             {
               "$type": "Document",
@@ -287,8 +278,7 @@
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC14\uB2E5 \uD3ED\uD0C41.png - PNG [19x8, 32\uBE44\uD2B8, PNG]",
               "RelativeToolTip": "res\\\uBC14\uB2E5 \uD3ED\uD0C41.png - PNG [19x8, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T07:38:32.096Z",
-              "EditorCaption": " - PNG [19x8, 32\uBE44\uD2B8, PNG]"
+              "WhenOpened": "2026-05-11T07:38:32.096Z"
             },
             {
               "$type": "Document",

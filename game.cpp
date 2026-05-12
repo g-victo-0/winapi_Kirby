@@ -5412,7 +5412,7 @@ void StartBossRewardObjects()
     g_rewardDoorW = 150;
     g_rewardDoorH = 200;
     g_rewardDoorX = BG_PART_W - g_rewardDoorW - 28;
-    g_rewardDoorY = 545 - g_rewardDoorH + 8;
+    g_rewardDoorY = 660 - g_rewardDoorH + 8;
     g_rewardDoorFrameIndex = 0;
     g_rewardDoorFrameTick = 0;
 }
@@ -5564,21 +5564,8 @@ void DrawBossHpBar(Graphics& graphics)
     Font bigFont(&fontFamily, 32, FontStyleBold, UnitPixel);
     SolidBrush textBrush(Color(230, 255, 230, 255));
     SolidBrush clearBrush(Color(240, 255, 230, 120));
-
-    if (g_bossClear)
-    {
-        graphics.DrawString(L"BOSS CLEAR!", -1, &bigFont, PointF(390.0f, 80.0f), &clearBrush);
-        return;
-    }
-
     if (!g_boss.active)
         return;
-
-    if (g_bossIntro)
-        graphics.DrawString(L"WARNING", -1, &bigFont, PointF(410.0f, 74.0f), &textBrush);
-
-    if (g_bossPhase2Transition)
-        graphics.DrawString(L"PHASE 2", -1, &bigFont, PointF(410.0f, 74.0f), &textBrush);
 
     int barX = 250;
     int barY = 24;
