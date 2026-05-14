@@ -1,147 +1,147 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\",
+  "WorkspaceRootPath": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB384.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB384.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uCD5C\uC885\uBB384.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uC5F4\uC1E0.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uC5F4\uC1E0.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uC5F4\uC1E0.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB381.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB381.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uCD5C\uC885\uBB381.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC14\uB2E5 \uD3ED\uD0C42 \uD130\uC9D0.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC14\uB2E5 \uD3ED\uD0C42 \uD130\uC9D0.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uBC14\uB2E5 \uD3ED\uD0C42 \uD130\uC9D0.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC7902.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC7902.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC7902.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC790.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC790.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC790.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB383.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB383.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uCD5C\uC885\uBB383.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB382.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB382.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uCD5C\uC885\uBB382.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 3\uB2E8\uACC4.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 3\uB2E8\uACC4.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 3\uB2E8\uACC4.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC14\uB2E5 \uD3ED\uD0C41.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC14\uB2E5 \uD3ED\uD0C41.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uBC14\uB2E5 \uD3ED\uD0C41.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF52.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF52.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF52.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF51.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF51.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF51.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1582.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1582.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1582.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1581.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1581.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1581.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB290 \u3134\uBCF4\uC2A4 \uACF5\uACA9.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB290 \u3134\uBCF4\uC2A4 \uACF5\uACA9.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB290 \u3134\uBCF4\uC2A4 \uACF5\uACA9.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uC5B4\uB450\uC6B4 2\uC2A4\uD14C\uC774\uC9C0 \uBC30\uACBD.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uC5B4\uB450\uC6B4 2\uC2A4\uD14C\uC774\uC9C0 \uBC30\uACBD.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uC5B4\uB450\uC6B4 2\uC2A4\uD14C\uC774\uC9C0 \uBC30\uACBD.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uBCF4\uC2A4 \uACF5\uACA9 2.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uBCF4\uC2A4 \uACF5\uACA9 2.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uBCF4\uC2A4 \uACF5\uACA9 2.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\game.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\game.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:game.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 2\uB2E8\uACC4.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 2\uB2E8\uACC4.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 2\uB2E8\uACC4.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 2\uB2E8\uACC4 \uC9C4\uD654.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 2\uB2E8\uACC4 \uC9C4\uD654.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uBCF4\uC2A4 2\uB2E8\uACC4 \uC9C4\uD654.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uB0A8\uC7902.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uB0A8\uC7902.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uB0A8\uC7902.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uB0A8\uC7901.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uB0A8\uC7901.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uB0A8\uC7901.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB381.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB381.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uBB381.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB382.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB382.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uBB382.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB383.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB383.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uBB383.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB384.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB384.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uBB384.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBC30\uACBD.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBC30\uACBD.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uCEE4\uBE44 \uBC30\uACBD.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC30\uACBD 1.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC30\uACBD 1.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uBC30\uACBD 1.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uC9C4\uD654\uD560\uB54C \uBAA8\uC2B5.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uC9C4\uD654\uD560\uB54C \uBAA8\uC2B5.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uCEE4\uBE44 \uC9C4\uD654\uD560\uB54C \uBAA8\uC2B5.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uD48D\uC120 2\uB2E8\uACC4.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uD48D\uC120 2\uB2E8\uACC4.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uCEE4\uBE44 \uD48D\uC120 2\uB2E8\uACC4.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uD48D\uC120 3\uB2E8\uACC4.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uD48D\uC120 3\uB2E8\uACC4.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:res\\\uCEE4\uBE44 \uD48D\uC120 3\uB2E8\uACC4.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uAE30\uBCF8 \uB9F5.png||{58961B49-13E0-48C0-9258-13CBC4D40279}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|solutionrelative:main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uAE30\uBCF8 \uB9F5.png||{58961B49-13E0-48C0-9258-13CBC4D40279}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9802C7A6-2901-4C9E-8452-8532D7B06939}|windows.\uC2E4\uC2B59.vcxproj|C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
     }
   ],
   "DocumentGroupContainers": [
@@ -161,401 +161,401 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "\uCD5C\uC885\uBB384.png - PNG [113x112, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB384.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB384.png",
               "RelativeDocumentMoniker": "res\\\uCD5C\uC885\uBB384.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB384.png - PNG [113x112, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uCD5C\uC885\uBB384.png - PNG [113x112, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB384.png - PNG [113x112, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:32:17.5Z"
+              "WhenOpened": "2026-05-14T12:41:39.23Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
               "Title": "\uC5F4\uC1E0.png - PNG [14x22, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uC5F4\uC1E0.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uC5F4\uC1E0.png",
               "RelativeDocumentMoniker": "res\\\uC5F4\uC1E0.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uC5F4\uC1E0.png - PNG [14x22, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uC5F4\uC1E0.png - PNG [14x22, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uC5F4\uC1E0.png - PNG [14x22, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:33:57.234Z"
+              "WhenOpened": "2026-05-14T12:41:39.28Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 6,
               "Title": "\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC790.png - PNG [31x36, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC790.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC790.png",
               "RelativeDocumentMoniker": "res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC790.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC790.png - PNG [31x36, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC790.png - PNG [31x36, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC790.png - PNG [31x36, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:33:57.327Z"
+              "WhenOpened": "2026-05-14T12:41:39.282Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
               "Title": "\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC7902.png - PNG [35x43, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC7902.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC7902.png",
               "RelativeDocumentMoniker": "res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC7902.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC7902.png - PNG [35x43, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC7902.png - PNG [35x43, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBCF4\uC0C1\uC0C1\uC7902.png - PNG [35x43, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:33:57.418Z"
+              "WhenOpened": "2026-05-14T12:41:39.284Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
               "Title": "\uBC14\uB2E5 \uD3ED\uD0C42 \uD130\uC9D0.png - PNG [15x9, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC14\uB2E5 \uD3ED\uD0C42 \uD130\uC9D0.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC14\uB2E5 \uD3ED\uD0C42 \uD130\uC9D0.png",
               "RelativeDocumentMoniker": "res\\\uBC14\uB2E5 \uD3ED\uD0C42 \uD130\uC9D0.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC14\uB2E5 \uD3ED\uD0C42 \uD130\uC9D0.png - PNG [15x9, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uBC14\uB2E5 \uD3ED\uD0C42 \uD130\uC9D0.png - PNG [15x9, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC14\uB2E5 \uD3ED\uD0C42 \uD130\uC9D0.png - PNG [15x9, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T07:38:32.275Z"
+              "WhenOpened": "2026-05-14T12:41:39.286Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "game.cpp",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\game.cpp",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\game.cpp",
               "RelativeDocumentMoniker": "game.cpp",
-              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\game.cpp*",
+              "ToolTip": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\game.cpp*",
               "RelativeToolTip": "game.cpp*",
-              "ViewState": "AgIAABAVAAAAAAAAAAAqwCYVAAAXAAAAAAAAAA==",
+              "ViewState": "AgIAAP8GAAAAAAAAAAAIwAkHAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-05-05T08:52:16.022Z",
+              "WhenOpened": "2026-05-14T12:41:39.323Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
               "Title": "\uCD5C\uC885\uBB381.png - PNG [111x117, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB381.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB381.png",
               "RelativeDocumentMoniker": "res\\\uCD5C\uC885\uBB381.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB381.png - PNG [111x117, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uCD5C\uC885\uBB381.png - PNG [111x117, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB381.png - PNG [111x117, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:32:17.1Z"
+              "WhenOpened": "2026-05-14T12:41:39.545Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 7,
               "Title": "\uCD5C\uC885\uBB383.png - PNG [111x112, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB383.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB383.png",
               "RelativeDocumentMoniker": "res\\\uCD5C\uC885\uBB383.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB383.png - PNG [111x112, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uCD5C\uC885\uBB383.png - PNG [111x112, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB383.png - PNG [111x112, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:32:17.419Z"
+              "WhenOpened": "2026-05-14T12:41:39.546Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 8,
               "Title": "\uCD5C\uC885\uBB382.png - PNG [112x113, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB382.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB382.png",
               "RelativeDocumentMoniker": "res\\\uCD5C\uC885\uBB382.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB382.png - PNG [112x113, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uCD5C\uC885\uBB382.png - PNG [112x113, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCD5C\uC885\uBB382.png - PNG [112x113, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:32:17.261Z"
+              "WhenOpened": "2026-05-14T12:41:39.547Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 9,
               "Title": "\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 3\uB2E8\uACC4.png - PNG [24x27, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 3\uB2E8\uACC4.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 3\uB2E8\uACC4.png",
               "RelativeDocumentMoniker": "res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 3\uB2E8\uACC4.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 3\uB2E8\uACC4.png - PNG [24x27, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 3\uB2E8\uACC4.png - PNG [24x27, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 3\uB2E8\uACC4.png - PNG [24x27, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T13:34:09.748Z"
+              "WhenOpened": "2026-05-14T12:41:39.548Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 10,
               "Title": "\uBC14\uB2E5 \uD3ED\uD0C41.png - PNG [19x8, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC14\uB2E5 \uD3ED\uD0C41.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC14\uB2E5 \uD3ED\uD0C41.png",
               "RelativeDocumentMoniker": "res\\\uBC14\uB2E5 \uD3ED\uD0C41.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC14\uB2E5 \uD3ED\uD0C41.png - PNG [19x8, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uBC14\uB2E5 \uD3ED\uD0C41.png - PNG [19x8, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC14\uB2E5 \uD3ED\uD0C41.png - PNG [19x8, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T07:38:32.096Z"
+              "WhenOpened": "2026-05-14T12:41:39.55Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 11,
               "Title": "\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF52.png - PNG [18x18, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF52.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF52.png",
               "RelativeDocumentMoniker": "res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF52.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF52.png - PNG [18x18, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF52.png - PNG [18x18, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF52.png - PNG [18x18, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T07:38:12.302Z"
+              "WhenOpened": "2026-05-14T12:41:39.551Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 12,
               "Title": "\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF51.png - PNG [22x21, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF51.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF51.png",
               "RelativeDocumentMoniker": "res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF51.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF51.png - PNG [22x21, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF51.png - PNG [22x21, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uACF51.png - PNG [22x21, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T07:38:12.124Z"
+              "WhenOpened": "2026-05-14T12:41:39.553Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 13,
               "Title": "\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1582.png - PNG [86x51, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1582.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1582.png",
               "RelativeDocumentMoniker": "res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1582.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1582.png - PNG [86x51, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1582.png - PNG [86x51, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1582.png - PNG [86x51, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T07:37:49.58Z"
+              "WhenOpened": "2026-05-14T12:41:39.554Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 14,
               "Title": "\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1581.png - PNG [86x48, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1581.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1581.png",
               "RelativeDocumentMoniker": "res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1581.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1581.png - PNG [86x48, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1581.png - PNG [86x48, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 \uC8FD\uB294 \uBAA8\uC1581.png - PNG [86x48, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-11T07:37:49.211Z"
+              "WhenOpened": "2026-05-14T12:41:39.556Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 15,
               "Title": "\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB290 \u3134\uBCF4\uC2A4 \uACF5\uACA9.png - PNG [18x19, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB290 \u3134\uBCF4\uC2A4 \uACF5\uACA9.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB290 \u3134\uBCF4\uC2A4 \uACF5\uACA9.png",
               "RelativeDocumentMoniker": "res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB290 \u3134\uBCF4\uC2A4 \uACF5\uACA9.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB290 \u3134\uBCF4\uC2A4 \uACF5\uACA9.png - PNG [18x19, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB290 \u3134\uBCF4\uC2A4 \uACF5\uACA9.png - PNG [18x19, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB290 \u3134\uBCF4\uC2A4 \uACF5\uACA9.png - PNG [18x19, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-10T09:58:34.369Z"
+              "WhenOpened": "2026-05-14T12:41:39.557Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 17,
               "Title": "\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uBCF4\uC2A4 \uACF5\uACA9 2.png - PNG [19x20, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uBCF4\uC2A4 \uACF5\uACA9 2.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uBCF4\uC2A4 \uACF5\uACA9 2.png",
               "RelativeDocumentMoniker": "res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uBCF4\uC2A4 \uACF5\uACA9 2.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uBCF4\uC2A4 \uACF5\uACA9 2.png - PNG [19x20, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uBCF4\uC2A4 \uACF5\uACA9 2.png - PNG [19x20, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uD558\uB298\uC5D0\uC11C \uB5A8\uC5B4\uC9C0\uB294 \uBCF4\uC2A4 \uACF5\uACA9 2.png - PNG [19x20, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-10T09:58:34.573Z"
+              "WhenOpened": "2026-05-14T12:41:39.559Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 20,
               "Title": "\uBCF4\uC2A4 2\uB2E8\uACC4 \uC9C4\uD654.png - PNG [160x76, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 2\uB2E8\uACC4 \uC9C4\uD654.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 2\uB2E8\uACC4 \uC9C4\uD654.png",
               "RelativeDocumentMoniker": "res\\\uBCF4\uC2A4 2\uB2E8\uACC4 \uC9C4\uD654.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 2\uB2E8\uACC4 \uC9C4\uD654.png - PNG [160x76, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uBCF4\uC2A4 2\uB2E8\uACC4 \uC9C4\uD654.png - PNG [160x76, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBCF4\uC2A4 2\uB2E8\uACC4 \uC9C4\uD654.png - PNG [160x76, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-10T09:28:52.693Z"
+              "WhenOpened": "2026-05-14T12:41:39.56Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 19,
               "Title": "\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 2\uB2E8\uACC4.png - PNG [26x27, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 2\uB2E8\uACC4.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 2\uB2E8\uACC4.png",
               "RelativeDocumentMoniker": "res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 2\uB2E8\uACC4.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 2\uB2E8\uACC4.png - PNG [26x27, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 2\uB2E8\uACC4.png - PNG [26x27, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBE68\uC544\uB4DC\uB9AC\uAE30 2\uB2E8\uACC4.png - PNG [26x27, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-10T09:58:38.129Z"
+              "WhenOpened": "2026-05-14T12:41:39.561Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 18,
               "Title": "game.h",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\game.h",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\game.h",
               "RelativeDocumentMoniker": "game.h",
-              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\game.h",
+              "ToolTip": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\game.h",
               "RelativeToolTip": "game.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-05-10T09:29:15.587Z"
+              "WhenOpened": "2026-05-14T12:41:39.562Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 16,
               "Title": "\uC5B4\uB450\uC6B4 2\uC2A4\uD14C\uC774\uC9C0 \uBC30\uACBD.png - PNG [1635x705, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uC5B4\uB450\uC6B4 2\uC2A4\uD14C\uC774\uC9C0 \uBC30\uACBD.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uC5B4\uB450\uC6B4 2\uC2A4\uD14C\uC774\uC9C0 \uBC30\uACBD.png",
               "RelativeDocumentMoniker": "res\\\uC5B4\uB450\uC6B4 2\uC2A4\uD14C\uC774\uC9C0 \uBC30\uACBD.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uC5B4\uB450\uC6B4 2\uC2A4\uD14C\uC774\uC9C0 \uBC30\uACBD.png - PNG [1635x705, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uC5B4\uB450\uC6B4 2\uC2A4\uD14C\uC774\uC9C0 \uBC30\uACBD.png - PNG [1635x705, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uC5B4\uB450\uC6B4 2\uC2A4\uD14C\uC774\uC9C0 \uBC30\uACBD.png - PNG [1635x705, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-09T07:45:45.347Z"
+              "WhenOpened": "2026-05-14T12:41:39.564Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 22,
               "Title": "\uB0A8\uC7901.png - PNG [367x409, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uB0A8\uC7901.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uB0A8\uC7901.png",
               "RelativeDocumentMoniker": "res\\\uB0A8\uC7901.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uB0A8\uC7901.png - PNG [367x409, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uB0A8\uC7901.png - PNG [367x409, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uB0A8\uC7901.png - PNG [367x409, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-09T04:58:32.565Z"
+              "WhenOpened": "2026-05-14T12:41:39.565Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 23,
               "Title": "\uBB381.png - PNG [37x36, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB381.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB381.png",
               "RelativeDocumentMoniker": "res\\\uBB381.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB381.png - PNG [37x36, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uBB381.png - PNG [37x36, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB381.png - PNG [37x36, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-09T05:04:34.945Z"
+              "WhenOpened": "2026-05-14T12:41:39.566Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 24,
               "Title": "\uBB382.png - PNG [34x37, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB382.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB382.png",
               "RelativeDocumentMoniker": "res\\\uBB382.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB382.png - PNG [34x37, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uBB382.png - PNG [34x37, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB382.png - PNG [34x37, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-09T05:04:35.083Z"
+              "WhenOpened": "2026-05-14T12:41:39.568Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 25,
               "Title": "\uBB383.png - PNG [36x36, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB383.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB383.png",
               "RelativeDocumentMoniker": "res\\\uBB383.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB383.png - PNG [36x36, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uBB383.png - PNG [36x36, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB383.png - PNG [36x36, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-09T05:04:35.175Z"
+              "WhenOpened": "2026-05-14T12:41:39.569Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 21,
               "Title": "\uB0A8\uC7902.png - PNG [359x313, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uB0A8\uC7902.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uB0A8\uC7902.png",
               "RelativeDocumentMoniker": "res\\\uB0A8\uC7902.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uB0A8\uC7902.png - PNG [359x313, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uB0A8\uC7902.png - PNG [359x313, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uB0A8\uC7902.png - PNG [359x313, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-09T04:58:32.744Z"
+              "WhenOpened": "2026-05-14T12:41:39.571Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 27,
               "Title": "\uCEE4\uBE44 \uBC30\uACBD.png - PNG [899x650, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBC30\uACBD.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBC30\uACBD.png",
               "RelativeDocumentMoniker": "res\\\uCEE4\uBE44 \uBC30\uACBD.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBC30\uACBD.png - PNG [899x650, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uCEE4\uBE44 \uBC30\uACBD.png - PNG [899x650, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uBC30\uACBD.png - PNG [899x650, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-09T07:45:56.785Z"
+              "WhenOpened": "2026-05-14T12:41:39.572Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 28,
               "Title": "\uBC30\uACBD 1.png - PNG [462x341, 24\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC30\uACBD 1.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC30\uACBD 1.png",
               "RelativeDocumentMoniker": "res\\\uBC30\uACBD 1.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC30\uACBD 1.png - PNG [462x341, 24\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uBC30\uACBD 1.png - PNG [462x341, 24\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBC30\uACBD 1.png - PNG [462x341, 24\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-09T07:45:58.506Z"
+              "WhenOpened": "2026-05-14T12:41:39.573Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 29,
               "Title": "\uCEE4\uBE44 \uC9C4\uD654\uD560\uB54C \uBAA8\uC2B5.png - PNG [42x39, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uC9C4\uD654\uD560\uB54C \uBAA8\uC2B5.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uC9C4\uD654\uD560\uB54C \uBAA8\uC2B5.png",
               "RelativeDocumentMoniker": "res\\\uCEE4\uBE44 \uC9C4\uD654\uD560\uB54C \uBAA8\uC2B5.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uC9C4\uD654\uD560\uB54C \uBAA8\uC2B5.png - PNG [42x39, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uCEE4\uBE44 \uC9C4\uD654\uD560\uB54C \uBAA8\uC2B5.png - PNG [42x39, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uC9C4\uD654\uD560\uB54C \uBAA8\uC2B5.png - PNG [42x39, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-09T07:45:57.836Z"
+              "WhenOpened": "2026-05-14T12:41:39.575Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 30,
               "Title": "\uCEE4\uBE44 \uD48D\uC120 2\uB2E8\uACC4.png - PNG [26x30, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uD48D\uC120 2\uB2E8\uACC4.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uD48D\uC120 2\uB2E8\uACC4.png",
               "RelativeDocumentMoniker": "res\\\uCEE4\uBE44 \uD48D\uC120 2\uB2E8\uACC4.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uD48D\uC120 2\uB2E8\uACC4.png - PNG [26x30, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uCEE4\uBE44 \uD48D\uC120 2\uB2E8\uACC4.png - PNG [26x30, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uD48D\uC120 2\uB2E8\uACC4.png - PNG [26x30, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-09T07:45:57.303Z"
+              "WhenOpened": "2026-05-14T12:41:39.576Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 26,
               "Title": "\uBB384.png - PNG [34x35, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB384.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB384.png",
               "RelativeDocumentMoniker": "res\\\uBB384.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB384.png - PNG [34x35, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uBB384.png - PNG [34x35, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uBB384.png - PNG [34x35, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-09T05:04:35.262Z"
+              "WhenOpened": "2026-05-14T12:41:39.578Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 31,
               "Title": "\uCEE4\uBE44 \uD48D\uC120 3\uB2E8\uACC4.png - PNG [29x31, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uD48D\uC120 3\uB2E8\uACC4.png",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uD48D\uC120 3\uB2E8\uACC4.png",
               "RelativeDocumentMoniker": "res\\\uCEE4\uBE44 \uD48D\uC120 3\uB2E8\uACC4.png",
               "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uD48D\uC120 3\uB2E8\uACC4.png - PNG [29x31, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "res\\\uCEE4\uBE44 \uD48D\uC120 3\uB2E8\uACC4.png - PNG [29x31, 32\uBE44\uD2B8, PNG]",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\res\\\uCEE4\uBE44 \uD48D\uC120 3\uB2E8\uACC4.png - PNG [29x31, 32\uBE44\uD2B8, PNG]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-09T04:58:40.459Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 32,
-              "Title": "\uAE30\uBCF8 \uB9F5.png",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uAE30\uBCF8 \uB9F5.png",
-              "RelativeDocumentMoniker": "..\\..\\..\\Desktop\\\uAE30\uBCF8 \uB9F5.png",
-              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uAE30\uBCF8 \uB9F5.png",
-              "RelativeToolTip": "..\\..\\..\\Desktop\\\uAE30\uBCF8 \uB9F5.png",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-08T05:12:19.608Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 34,
-              "Title": "\uCEE4\uBE44 \uAE30\uBCF8.png - PNG [26x27, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png",
-              "RelativeDocumentMoniker": "..\\..\\..\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png",
-              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png - PNG [26x27, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "..\\..\\..\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png - PNG [26x27, 32\uBE44\uD2B8, PNG]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-04T12:29:28.351Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 35,
-              "Title": "\uCEE4\uBE44 \uC549\uAE30.png - PNG [26x25, 32\uBE44\uD2B8, PNG]",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png",
-              "RelativeDocumentMoniker": "..\\..\\..\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png",
-              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png - PNG [26x25, 32\uBE44\uD2B8, PNG]",
-              "RelativeToolTip": "..\\..\\..\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png - PNG [26x25, 32\uBE44\uD2B8, PNG]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
-              "WhenOpened": "2026-05-04T12:29:26.893Z"
+              "WhenOpened": "2026-05-14T12:41:39.579Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 33,
+              "Title": "\uAE30\uBCF8 \uB9F5.png",
+              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uAE30\uBCF8 \uB9F5.png",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Desktop\\\uAE30\uBCF8 \uB9F5.png",
+              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uAE30\uBCF8 \uB9F5.png",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Desktop\\\uAE30\uBCF8 \uB9F5.png",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
+              "WhenOpened": "2026-05-14T12:41:39.669Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "\uCEE4\uBE44 \uAE30\uBCF8.png",
+              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png",
+              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uAE30\uBCF8.png",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
+              "WhenOpened": "2026-05-14T12:41:39.68Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 35,
+              "Title": "\uCEE4\uBE44 \uC549\uAE30.png",
+              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png",
+              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png",
+              "RelativeToolTip": "..\\..\\..\\..\\\uC2B9\uAC74\uC774\\Desktop\\\uCEE4\uBE44 \uC549\uAE30.png",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
+              "WhenOpened": "2026-05-14T12:41:39.685Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
               "Title": "main.cpp",
-              "DocumentMoniker": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\main.cpp",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\main.cpp",
               "RelativeDocumentMoniker": "main.cpp",
-              "ToolTip": "C:\\Users\\\uC2B9\uAC74\uC774\\Documents\\GitHub\\winapi_Kirby\\main.cpp",
+              "ToolTip": "C:\\Users\\LENOVO\\Documents\\GitHub\\winapi_Kirby\\main.cpp",
               "RelativeToolTip": "main.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-05-04T12:29:05.049Z"
+              "WhenOpened": "2026-05-14T12:41:39.689Z"
             }
           ]
         }
