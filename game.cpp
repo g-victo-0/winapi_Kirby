@@ -1794,7 +1794,7 @@ void InitStage2RescueObjects()
 
 void InitStage3RescueObjects()
 {
-   // 3스테이지 오른쪽 위쪽 발판에 문 배치
+    // 3스테이지 오른쪽 위쪽 발판에 문 배치
     g_stage3Door.active = true;
     g_stage3Door.opening = false;
     g_stage3Door.opened = true;
@@ -4369,18 +4369,19 @@ void StartBossPhase2()
     g_bossPhase2TransitionTick = 45;
     g_screenShakeTick = 25;
 
-    g_boss.fastDashCooldown = RandomRange(55, 95);
+    // 보스 패턴 간격 조절: 숫자가 클수록 다음 패턴까지 더 오래 기다림
+    g_boss.fastDashCooldown = RandomRange(95, 150);
     g_boss.dangerTextTick = 50;
-    g_boss.topBombCooldown = 80;
-    g_bossSideBallCooldown = 35;
-    g_bossSpreadShotCooldown = 70;
-    g_bossGroundWaveCooldown = 95;
-    g_bossRainBurstCooldown = 120;
-    g_bossAimedShotCooldown = 45;
-    g_bossWallRainCooldown = 105;
-    g_bossZigzagCooldown = 75;
-    g_bossBounceCooldown = 100;
-    g_bossHalfFloorCooldown = 120;
+    g_boss.topBombCooldown = 130;
+    g_bossSideBallCooldown = 70;
+    g_bossSpreadShotCooldown = 120;
+    g_bossGroundWaveCooldown = 145;
+    g_bossRainBurstCooldown = 180;
+    g_bossAimedShotCooldown = 85;
+    g_bossWallRainCooldown = 165;
+    g_bossZigzagCooldown = 120;
+    g_bossBounceCooldown = 150;
+    g_bossHalfFloorCooldown = 180;
 
     g_boss.state = BOSS_STATE_IDLE;
     g_boss.y = BOSS_PHASE2_GROUND_Y;
@@ -4424,27 +4425,29 @@ void InitBossObjects()
     g_boss.dir = -1;
     g_boss.state = BOSS_STATE_IDLE;
     g_boss.actionTick = 0;
-    g_boss.missileCooldown = 45;
-    g_boss.dashCooldown = 110;
-    g_boss.topBombCooldown = 150;
-    g_boss.fastDashCooldown = 110;
+    // 보스 기본 패턴 시작 간격 조절: 숫자가 클수록 공격을 늦게 시작함
+    g_boss.missileCooldown = 85;
+    g_boss.dashCooldown = 170;
+    g_boss.topBombCooldown = 220;
+    g_boss.fastDashCooldown = 170;
     g_boss.hitCooldown = 0;
     g_boss.redFlashTick = 0;
     g_boss.dangerTextTick = 0;
     g_boss.vx = -2.0f;
     g_boss.vy = 0.0f;
 
-    g_bossRainAttackCooldown = 18;
-    g_bossRainBombCooldown = 35;
-    g_bossSideBallCooldown = 70;
-    g_bossSpreadShotCooldown = 95;
-    g_bossGroundWaveCooldown = 125;
-    g_bossRainBurstCooldown = 150;
-    g_bossAimedShotCooldown = 70;
-    g_bossWallRainCooldown = 180;
-    g_bossZigzagCooldown = 120;
-    g_bossBounceCooldown = 145;
-    g_bossHalfFloorCooldown = 190;
+    // 보스 투사체 패턴 시작 간격 조절: 숫자가 클수록 처음 패턴이 늦게 나옴
+    g_bossRainAttackCooldown = 35;
+    g_bossRainBombCooldown = 60;
+    g_bossSideBallCooldown = 100;
+    g_bossSpreadShotCooldown = 140;
+    g_bossGroundWaveCooldown = 180;
+    g_bossRainBurstCooldown = 210;
+    g_bossAimedShotCooldown = 115;
+    g_bossWallRainCooldown = 240;
+    g_bossZigzagCooldown = 175;
+    g_bossBounceCooldown = 210;
+    g_bossHalfFloorCooldown = 260;
 }
 
 void SpawnBossProjectile(int type, int x, int y, int w, int h, float vx, float vy)
@@ -5022,14 +5025,14 @@ void UpdateBossObjects()
     if (g_bossRainAttackCooldown <= 0)
     {
         SpawnBossRainAttack();
-        g_bossRainAttackCooldown = RandomRange(18, 35);
+        g_bossRainAttackCooldown = RandomRange(35, 60); // 숫자가 클수록 하늘 공격 간격 증가
     }
 
     g_bossRainBombCooldown--;
     if (g_bossRainBombCooldown <= 0)
     {
         SpawnBossRainBomb();
-        g_bossRainBombCooldown = RandomRange(30, 55);
+        g_bossRainBombCooldown = RandomRange(55, 85); // 숫자가 클수록 폭탄 낙하 간격 증가
     }
 
     // 2페이즈부터는 세로 낙하 공격 말고 가로로 지나가는 공도 추가
@@ -5039,7 +5042,7 @@ void UpdateBossObjects()
         if (g_bossSideBallCooldown <= 0)
         {
             SpawnBossSideBall();
-            g_bossSideBallCooldown = RandomRange(28, 48);
+            g_bossSideBallCooldown = RandomRange(55, 85); // 숫자가 클수록 가로 공 간격 증가
         }
 
         g_bossRainBurstCooldown--;
@@ -5047,7 +5050,7 @@ void UpdateBossObjects()
         {
             SpawnBossRainBurst();
             g_boss.dangerTextTick = 28;
-            g_bossRainBurstCooldown = RandomRange(125, 190);
+            g_bossRainBurstCooldown = RandomRange(180, 260);
         }
     }
 
@@ -5056,7 +5059,7 @@ void UpdateBossObjects()
     {
         SpawnBossSpreadShot();
         g_boss.dangerTextTick = 22;
-        g_bossSpreadShotCooldown = g_boss.phase2 ? RandomRange(85, 130) : RandomRange(120, 170);
+        g_bossSpreadShotCooldown = g_boss.phase2 ? RandomRange(130, 190) : RandomRange(180, 240);
     }
 
     g_bossAimedShotCooldown--;
@@ -5064,7 +5067,7 @@ void UpdateBossObjects()
     {
         SpawnBossAimedShot();
         g_boss.dangerTextTick = 20;
-        g_bossAimedShotCooldown = g_boss.phase2 ? RandomRange(55, 85) : RandomRange(95, 140);
+        g_bossAimedShotCooldown = g_boss.phase2 ? RandomRange(95, 140) : RandomRange(150, 210);
     }
 
     g_bossZigzagCooldown--;
@@ -5072,7 +5075,7 @@ void UpdateBossObjects()
     {
         SpawnBossZigzagShot();
         g_boss.dangerTextTick = 20;
-        g_bossZigzagCooldown = g_boss.phase2 ? RandomRange(70, 105) : RandomRange(125, 175);
+        g_bossZigzagCooldown = g_boss.phase2 ? RandomRange(110, 160) : RandomRange(180, 240);
     }
 
     if (g_boss.phase2)
@@ -5082,7 +5085,7 @@ void UpdateBossObjects()
         {
             SpawnBossGroundWave();
             g_boss.dangerTextTick = 24;
-            g_bossGroundWaveCooldown = RandomRange(110, 165);
+            g_bossGroundWaveCooldown = RandomRange(170, 240);
         }
 
         g_bossWallRainCooldown--;
@@ -5090,7 +5093,7 @@ void UpdateBossObjects()
         {
             SpawnBossWallRain();
             g_boss.dangerTextTick = 26;
-            g_bossWallRainCooldown = RandomRange(135, 210);
+            g_bossWallRainCooldown = RandomRange(200, 280);
         }
 
         g_bossBounceCooldown--;
@@ -5098,7 +5101,7 @@ void UpdateBossObjects()
         {
             SpawnBossBounceBall();
             g_boss.dangerTextTick = 22;
-            g_bossBounceCooldown = RandomRange(105, 160);
+            g_bossBounceCooldown = RandomRange(160, 230);
         }
 
         // 106/107 바닥 절반 폭발 패턴은 어색해서 제거함.
@@ -5129,7 +5132,7 @@ void UpdateBossObjects()
         if (g_boss.actionTick <= 0)
         {
             g_boss.state = BOSS_STATE_IDLE;
-            g_boss.missileCooldown = g_boss.phase2 ? 60 : 85;
+            g_boss.missileCooldown = g_boss.phase2 ? 100 : 140;
         }
 
         CheckBossBodyHitKirby();
@@ -5168,7 +5171,7 @@ void UpdateBossObjects()
             g_boss.state = BOSS_STATE_IDLE;
             g_boss.vx = (float)(2 * g_boss.dir);
             g_boss.vy = 0.0f;
-            g_boss.dashCooldown = g_boss.phase2 ? 95 : 130;
+            g_boss.dashCooldown = g_boss.phase2 ? 150 : 210;
             return;
         }
 
@@ -5214,7 +5217,7 @@ void UpdateBossObjects()
         {
             g_boss.y = groundY;
             g_boss.state = BOSS_STATE_IDLE;
-            g_boss.topBombCooldown = RandomRange(120, 180);
+            g_boss.topBombCooldown = RandomRange(190, 260);
         }
 
         CheckBossBodyHitKirby();
@@ -5249,7 +5252,7 @@ void UpdateBossObjects()
         {
             g_boss.state = BOSS_STATE_IDLE;
             g_boss.vx = (float)(2 * g_boss.dir);
-            g_boss.fastDashCooldown = RandomRange(75, 135);
+            g_boss.fastDashCooldown = RandomRange(120, 190);
         }
 
         return;
@@ -5414,7 +5417,7 @@ void StartBossRewardObjects()
     g_rewardDoorW = 150;
     g_rewardDoorH = 200;
     g_rewardDoorX = BG_PART_W - g_rewardDoorW - 28;
-    g_rewardDoorY = 660 - g_rewardDoorH + 8;
+    g_rewardDoorY = 410; 
     g_rewardDoorFrameIndex = 0;
     g_rewardDoorFrameTick = 0;
 }
