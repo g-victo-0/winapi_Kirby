@@ -375,7 +375,7 @@ const int FIRE_TRANSFORM_DURATION = 30;
 int fireWalkFrameIndex = 0;
 const int FIRE_WALK_FRAME_COUNT = 4;
 
-// K/I 공격 시 45번 불 속성 커비 공격 자세
+// K/I 공격 시 45번 불 속성 커비 공격 자세ff
 bool isFireAttackPose = false;
 int fireAttackPoseTick = 0;
 const int FIRE_ATTACK_POSE_DURATION = 12;
@@ -736,12 +736,26 @@ SolidBlock g_stage3SolidBlocks[] =
  { { 1100, 406, 1187, 424 }, L"S3_91_MAIN_GROUNDWOOD" },
  { { 1175, 406, 2000 , 650 }, L"S3_91_CENTER_PILLAR" },
 
- { { 1852, 280, 1900, 402 }, L"S3_91_RIGHT_LEDGE" },
+ { { 1852, 290, 1900, 405 }, L"S3_91_RIGHT_LEDGE" },
  { { 1635, 425, 2000, 650 }, L"S3_91_RIGHT_GROUND" },
-   { { 1660, 280, 1723, 405 }, L"S3_91_RIGHT_OBSTACLE" },
-       { { 1660, 280, 1736, 348 }, L"S3_91_RIGHT_OBSTACLE.2" },
-           { { 1761, 280, 1900, 348 }, L"S3_91_RIGHT_WALL" },
- { { 1805, 123, 1890, 146 }, L"S3_91_TOP_LEDGE" }
+   { { 1660, 290, 1723, 405 }, L"S3_91_RIGHT_OBSTACLE" },
+       { { 1660, 290, 1736, 348 }, L"S3_91_RIGHT_OBSTACLE.2" },
+           { { 1761, 290, 1900, 348 }, L"S3_91_RIGHT_WALL" },
+ { { 1805, 123, 1890, 146 }, L"S3_91_TOP_LEDGE" },
+  { { 1890, 0, 1980, 405 }, L"S3_91_RIGHTEND_WALL" },
+   { { 995, 0, 1085, 490 }, L"S3_91_FLOOR1" },
+      { { 995, 0, 1115, 460 }, L"S3_91_FLOOR2" },
+      { { 1100, 310, 1130, 340 }, L"S3_91_FLOOR3" },
+   { { 1125, 230, 1265, 315 }, L"S3_91_FLOOR4" },
+   { { 1255, 200, 1295, 245 }, L"S3_91_FLOOR5" },
+       { { 1288, 190, 1530, 222 }, L"S3_91_FLOOR6" },
+       { { 1520, 170, 1545, 195 }, L"S3_91_FLOOR7" },
+     { { 1535, 135, 1730, 175 }, L"S3_91_FLOOR8" },
+     { { 1725, 45, 1745, 150 }, L"S3_91_FLOOR9" },
+       { { 1735, 0, 1773, 55 }, L"S3_91_FLOOR10" },
+                  { { 1770, 0, 1910, 35 }, L"S3_91_FLOOR11" }
+
+
 
 };
 
@@ -3786,6 +3800,7 @@ void CheckBombExplosionHitKirby(RECT explosionRc)
         StartKirbyHitEffect();
     }
 }
+
 
 void UpdateBombObjects()
 {
