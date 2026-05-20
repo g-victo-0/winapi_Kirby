@@ -180,19 +180,33 @@ SolidBlock g_stage3SolidBlocks[] =
     // 예전처럼 x=0~115, x=945~1000 전체를 막으면 충돌범위가 너무 어색하게 커짐
     { { 0, 0, 12, 650 }, L"S3_90_LEFT_LIMIT" },
 
-    // PNG91 두 번째 구간: x = 1000 ~ 1999
- { { 1000, 536, 2000, 650 }, L"S3_90_TOP_LEDGE" },
- { { 1182, 406, 2000, 650 }, L"S3_91_LEFT_BOTTOM_GROUND" },
- { { 1137, 476, 1190, 491 }, L"S3_91_MAIN_LEDGE WOOD" },
- { { 1100, 406, 1187, 424 }, L"S3_91_MAIN_GROUNDWOOD" },
- { { 1175, 406, 2000 , 650 }, L"S3_91_CENTER_PILLAR" },
+    // PNG91 second area: x = 1000 ~ 1999
+    { { 1000, 536, 2000, 650 }, L"S3_90_TOP_LEDGE" },
+    { { 1182, 406, 2000, 650 }, L"S3_91_LEFT_BOTTOM_GROUND" },
+    { { 1137, 476, 1190, 491 }, L"S3_91_MAIN_LEDGE_WOOD" },
+    { { 1100, 406, 1187, 424 }, L"S3_91_MAIN_GROUNDWOOD" },
+    { { 1175, 406, 2000, 650 }, L"S3_91_CENTER_PILLAR" },
 
- { { 1852, 280, 1900, 402 }, L"S3_91_RIGHT_LEDGE" },
- { { 1635, 425, 2000, 650 }, L"S3_91_RIGHT_GROUND" },
-   { { 1660, 280, 1723, 405 }, L"S3_91_RIGHT_OBSTACLE" },
-       { { 1660, 280, 1736, 348 }, L"S3_91_RIGHT_OBSTACLE.2" },
-           { { 1761, 280, 1900, 348 }, L"S3_91_RIGHT_WALL" },
- { { 1805, 123, 1890, 146 }, L"S3_91_TOP_LEDGE" }
+    { { 1852, 280, 1900, 402 }, L"S3_91_RIGHT_LEDGE" },
+    { { 1635, 425, 2000, 650 }, L"S3_91_RIGHT_GROUND" },
+    { { 1660, 280, 1723, 405 }, L"S3_91_RIGHT_OBSTACLE" },
+    { { 1660, 280, 1736, 348 }, L"S3_91_RIGHT_OBSTACLE_2" },
+    { { 1761, 280, 1900, 348 }, L"S3_91_RIGHT_WALL" },
+    { { 1805, 123, 1890, 146 }, L"S3_91_TOP_LEDGE" },
+
+    // Restored from commit 9a72c7f: upper floors and right-end wall for stage 3.
+    { { 1890, 0, 1980, 405 }, L"S3_91_RIGHTEND_WALL" },
+    { { 995, 0, 1085, 490 }, L"S3_91_FLOOR1" },
+    { { 995, 0, 1115, 460 }, L"S3_91_FLOOR2" },
+    { { 1100, 310, 1130, 340 }, L"S3_91_FLOOR3" },
+    { { 1125, 230, 1265, 315 }, L"S3_91_FLOOR4" },
+    { { 1255, 200, 1295, 245 }, L"S3_91_FLOOR5" },
+    { { 1288, 190, 1530, 222 }, L"S3_91_FLOOR6" },
+    { { 1520, 170, 1545, 195 }, L"S3_91_FLOOR7" },
+    { { 1535, 135, 1730, 175 }, L"S3_91_FLOOR8" },
+    { { 1725, 45, 1745, 150 }, L"S3_91_FLOOR9" },
+    { { 1735, 0, 1773, 55 }, L"S3_91_FLOOR10" },
+    { { 1770, 0, 1910, 35 }, L"S3_91_FLOOR11" }
 
 };
 
@@ -738,32 +752,30 @@ void UpdateDanceMove()
 {
     int t = g_danceTick;
 
-    // 영상 기준 느낌:
-    // 가운데 회전 -> 납작하게 착지 -> 오른쪽으로 짧게 이동 -> 오른쪽 춤
-    // -> 왼쪽으로 길게 이동 -> 왼쪽 춤 -> 가운데 복귀 -> 마지막 포즈 정지
-    if (t < 72)
+    // Dance flow: spin -> land -> right step -> left spin step -> return -> finish.
+    if (t < 76)
     {
         g_danceX = DANCE_CENTER_X;
     }
-    else if (t < 125)
+    else if (t < 128)
     {
-        g_danceX = SmoothLerpInt(DANCE_CENTER_X, DANCE_RIGHT_X, t, 72, 125);
+        g_danceX = SmoothLerpInt(DANCE_CENTER_X, DANCE_RIGHT_X, t, 76, 128);
     }
-    else if (t < 166)
+    else if (t < 168)
     {
         g_danceX = DANCE_RIGHT_X;
     }
-    else if (t < 238)
+    else if (t < 244)
     {
-        g_danceX = SmoothLerpInt(DANCE_RIGHT_X, DANCE_LEFT_X, t, 166, 238);
+        g_danceX = SmoothLerpInt(DANCE_RIGHT_X, DANCE_LEFT_X, t, 168, 244);
     }
-    else if (t < 276)
+    else if (t < 284)
     {
         g_danceX = DANCE_LEFT_X;
     }
-    else if (t < 316)
+    else if (t < 322)
     {
-        g_danceX = SmoothLerpInt(DANCE_LEFT_X, DANCE_CENTER_X, t, 276, 316);
+        g_danceX = SmoothLerpInt(DANCE_LEFT_X, DANCE_CENTER_X, t, 284, 322);
     }
     else
     {
@@ -773,7 +785,7 @@ void UpdateDanceMove()
     // Y좌표 상수는 건드리지 않고, 춤 연출 중에만 1~3픽셀 정도 통통 튀게 함
     int bounce = 0;
 
-    if (!g_danceFinished && t >= DANCE_SPIN_TICK && t < 316)
+    if (!g_danceFinished && t >= DANCE_SPIN_TICK && t < 322)
     {
         int b = ((t - DANCE_SPIN_TICK) / 5) % 4;
         if (b == 1) bounce = -2;
@@ -793,7 +805,7 @@ bool IsDanceFlipXByTick(int tick)
 {
     // 왼쪽으로 움직이거나 왼쪽에서 춤출 때만 좌우반전.
     // 프레임 PNG를 새로 만들지 않고 코드로 방향만 바꿔줌.
-    if (tick >= 166 && tick < 276)
+    if (tick >= 168 && tick < 284)
         return true;
 
     return false;
@@ -812,52 +824,52 @@ int GetDanceFrameIndexByTick(int tick)
         return 15;
 
     // 2) 착지: 영상처럼 납작해졌다가 다시 일어나는 느낌
-    if (tick < 72)
+    if (tick < 76)
     {
-        int seq[] = { 14, 9, 10, 11, 12 };
+        int seq[] = { 14, 9, 10, 11, 12, 13 };
         return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, DANCE_SPIN_TICK, 4);
     }
 
-    // 3) 오른쪽으로 이동: 걷기 1~4단계 + 팔 드는 동작을 섞음
-    if (tick < 125)
+    // 3) Right step: short walk frames followed by the arm-up frames.
+    if (tick < 128)
     {
-        int seq[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 72, 6);
+        int seq[] = { 0, 1, 4, 5, 6, 7, 6, 5, 8 };
+        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 76, 6);
     }
 
-    // 4) 오른쪽에서 춤: 손 흔들고 납작해지는 동작
-    if (tick < 166)
+    // 4) Right-side pose: arm wave, crouch, and rise.
+    if (tick < 168)
     {
-        int seq[] = { 5, 6, 7, 8, 13, 14, 9, 10 };
-        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 125, 5);
+        int seq[] = { 12, 13, 12, 7, 8, 14, 9, 10 };
+        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 128, 5);
     }
 
-    // 5) 왼쪽으로 이동: 몸 도는 프레임 17~22를 중심으로 사용
-    if (tick < 238)
+    // 5) Left move: connect the spin frames so Kirby rolls across the floor.
+    if (tick < 244)
     {
-        int seq[] = { 16, 17, 18, 19, 20, 21, 20, 19, 18, 17, 16, 8 };
-        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 166, 6);
+        int seq[] = { 15, 16, 17, 18, 19, 20, 21, 20, 19, 18, 17, 16, 15 };
+        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 168, 6);
     }
 
     // 6) 왼쪽에서 춤: 오른쪽 춤과 비슷하지만 좌우반전으로 방향 맞춤
-    if (tick < 276)
+    if (tick < 284)
     {
         int seq[] = { 7, 6, 5, 8, 13, 14, 9, 10 };
-        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 238, 5);
+        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 244, 5);
     }
 
     // 7) 가운데 복귀: 다시 오른쪽 방향으로 걸어오다가 정리
-    if (tick < 316)
+    if (tick < 322)
     {
-        int seq[] = { 0, 1, 2, 3, 4, 5, 6 };
-        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 276, 6);
+        int seq[] = { 0, 1, 4, 5, 6, 7, 8 };
+        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 284, 6);
     }
 
     // 8) 마무리: 숙임 -> 마지막 포즈
     if (tick < DANCE_END_TICK)
     {
-        int seq[] = { 10, 11, 12, 13, 14, 22 };
-        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 316, 4);
+        int seq[] = { 10, 11, 14, 22 };
+        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 322, 3);
     }
 
     // 마지막은 커비 댄스23에서 정지
