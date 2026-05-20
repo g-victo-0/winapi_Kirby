@@ -690,15 +690,119 @@ void InitMonsters()
     }
 }
 
-int LerpInt(int a, int b, int t, int startTick, int endTick)
+struct DanceFrame
 {
-    if (t <= startTick)
-        return a;
-    if (t >= endTick)
-        return b;
+    int frameIndex;
+    int duration;
+    bool flipX;
+    int xOffset;
+    int yOffset;
+};
 
-    float rate = (float)(t - startTick) / (float)(endTick - startTick);
-    return a + (int)((b - a) * rate);
+// frameIndex is zero-based: 0 means "커비 댄스1.png", 22 means "커비 댄스23.png".
+// The base Y is fixed; yOffset is used only on jump/bounce frames and stays 0 on still poses.
+const DanceFrame g_danceSequence[] =
+{
+    // Opening beat: front pose, squash, then rise. These stay grounded.
+    { 0, 10, false, 0, 0 },
+    { 1, 10, false, 0, 0 },
+    { 14, 8, false, 0, 0 },
+    { 9, 7, false, 0, 0 },
+    { 10, 7, false, 0, 0 },
+    { 11, 8, false, 0, 0 },
+    { 12, 10, false, 0, 0 },
+
+    // Clockwise turn: rise and land like the reference dance.
+    { 15, 5, false, 4, -3 },
+    { 16, 5, false, 9, -8 },
+    { 17, 5, false, 14, -14 },
+    { 18, 5, false, 19, -18 },
+    { 19, 5, false, 24, -14 },
+    { 20, 5, false, 29, -8 },
+    { 21, 8, false, 34, -3 },
+
+    // Counter-turn: same turn frames, mirrored on draw only, with the same bounce arc.
+    { 20, 5, true, 29, -3 },
+    { 19, 5, true, 24, -8 },
+    { 18, 5, true, 19, -14 },
+    { 17, 5, true, 14, -18 },
+    { 16, 5, true, 9, -14 },
+    { 15, 8, true, 4, -6 },
+
+    // Right-side dance accents: grounded poses, with only the step frames bouncing.
+    { 4, 7, false, 44, 0 },
+    { 5, 7, false, 52, -4 },
+    { 6, 7, false, 58, -7 },
+    { 7, 8, false, 52, -4 },
+    { 11, 8, false, 44, 0 },
+    { 12, 10, false, 36, 0 },
+    { 14, 8, false, 30, 0 },
+    { 10, 8, false, 24, 0 },
+
+    // Left-side dance accents: same rhythm mirrored; still frames keep yOffset at 0.
+    { 4, 7, true, -44, 0 },
+    { 5, 7, true, -52, -4 },
+    { 6, 7, true, -58, -7 },
+    { 7, 8, true, -52, -4 },
+    { 11, 8, true, -44, 0 },
+    { 12, 10, true, -36, 0 },
+    { 14, 8, true, -30, 0 },
+    { 10, 8, true, -24, 0 },
+
+    // Return to center: one small hop, then grounded finish.
+    { 0, 8, false, -14, -3 },
+    { 1, 8, false, -8, -5 },
+    { 4, 8, false, 0, -2 },
+    { 11, 9, false, 0, 0 },
+    { 14, 9, false, 0, 0 },
+    { 22, 28, false, 0, 0 }
+};
+const int g_danceSequenceCount = sizeof(g_danceSequence) / sizeof(g_danceSequence[0]);
+
+int GetDanceSequenceTotalTicks()
+{
+    int total = 0;
+
+    for (int i = 0; i < g_danceSequenceCount; i++)
+    {
+        total += g_danceSequence[i].duration;
+    }
+
+    return total;
+}
+
+const DanceFrame* GetDanceFrameByTick(int tick)
+{
+    int elapsed = 0;
+
+    for (int i = 0; i < g_danceSequenceCount; i++)
+    {
+        int next = elapsed + g_danceSequence[i].duration;
+
+        if (tick < next)
+        {
+            g_danceFrameTick = tick - elapsed;
+            return &g_danceSequence[i];
+        }
+
+        elapsed = next;
+    }
+
+    g_danceFrameTick = 0;
+    return &g_danceSequence[g_danceSequenceCount - 1];
+}
+
+void ApplyDanceFrameState()
+{
+    const DanceFrame* frame = GetDanceFrameByTick(g_danceTick);
+
+    g_danceFrameIndex = frame->frameIndex;
+    g_danceX = DANCE_CENTER_X + frame->xOffset;
+    g_danceY = DANCE_FLOOR_Y - DANCE_DRAW_H + frame->yOffset;
+
+    kirbyX = g_danceX - kirbyW / 2;
+    kirbyY = DANCE_FLOOR_Y - kirbyH;
+    cameraX = 0;
 }
 
 void ResetDanceStage()
@@ -708,172 +812,9 @@ void ResetDanceStage()
     g_danceTick = 0;
     g_danceAngle = 0.0f;
     g_danceFinished = false;
-    g_danceX = DANCE_CENTER_X;
-    g_danceY = DANCE_FLOOR_Y - DANCE_DRAW_H;
 
-    // 5스테이지에서는 플레이어 조작으로 움직이지 않고 춤 연출만 보이게 함
-    kirbyX = DANCE_CENTER_X - kirbyW / 2;
-    kirbyY = DANCE_FLOOR_Y - kirbyH;
-    cameraX = 0;
+    ApplyDanceFrameState();
     StopMove();
-}
-
-int SmoothLerpInt(int a, int b, int t, int startTick, int endTick)
-{
-    if (t <= startTick)
-        return a;
-
-    if (t >= endTick)
-        return b;
-
-    float u = (float)(t - startTick) / (float)(endTick - startTick);
-    // 처음과 끝이 부드럽게 움직이게 하는 값
-    u = u * u * (3.0f - 2.0f * u);
-    return a + (int)((b - a) * u);
-}
-
-int PickDanceFrame(const int* seq, int count, int t, int startTick, int frameDelay)
-{
-    if (count <= 0)
-        return 0;
-
-    int index = (t - startTick) / frameDelay;
-
-    if (index < 0)
-        index = 0;
-
-    if (index >= count)
-        index = count - 1;
-
-    return seq[index];
-}
-
-void UpdateDanceMove()
-{
-    int t = g_danceTick;
-
-    // Dance flow: spin -> land -> right step -> left spin step -> return -> finish.
-    if (t < 76)
-    {
-        g_danceX = DANCE_CENTER_X;
-    }
-    else if (t < 128)
-    {
-        g_danceX = SmoothLerpInt(DANCE_CENTER_X, DANCE_RIGHT_X, t, 76, 128);
-    }
-    else if (t < 168)
-    {
-        g_danceX = DANCE_RIGHT_X;
-    }
-    else if (t < 244)
-    {
-        g_danceX = SmoothLerpInt(DANCE_RIGHT_X, DANCE_LEFT_X, t, 168, 244);
-    }
-    else if (t < 284)
-    {
-        g_danceX = DANCE_LEFT_X;
-    }
-    else if (t < 322)
-    {
-        g_danceX = SmoothLerpInt(DANCE_LEFT_X, DANCE_CENTER_X, t, 284, 322);
-    }
-    else
-    {
-        g_danceX = DANCE_CENTER_X;
-    }
-
-    // Y좌표 상수는 건드리지 않고, 춤 연출 중에만 1~3픽셀 정도 통통 튀게 함
-    int bounce = 0;
-
-    if (!g_danceFinished && t >= DANCE_SPIN_TICK && t < 322)
-    {
-        int b = ((t - DANCE_SPIN_TICK) / 5) % 4;
-        if (b == 1) bounce = -2;
-        else if (b == 2) bounce = -3;
-        else if (b == 3) bounce = -1;
-    }
-
-    g_danceY = DANCE_FLOOR_Y - DANCE_DRAW_H + bounce;
-
-    // 기존 kirbyX도 같이 맞춰둠. 디버그 좌표나 카메라가 꼬이지 않게 하기 위함.
-    kirbyX = g_danceX - kirbyW / 2;
-    kirbyY = DANCE_FLOOR_Y - kirbyH;
-    cameraX = 0;
-}
-
-bool IsDanceFlipXByTick(int tick)
-{
-    // 왼쪽으로 움직이거나 왼쪽에서 춤출 때만 좌우반전.
-    // 프레임 PNG를 새로 만들지 않고 코드로 방향만 바꿔줌.
-    if (tick >= 168 && tick < 284)
-        return true;
-
-    return false;
-}
-
-int GetDanceFrameIndexByTick(int tick)
-{
-    // 리소스 순서 기준:
-    // 커비 댄스1.png  -> g_danceFrames[0]
-    // 커비 댄스2.png  -> g_danceFrames[1]
-    // ...
-    // 커비 댄스23.png -> g_danceFrames[22]
-
-    // 1) 초반 빙글빙글: 커비 댄스16을 코드로 회전
-    if (tick < DANCE_SPIN_TICK)
-        return 15;
-
-    // 2) 착지: 영상처럼 납작해졌다가 다시 일어나는 느낌
-    if (tick < 76)
-    {
-        int seq[] = { 14, 9, 10, 11, 12, 13 };
-        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, DANCE_SPIN_TICK, 4);
-    }
-
-    // 3) Right step: short walk frames followed by the arm-up frames.
-    if (tick < 128)
-    {
-        int seq[] = { 0, 1, 4, 5, 6, 7, 6, 5, 8 };
-        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 76, 6);
-    }
-
-    // 4) Right-side pose: arm wave, crouch, and rise.
-    if (tick < 168)
-    {
-        int seq[] = { 12, 13, 12, 7, 8, 14, 9, 10 };
-        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 128, 5);
-    }
-
-    // 5) Left move: connect the spin frames so Kirby rolls across the floor.
-    if (tick < 244)
-    {
-        int seq[] = { 15, 16, 17, 18, 19, 20, 21, 20, 19, 18, 17, 16, 15 };
-        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 168, 6);
-    }
-
-    // 6) 왼쪽에서 춤: 오른쪽 춤과 비슷하지만 좌우반전으로 방향 맞춤
-    if (tick < 284)
-    {
-        int seq[] = { 7, 6, 5, 8, 13, 14, 9, 10 };
-        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 244, 5);
-    }
-
-    // 7) 가운데 복귀: 다시 오른쪽 방향으로 걸어오다가 정리
-    if (tick < 322)
-    {
-        int seq[] = { 0, 1, 4, 5, 6, 7, 8 };
-        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 284, 6);
-    }
-
-    // 8) 마무리: 숙임 -> 마지막 포즈
-    if (tick < DANCE_END_TICK)
-    {
-        int seq[] = { 10, 11, 14, 22 };
-        return PickDanceFrame(seq, sizeof(seq) / sizeof(seq[0]), tick, 322, 3);
-    }
-
-    // 마지막은 커비 댄스23에서 정지
-    return 22;
 }
 
 void UpdateDanceStage()
@@ -883,63 +824,24 @@ void UpdateDanceStage()
 
     StopMove();
 
-    // 춤이 끝났으면 마지막 프레임, 가운데 위치에서 그대로 멈춤
     if (g_danceFinished)
     {
-        g_danceTick = DANCE_END_TICK;
-        g_danceFrameIndex = DANCE_FRAME_COUNT - 1;
-        g_danceFrameTick = 0;
-        g_danceX = DANCE_CENTER_X;
-        g_danceY = DANCE_FLOOR_Y - DANCE_DRAW_H;
-        kirbyX = g_danceX - kirbyW / 2;
-        kirbyY = DANCE_FLOOR_Y - kirbyH;
-        cameraX = 0;
+        g_danceTick = GetDanceSequenceTotalTicks() - 1;
+        ApplyDanceFrameState();
         return;
     }
 
     g_danceTick++;
-    UpdateDanceMove();
 
-    // 초반에는 같은 프레임을 코드로 회전시켜서 빙글빙글 도는 느낌을 냄
-    if (g_danceTick < DANCE_SPIN_TICK)
+    int totalTicks = GetDanceSequenceTotalTicks();
+
+    if (g_danceTick >= totalTicks)
     {
-        g_danceAngle += 18.0f;
-        if (g_danceAngle >= 360.0f)
-            g_danceAngle -= 360.0f;
-
-        g_danceFrameIndex = GetDanceFrameIndexByTick(g_danceTick);
-        return;
-    }
-
-    // 영상처럼 단순히 1,2,3,4 순서가 아니라
-    // 위치 이동에 맞춰 어울리는 프레임을 골라서 재생함.
-    g_danceFrameIndex = GetDanceFrameIndexByTick(g_danceTick);
-
-    // 마지막에는 가운데에서 마지막 프레임으로 고정
-    if (g_danceTick >= DANCE_END_TICK)
-    {
+        g_danceTick = totalTicks - 1;
         g_danceFinished = true;
-        g_danceFrameIndex = DANCE_FRAME_COUNT - 1;
-        g_danceX = DANCE_CENTER_X;
-        g_danceY = DANCE_FLOOR_Y - DANCE_DRAW_H;
     }
-}
 
-void DrawRotatedWorldImage(Graphics& graphics, Image* image, int x, int y, int w, int h, float angle)
-{
-    if (image == NULL)
-        return;
-
-    if (!IsVisibleWorld(x, y, w, h))
-        return;
-
-    GraphicsState state = graphics.Save();
-
-    graphics.TranslateTransform((REAL)(x + w / 2), (REAL)(y + h / 2));
-    graphics.RotateTransform(angle);
-    graphics.DrawImage(image, -w / 2, -h / 2, w, h);
-
-    graphics.Restore(state);
+    ApplyDanceFrameState();
 }
 
 void DrawDanceKirby(Graphics& graphics)
@@ -947,24 +849,23 @@ void DrawDanceKirby(Graphics& graphics)
     if (g_currentStage != 5)
         return;
 
+    const DanceFrame* danceFrame = GetDanceFrameByTick(g_danceTick);
+
+    int frameIndex = danceFrame->frameIndex;
+    if (frameIndex < 0)
+        frameIndex = 0;
+    if (frameIndex >= DANCE_FRAME_COUNT)
+        frameIndex = DANCE_FRAME_COUNT - 1;
+
     int drawX = g_danceX - DANCE_DRAW_W / 2;
-    int drawY = g_danceY;
+    int drawY = DANCE_FLOOR_Y - DANCE_DRAW_H + danceFrame->yOffset;
 
     Image* frame = g_idleFrame;
 
-    if (g_danceFrameIndex >= 0 && g_danceFrameIndex < DANCE_FRAME_COUNT)
-    {
-        if (g_danceFrames[g_danceFrameIndex] != NULL)
-            frame = g_danceFrames[g_danceFrameIndex];
-    }
+    if (g_danceFrames[frameIndex] != NULL)
+        frame = g_danceFrames[frameIndex];
 
-    if (g_danceTick < DANCE_SPIN_TICK)
-    {
-        DrawRotatedWorldImage(graphics, frame, drawX, drawY, DANCE_DRAW_W, DANCE_DRAW_H, g_danceAngle);
-        return;
-    }
-
-    if (IsDanceFlipXByTick(g_danceTick))
+    if (danceFrame->flipX)
     {
         DrawImageFlipX(graphics, frame, drawX, drawY, DANCE_DRAW_W, DANCE_DRAW_H);
         return;
