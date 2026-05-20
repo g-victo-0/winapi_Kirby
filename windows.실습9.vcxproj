@@ -136,6 +136,18 @@
     <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="player.cpp" />
+    <None Include="player.h" />
+    <None Include="monster.cpp" />
+    <None Include="monster.h" />
+    <None Include="stage.cpp" />
+    <None Include="stage.h" />
+    <None Include="collision.cpp" />
+    <None Include="collision.h" />
+    <None Include="resource_manager.cpp" />
+    <None Include="resource_manager.h" />
+  </ItemGroup>
+  <ItemGroup>
     <Image Include="..\..\..\Desktop\기몬 맵 공격2.png" />
     <Image Include="..\..\..\Desktop\기본 맵 걸어.png" />
     <Image Include="..\..\..\Desktop\기본 맵 공격1.png" />
@@ -275,6 +287,7 @@
     <Image Include="res\달리기 기본.png" />
     <Image Include="res\달리기 빠르게.png" />
     <Image Include="res\달리기 천천히.png" />
+    <Image Include="res\마지막 클리어 스테이지 배경.png" />
     <Image Include="res\몹 넘어진다.png" />
     <Image Include="res\문1.png" />
     <Image Include="res\문2.png" />
@@ -336,6 +349,29 @@
     <Image Include="res\커비 걷기 4단계.png" />
     <Image Include="res\커비 기본.png" />
     <Image Include="res\커비 꽈당.png" />
+    <Image Include="res\커비 댄스1.png" />
+    <Image Include="res\커비 댄스10.png" />
+    <Image Include="res\커비 댄스11.png" />
+    <Image Include="res\커비 댄스12.png" />
+    <Image Include="res\커비 댄스13.png" />
+    <Image Include="res\커비 댄스14.png" />
+    <Image Include="res\커비 댄스15.png" />
+    <Image Include="res\커비 댄스16.png" />
+    <Image Include="res\커비 댄스17.png" />
+    <Image Include="res\커비 댄스18.png" />
+    <Image Include="res\커비 댄스19.png" />
+    <Image Include="res\커비 댄스2.png" />
+    <Image Include="res\커비 댄스20.png" />
+    <Image Include="res\커비 댄스21.png" />
+    <Image Include="res\커비 댄스22.png" />
+    <Image Include="res\커비 댄스23.png" />
+    <Image Include="res\커비 댄스3.png" />
+    <Image Include="res\커비 댄스4.png" />
+    <Image Include="res\커비 댄스5.png" />
+    <Image Include="res\커비 댄스6.png" />
+    <Image Include="res\커비 댄스7.png" />
+    <Image Include="res\커비 댄스8.png" />
+    <Image Include="res\커비 댄스9.png" />
     <Image Include="res\커비 배경.png" />
     <Image Include="res\커비 빨아드리기 1단계.png" />
     <Image Include="res\커비 빨아드리기 2단계.png" />

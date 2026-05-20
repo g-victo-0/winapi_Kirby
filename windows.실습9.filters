@@ -42,6 +42,38 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="player.cpp">
+      <Filter>소스 파일</Filter>
+    </None>
+    <None Include="monster.cpp">
+      <Filter>소스 파일</Filter>
+    </None>
+    <None Include="stage.cpp">
+      <Filter>소스 파일</Filter>
+    </None>
+    <None Include="collision.cpp">
+      <Filter>소스 파일</Filter>
+    </None>
+    <None Include="resource_manager.cpp">
+      <Filter>소스 파일</Filter>
+    </None>
+    <None Include="player.h">
+      <Filter>헤더 파일</Filter>
+    </None>
+    <None Include="monster.h">
+      <Filter>헤더 파일</Filter>
+    </None>
+    <None Include="stage.h">
+      <Filter>헤더 파일</Filter>
+    </None>
+    <None Include="collision.h">
+      <Filter>헤더 파일</Filter>
+    </None>
+    <None Include="resource_manager.h">
+      <Filter>헤더 파일</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <Image Include="..\..\..\Downloads\Game-Boy-Advance-Kirby-_-the-Amazing-Mirror-Playable-Characters-Beam-Kirby-_1_.png">
       <Filter>리소스 파일</Filter>
     </Image>
