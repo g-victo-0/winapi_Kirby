@@ -1,4 +1,4 @@
-# Prerequisites
+﻿# Prerequisites
 *.d
 
 # Compiled Object files
@@ -30,3 +30,21 @@
 *.exe
 *.out
 *.app
+
+# Visual Studio user/cache files
+.vs/
+*.VC.db
+*.suo
+*.aps
+
+# Visual Studio build outputs
+x64/
+Debug/
+Release/
+*.pdb
+*.ilk
+*.idb
+*.tlog
+*.lastbuildstate
+*.recipe
+*.res
