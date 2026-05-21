@@ -835,7 +835,7 @@ int g_mouseWorldY = 0;
 const int STAGE_FADE_TICK_MAX = 28;
 const int STAGE_TITLE_TICK_MAX = 70;
 const int STAGE_CLEAR_TICK_MAX = 55;
-const int RESCUE_EFFECT_TICK_MAX = 34;
+const int RESCUE_EFFECT_TICK_MAX = 28;
 int g_stageFadeTick = STAGE_FADE_TICK_MAX;
 int g_stageTitleTick = STAGE_TITLE_TICK_MAX;
 int g_stageClearTick = 0;
@@ -2875,25 +2875,87 @@ void UpdateScreenEffects()
         g_rescueEffectTick--;
 }
 
+void DrawSparkleStar(Graphics& graphics, int cx, int cy, int size, int alpha, bool whiteStar)
+{
+    if (alpha <= 0)
+        return;
+
+    if (size < 3)
+        size = 3;
+
+    int inner = size / 2;
+    if (inner < 2)
+        inner = 2;
+
+    Point points[8] =
+    {
+        Point(cx, cy - size),
+        Point(cx + inner, cy - inner),
+        Point(cx + size, cy),
+        Point(cx + inner, cy + inner),
+        Point(cx, cy + size),
+        Point(cx - inner, cy + inner),
+        Point(cx - size, cy),
+        Point(cx - inner, cy - inner)
+    };
+
+    if (alpha > 255)
+        alpha = 255;
+
+    Color fillColor = whiteStar ? Color(alpha, 255, 255, 255) : Color(alpha, 255, 230, 70);
+    SolidBrush fillBrush(fillColor);
+    graphics.FillPolygon(&fillBrush, points, 8);
+
+    if (!whiteStar)
+    {
+        Pen shinePen(Color(alpha, 255, 255, 220), 1);
+        graphics.DrawPolygon(&shinePen, points, 8);
+    }
+}
+
 void DrawRescueEffect(Graphics& graphics)
 {
     if (g_rescueEffectTick <= 0)
         return;
 
+    struct RescueSparkle
+    {
+        int dx;
+        int dy;
+        int moveX;
+        int moveY;
+        int delay;
+        int size;
+        bool whiteStar;
+    };
+
+    static const RescueSparkle sparkles[] =
+    {
+        {  0, -12,  0, -4,  0, 6, false },
+        { -14,  -5, -5, -2,  2, 4, true  },
+        {  15,  -6,  5, -2,  3, 4, false },
+        {  -9,  10, -4,  3,  5, 3, false },
+        {  10,  11,  4,  3,  6, 3, true  },
+        { -22,   2, -3,  0,  8, 3, true  },
+        {  22,   1,  3,  0,  9, 3, false }
+    };
+
     int elapsed = RESCUE_EFFECT_TICK_MAX - g_rescueEffectTick;
-    int radius = 10 + elapsed * 2;
-    int alpha = g_rescueEffectTick * 210 / RESCUE_EFFECT_TICK_MAX;
-    if (alpha < 0) alpha = 0;
-    if (alpha > 210) alpha = 210;
+    int count = sizeof(sparkles) / sizeof(sparkles[0]);
 
-    Pen ringPen(Color(alpha, 255, 245, 120), 3);
-    SolidBrush glowBrush(Color(alpha / 2, 255, 255, 180));
-    graphics.FillEllipse(&glowBrush, g_rescueEffectX - radius / 2, g_rescueEffectY - radius / 2, radius, radius);
-    graphics.DrawEllipse(&ringPen, g_rescueEffectX - radius, g_rescueEffectY - radius, radius * 2, radius * 2);
+    for (int i = 0; i < count; i++)
+    {
+        int life = elapsed - sparkles[i].delay;
+        if (life < 0 || life > 18)
+            continue;
 
-    Pen sparklePen(Color(alpha, 255, 255, 255), 2);
-    graphics.DrawLine(&sparklePen, g_rescueEffectX - radius, g_rescueEffectY, g_rescueEffectX + radius, g_rescueEffectY);
-    graphics.DrawLine(&sparklePen, g_rescueEffectX, g_rescueEffectY - radius, g_rescueEffectX, g_rescueEffectY + radius);
+        int alpha = 240 - life * 13;
+        int twinkle = (life % 6 < 3) ? 1 : 0;
+        int x = g_rescueEffectX + sparkles[i].dx + sparkles[i].moveX * life / 18;
+        int y = g_rescueEffectY + sparkles[i].dy + sparkles[i].moveY * life / 18;
+
+        DrawSparkleStar(graphics, x, y, sparkles[i].size + twinkle, alpha, sparkles[i].whiteStar);
+    }
 }
 
 void DrawKirbyDamageFlash(Graphics& graphics)
@@ -2915,16 +2977,16 @@ void DrawGameHUD(Graphics& graphics)
 
     SolidBrush panelBrush(Color(150, 15, 20, 35));
     Pen panelPen(Color(220, 255, 235, 160), 2);
-    graphics.FillRectangle(&panelBrush, 12, 12, 365, 110);
-    graphics.DrawRectangle(&panelPen, 12, 12, 365, 110);
+    graphics.FillRectangle(&panelBrush, 12, 12, 382, 128);
+    graphics.DrawRectangle(&panelPen, 12, 12, 382, 128);
 
     FontFamily fontFamily(L"Arial");
     Font stageFont(&fontFamily, 18, FontStyleBold, UnitPixel);
-    Font smallFont(&fontFamily, 14, FontStyleBold, UnitPixel);
+    Font smallFont(&fontFamily, 16, FontStyleBold, UnitPixel);
     SolidBrush titleBrush(Color(245, 255, 245, 210));
-    SolidBrush subBrush(Color(230, 210, 235, 255));
+    SolidBrush subBrush(Color(240, 230, 240, 255));
 
-    RectF stageRect(28.0f, 18.0f, 330.0f, 24.0f);
+    RectF stageRect(28.0f, 18.0f, 340.0f, 24.0f);
     graphics.DrawString(GetStageHudName(), -1, &stageFont, stageRect, NULL, &titleBrush);
 
     DrawHPBar(graphics);
@@ -2933,21 +2995,30 @@ void DrawGameHUD(Graphics& graphics)
     int total = 0;
     GetRescueCount(&rescued, &total);
 
-    wchar_t rescueText[64];
     if (total > 0)
-        wsprintf(rescueText, L"RESCUE  %d / %d", rescued, total);
-    else if (g_currentStage == 4)
-        wsprintf(rescueText, L"BOSS BATTLE");
-    else
-        wsprintf(rescueText, L"CLEAR DANCE");
+    {
+        SolidBrush rescueBackBrush(Color(105, 35, 28, 40));
+        Pen rescuePen(Color(180, 255, 235, 120), 1);
+        graphics.FillRectangle(&rescueBackBrush, 286, 84, 82, 30);
+        graphics.DrawRectangle(&rescuePen, 286, 84, 82, 30);
 
-    RectF rescueRect(28.0f, 92.0f, 180.0f, 22.0f);
-    graphics.DrawString(rescueText, -1, &smallFont, rescueRect, NULL, &subBrush);
+        DrawSparkleStar(graphics, 302, 99, 8, 255, false);
+
+        wchar_t rescueText[32];
+        wsprintf(rescueText, L"%d/%d", rescued, total);
+        RectF rescueRect(316.0f, 89.0f, 48.0f, 22.0f);
+        graphics.DrawString(rescueText, -1, &smallFont, rescueRect, NULL, &subBrush);
+    }
+    else if (g_currentStage == 4)
+    {
+        RectF bossRect(286.0f, 88.0f, 92.0f, 22.0f);
+        graphics.DrawString(L"BOSS", -1, &smallFont, bossRect, NULL, &subBrush);
+    }
 
     if (g_debugMode)
     {
         SolidBrush debugBrush(Color(230, 255, 120, 120));
-        RectF debugRect(225.0f, 92.0f, 140.0f, 22.0f);
+        RectF debugRect(250.0f, 116.0f, 130.0f, 20.0f);
         graphics.DrawString(L"F1 HITBOX", -1, &smallFont, debugRect, NULL, &debugBrush);
     }
 }
@@ -3147,7 +3218,7 @@ void DrawHPBar(Graphics& graphics)
     const int scale = 2;
 
     int frameX = 20;
-    int frameY = 20;
+    int frameY = 34;
     int frameW = 124 * scale;
     int frameH = 47 * scale;
 
