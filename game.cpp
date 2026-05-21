@@ -973,6 +973,11 @@ const int BOSS_GROUND_Y = 545 - BOSS_H;
 const int BOSS_PHASE2_GROUND_Y = 545 - BOSS_PHASE2_H;
 const int BOSS_TOP_Y = 65;
 const float BOSS_DASH_GRAVITY = 0.42f;
+const int BOSS_PHASE2_TRANSITION_TOTAL = 92;
+const int BOSS_PHASE2_SHAKE_TICKS = 18;
+const int BOSS_PHASE2_BLACK_END = 44;
+const int BOSS_PHASE2_DROP_END = 74;
+const int BOSS_PHASE2_DROP_START_Y = 8;
 
 enum BossState
 {
@@ -1178,14 +1183,13 @@ void StartBossPhase2()
     if (g_boss.x + g_boss.w > BG_PART_W - 70)
         g_boss.x = BG_PART_W - 70 - g_boss.w;
 
-    // 2페이즈 전환 연출: 공격을 잠깐 멈추고 화면 흔들림/변신 느낌을 줌
     ResetBossProjectiles();
     ResetBossWarnings();
     g_bossPhase2Transition = true;
-    g_bossPhase2TransitionTick = 45;
-    g_screenShakeTick = 25;
+    g_bossPhase2TransitionTick = BOSS_PHASE2_TRANSITION_TOTAL;
+    g_screenShakeTick = BOSS_PHASE2_SHAKE_TICKS;
 
-    // 보스 패턴 간격 조절: 숫자가 클수록 다음 패턴까지 더 오래 기다림
+    // 2페이즈 패턴은 전환 연출이 끝난 뒤부터 시작되도록 여유를 둠.
     g_boss.fastDashCooldown = RandomRange(95, 150);
     g_boss.dangerTextTick = 50;
     g_boss.topBombCooldown = 130;
@@ -1200,8 +1204,7 @@ void StartBossPhase2()
     g_bossHalfFloorCooldown = 180;
 
     g_boss.state = BOSS_STATE_IDLE;
-    g_boss.y = BOSS_PHASE2_GROUND_Y;
-    g_boss.vx = (float)(2 * g_boss.dir);
+    g_boss.vx = 0.0f;
     g_boss.vy = 0.0f;
 }
 
@@ -1822,15 +1825,61 @@ void UpdateBossObjects()
 
     if (g_bossPhase2Transition)
     {
+        int elapsed = BOSS_PHASE2_TRANSITION_TOTAL - g_bossPhase2TransitionTick;
         g_bossPhase2TransitionTick--;
-        g_screenShakeTick = 4;
 
-        if (g_bossPhase2TransitionTick <= 0)
+        ResetBossProjectiles();
+        ResetBossWarnings();
+
+        if (elapsed < BOSS_PHASE2_SHAKE_TICKS)
         {
-            g_bossPhase2Transition = false;
-            g_bossPhase2TransitionTick = 0;
+            g_screenShakeTick = 2;
+            if (elapsed % 4 == 0)
+                g_boss.redFlashTick = 8;
+            return;
         }
 
+        if (elapsed < BOSS_PHASE2_BLACK_END)
+        {
+            g_boss.x = BG_PART_W / 2 - g_boss.w / 2;
+            g_boss.y = BOSS_PHASE2_DROP_START_Y;
+            g_boss.vx = 0.0f;
+            g_boss.vy = 0.0f;
+            return;
+        }
+
+        if (elapsed < BOSS_PHASE2_DROP_END)
+        {
+            int dropTick = elapsed - BOSS_PHASE2_BLACK_END;
+            int dropTotal = BOSS_PHASE2_DROP_END - BOSS_PHASE2_BLACK_END;
+            int targetY = BOSS_PHASE2_GROUND_Y;
+
+            g_boss.x = BG_PART_W / 2 - g_boss.w / 2;
+            g_boss.y = BOSS_PHASE2_DROP_START_Y + (targetY - BOSS_PHASE2_DROP_START_Y) * dropTick / dropTotal;
+            FaceBossToKirby();
+
+            if (dropTick >= dropTotal - 4)
+                g_screenShakeTick = 8;
+
+            return;
+        }
+
+        if (elapsed < BOSS_PHASE2_TRANSITION_TOTAL)
+        {
+            g_boss.y = BOSS_PHASE2_GROUND_Y;
+            FaceBossToKirby();
+            if (elapsed == BOSS_PHASE2_DROP_END)
+                g_screenShakeTick = 10;
+            return;
+        }
+
+        g_bossPhase2Transition = false;
+        g_bossPhase2TransitionTick = 0;
+        g_boss.y = BOSS_PHASE2_GROUND_Y;
+        FaceBossToKirby();
+        g_boss.vx = (float)(2 * g_boss.dir);
+        g_boss.vy = 0.0f;
+        g_screenShakeTick = 10;
         return;
     }
 
@@ -2542,6 +2591,70 @@ void DrawBossPatternText(Graphics& graphics)
     return;
 }
 
+void DrawBossPhase2TransitionOverlay(Graphics& graphics, int screenW, int screenH)
+{
+    if (g_currentStage != 4 || !g_bossPhase2Transition)
+        return;
+
+    int elapsed = BOSS_PHASE2_TRANSITION_TOTAL - g_bossPhase2TransitionTick;
+    if (elapsed < 0)
+        elapsed = 0;
+
+    int alpha = 0;
+    bool redFlash = false;
+
+    if (elapsed < BOSS_PHASE2_SHAKE_TICKS)
+    {
+        alpha = (elapsed % 4 < 2) ? 65 : 20;
+        redFlash = true;
+    }
+    else if (elapsed < BOSS_PHASE2_BLACK_END)
+    {
+        alpha = 248;
+    }
+    else if (elapsed < BOSS_PHASE2_DROP_END)
+    {
+        int fadeTick = elapsed - BOSS_PHASE2_BLACK_END;
+        int fadeTotal = BOSS_PHASE2_DROP_END - BOSS_PHASE2_BLACK_END;
+        alpha = 248 - 210 * fadeTick / fadeTotal;
+    }
+    else if (elapsed < BOSS_PHASE2_TRANSITION_TOTAL)
+    {
+        alpha = 30;
+        redFlash = true;
+    }
+
+    if (alpha > 0)
+    {
+        SolidBrush darkBrush(redFlash ? Color(alpha, 120, 0, 20) : Color(alpha, 0, 0, 0));
+        graphics.FillRectangle(&darkBrush, 0, 0, screenW, screenH);
+    }
+
+    if (elapsed >= BOSS_PHASE2_SHAKE_TICKS && elapsed < BOSS_PHASE2_DROP_END)
+    {
+        FontFamily fontFamily(L"Arial");
+        Font dangerFont(&fontFamily, 42, FontStyleBold, UnitPixel);
+        Font smallFont(&fontFamily, 18, FontStyleBold, UnitPixel);
+        StringFormat format;
+        format.SetAlignment(StringAlignmentCenter);
+        format.SetLineAlignment(StringAlignmentCenter);
+
+        int textAlpha = 255;
+        if (elapsed >= BOSS_PHASE2_BLACK_END)
+        {
+            int fadeTick = elapsed - BOSS_PHASE2_BLACK_END;
+            int fadeTotal = BOSS_PHASE2_DROP_END - BOSS_PHASE2_BLACK_END;
+            textAlpha = 255 - 210 * fadeTick / fadeTotal;
+        }
+
+        SolidBrush dangerBrush(Color(textAlpha, 255, 40, 70));
+        SolidBrush smallBrush(Color(textAlpha, 255, 230, 230));
+        RectF dangerRect(0.0f, 150.0f, (REAL)screenW, 52.0f);
+        RectF smallRect(0.0f, 200.0f, (REAL)screenW, 30.0f);
+        graphics.DrawString(L"DANGER", -1, &dangerFont, dangerRect, &format, &dangerBrush);
+        graphics.DrawString(L"NIGHTMARE PHASE 2", -1, &smallFont, smallRect, &format, &smallBrush);
+    }
+}
 void DrawBossHitRedFlash(Graphics& graphics)
 {
     if (g_currentStage != 4 || !g_boss.active)
@@ -2814,10 +2927,10 @@ void DrawHPBar(Graphics& graphics);
 
 const wchar_t* GetStageHudName()
 {
-    if (g_currentStage == 1) return L"STAGE 1  GREEN FIELD";
-    if (g_currentStage == 2) return L"STAGE 2  NIGHT HILL";
-    if (g_currentStage == 3) return L"STAGE 3  SKY RUINS";
-    if (g_currentStage == 4) return L"FINAL STAGE  BOSS";
+    if (g_currentStage == 1) return L"STAGE 1  NIGHTMARE WOODS";
+    if (g_currentStage == 2) return L"STAGE 2  MOONLESS HILL";
+    if (g_currentStage == 3) return L"STAGE 3  BROKEN DREAM SKY";
+    if (g_currentStage == 4) return L"FINAL STAGE  NIGHTMARE CORE";
     if (g_currentStage == 5) return L"ENDING  CLEAR DANCE";
     return L"KIRBY ADVENTURE";
 }
@@ -3002,7 +3115,10 @@ void DrawGameHUD(Graphics& graphics)
         graphics.FillRectangle(&rescueBackBrush, 286, 84, 82, 30);
         graphics.DrawRectangle(&rescuePen, 286, 84, 82, 30);
 
-        DrawSparkleStar(graphics, 302, 99, 8, 255, false);
+        if (g_powerProjectileFrame != NULL)
+            graphics.DrawImage(g_powerProjectileFrame, 292, 89, 22, 22);
+        else
+            DrawSparkleStar(graphics, 302, 99, 8, 255, false);
 
         wchar_t rescueText[32];
         wsprintf(rescueText, L"%d/%d", rescued, total);
@@ -3318,9 +3434,35 @@ void DrawScene(HDC hdc, HWND hWnd)
 
     // 5스테이지는 138번 클리어 배경을 사용함
 
-    // 배경은 월드 좌표 기준으로 이어 붙여서 그리고, 화면에는 cameraX만큼 밀려 보이게 함
-    int bg1X = -cameraX;
-    int bg2X = BG_PART_W - cameraX;
+    int shakeX = 0;
+    int shakeY = 0;
+    if (g_currentStage == 4 && g_screenShakeTick > 0)
+    {
+        int powerX = 4;
+        int powerY = 3;
+
+        if (g_bossPhase2Transition)
+        {
+            int phaseElapsed = BOSS_PHASE2_TRANSITION_TOTAL - g_bossPhase2TransitionTick;
+            if (phaseElapsed < BOSS_PHASE2_SHAKE_TICKS)
+            {
+                powerX = 12;
+                powerY = 8;
+            }
+            else
+            {
+                powerX = 7;
+                powerY = 5;
+            }
+        }
+
+        shakeX = RandomRange(-powerX, powerX);
+        shakeY = RandomRange(-powerY, powerY);
+    }
+
+    // 배경도 같이 흔들리도록 cameraX와 화면 흔들림을 함께 적용
+    int bg1X = -cameraX + shakeX;
+    int bg2X = BG_PART_W - cameraX + shakeX;
 
     Image* bg1Image = NULL;
     Image* bg2Image = NULL;
@@ -3357,7 +3499,7 @@ void DrawScene(HDC hdc, HWND hWnd)
 
     if (bg1Image != NULL && bg1X + BG_PART_W > 0 && bg1X < rt.right)
     {
-        graphics.DrawImage(bg1Image, bg1X, 0, BG_PART_W, BG_PART_H);
+        graphics.DrawImage(bg1Image, bg1X, shakeY, BG_PART_W, BG_PART_H);
     }
     else if (bg1Image == NULL && g_currentStage != 5)
     {
@@ -3376,20 +3518,12 @@ void DrawScene(HDC hdc, HWND hWnd)
 
     if (bg2Image != NULL && bg2X + BG_PART_W > 0 && bg2X < rt.right)
     {
-        graphics.DrawImage(bg2Image, bg2X, 0, BG_PART_W, BG_PART_H);
+        graphics.DrawImage(bg2Image, bg2X, shakeY, BG_PART_W, BG_PART_H);
     }
 
     // 커비/몬스터/이펙트는 전부 월드 좌표로 움직이고,
     // 그릴 때만 -cameraX만큼 이동해서 화면에 표시
     GraphicsState worldState = graphics.Save();
-
-    int shakeX = 0;
-    int shakeY = 0;
-    if (g_currentStage == 4 && g_screenShakeTick > 0)
-    {
-        shakeX = RandomRange(-4, 4);
-        shakeY = RandomRange(-3, 3);
-    }
 
     graphics.TranslateTransform((REAL)(-cameraX + shakeX), (REAL)shakeY);
 
@@ -3599,6 +3733,7 @@ void DrawScene(HDC hdc, HWND hWnd)
     }
 
     DrawHUD(graphics, rt.right, rt.bottom);
+    DrawBossPhase2TransitionOverlay(graphics, rt.right, rt.bottom);
 
     graphics.Flush();
 
