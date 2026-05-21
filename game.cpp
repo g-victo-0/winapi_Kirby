@@ -832,6 +832,17 @@ int g_mouseScreenY = 0;
 int g_mouseWorldX = 0;
 int g_mouseWorldY = 0;
 
+const int STAGE_FADE_TICK_MAX = 28;
+const int STAGE_TITLE_TICK_MAX = 70;
+const int STAGE_CLEAR_TICK_MAX = 55;
+const int RESCUE_EFFECT_TICK_MAX = 34;
+int g_stageFadeTick = STAGE_FADE_TICK_MAX;
+int g_stageTitleTick = STAGE_TITLE_TICK_MAX;
+int g_stageClearTick = 0;
+int g_rescueEffectTick = 0;
+int g_rescueEffectX = 0;
+int g_rescueEffectY = 0;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 
 RECT GetPowerProjectileSweepRect();
@@ -873,6 +884,9 @@ void ResetBossProjectiles();
 void ResetDanceStage();
 void UpdateDanceStage();
 void DrawDanceKirby(Graphics& graphics);
+void StartStageTransitionEffect();
+void StartStageClearMessage();
+void StartRescueEffect(int x, int y);
 
 // 보스 보상 문 변수는 아래쪽 보스전 코드에서 실제로 정의됨.
 // CheckDoorTouch가 그보다 위에 있어서 여기서는 미리 알려만 줌.
@@ -2279,6 +2293,7 @@ void UpdateBossRewardObjects()
                 g_rewardDoorOpening = false;
                 g_rewardDoorOpened = true;
                 g_rewardDoorFrameIndex = 3;
+                StartStageClearMessage();
             }
         }
     }
@@ -2795,6 +2810,270 @@ void DrawAbsorbFrontEffect(Graphics& graphics)
 
 #include "resource_manager.cpp"
 
+void DrawHPBar(Graphics& graphics);
+
+const wchar_t* GetStageHudName()
+{
+    if (g_currentStage == 1) return L"STAGE 1  GREEN FIELD";
+    if (g_currentStage == 2) return L"STAGE 2  NIGHT HILL";
+    if (g_currentStage == 3) return L"STAGE 3  SKY RUINS";
+    if (g_currentStage == 4) return L"FINAL STAGE  BOSS";
+    if (g_currentStage == 5) return L"ENDING  CLEAR DANCE";
+    return L"KIRBY ADVENTURE";
+}
+
+void GetRescueCount(int* rescued, int* total)
+{
+    if (g_currentStage == 1)
+    {
+        *rescued = g_stage1ChildRescued;
+        *total = g_stage1ChildTotal;
+        return;
+    }
+
+    if (g_currentStage == 2)
+    {
+        *rescued = g_stage2ChildRescued;
+        *total = g_stage2ChildTotal;
+        return;
+    }
+
+    *rescued = 0;
+    *total = 0;
+}
+
+void StartStageTransitionEffect()
+{
+    g_stageFadeTick = STAGE_FADE_TICK_MAX;
+    g_stageTitleTick = STAGE_TITLE_TICK_MAX;
+}
+
+void StartStageClearMessage()
+{
+    g_stageClearTick = STAGE_CLEAR_TICK_MAX;
+}
+
+void StartRescueEffect(int x, int y)
+{
+    g_rescueEffectX = x;
+    g_rescueEffectY = y;
+    g_rescueEffectTick = RESCUE_EFFECT_TICK_MAX;
+}
+
+void UpdateScreenEffects()
+{
+    if (g_stageFadeTick > 0)
+        g_stageFadeTick--;
+
+    if (g_stageTitleTick > 0)
+        g_stageTitleTick--;
+
+    if (g_stageClearTick > 0)
+        g_stageClearTick--;
+
+    if (g_rescueEffectTick > 0)
+        g_rescueEffectTick--;
+}
+
+void DrawRescueEffect(Graphics& graphics)
+{
+    if (g_rescueEffectTick <= 0)
+        return;
+
+    int elapsed = RESCUE_EFFECT_TICK_MAX - g_rescueEffectTick;
+    int radius = 10 + elapsed * 2;
+    int alpha = g_rescueEffectTick * 210 / RESCUE_EFFECT_TICK_MAX;
+    if (alpha < 0) alpha = 0;
+    if (alpha > 210) alpha = 210;
+
+    Pen ringPen(Color(alpha, 255, 245, 120), 3);
+    SolidBrush glowBrush(Color(alpha / 2, 255, 255, 180));
+    graphics.FillEllipse(&glowBrush, g_rescueEffectX - radius / 2, g_rescueEffectY - radius / 2, radius, radius);
+    graphics.DrawEllipse(&ringPen, g_rescueEffectX - radius, g_rescueEffectY - radius, radius * 2, radius * 2);
+
+    Pen sparklePen(Color(alpha, 255, 255, 255), 2);
+    graphics.DrawLine(&sparklePen, g_rescueEffectX - radius, g_rescueEffectY, g_rescueEffectX + radius, g_rescueEffectY);
+    graphics.DrawLine(&sparklePen, g_rescueEffectX, g_rescueEffectY - radius, g_rescueEffectX, g_rescueEffectY + radius);
+}
+
+void DrawKirbyDamageFlash(Graphics& graphics)
+{
+    if (!isKirbyHit)
+        return;
+
+    int alpha = 80 + (kirbyHitTick % 6) * 18;
+    if (alpha > 180) alpha = 180;
+
+    SolidBrush flashBrush(Color(alpha, 255, 80, 120));
+    graphics.FillEllipse(&flashBrush, kirbyX - 4, kirbyY - 4, kirbyW + 8, kirbyH + 8);
+}
+
+void DrawGameHUD(Graphics& graphics)
+{
+    if (g_currentStage == 5)
+        return;
+
+    SolidBrush panelBrush(Color(150, 15, 20, 35));
+    Pen panelPen(Color(220, 255, 235, 160), 2);
+    graphics.FillRectangle(&panelBrush, 12, 12, 365, 110);
+    graphics.DrawRectangle(&panelPen, 12, 12, 365, 110);
+
+    FontFamily fontFamily(L"Arial");
+    Font stageFont(&fontFamily, 18, FontStyleBold, UnitPixel);
+    Font smallFont(&fontFamily, 14, FontStyleBold, UnitPixel);
+    SolidBrush titleBrush(Color(245, 255, 245, 210));
+    SolidBrush subBrush(Color(230, 210, 235, 255));
+
+    RectF stageRect(28.0f, 18.0f, 330.0f, 24.0f);
+    graphics.DrawString(GetStageHudName(), -1, &stageFont, stageRect, NULL, &titleBrush);
+
+    DrawHPBar(graphics);
+
+    int rescued = 0;
+    int total = 0;
+    GetRescueCount(&rescued, &total);
+
+    wchar_t rescueText[64];
+    if (total > 0)
+        wsprintf(rescueText, L"RESCUE  %d / %d", rescued, total);
+    else if (g_currentStage == 4)
+        wsprintf(rescueText, L"BOSS BATTLE");
+    else
+        wsprintf(rescueText, L"CLEAR DANCE");
+
+    RectF rescueRect(28.0f, 92.0f, 180.0f, 22.0f);
+    graphics.DrawString(rescueText, -1, &smallFont, rescueRect, NULL, &subBrush);
+
+    if (g_debugMode)
+    {
+        SolidBrush debugBrush(Color(230, 255, 120, 120));
+        RectF debugRect(225.0f, 92.0f, 140.0f, 22.0f);
+        graphics.DrawString(L"F1 HITBOX", -1, &smallFont, debugRect, NULL, &debugBrush);
+    }
+}
+
+void DrawStageMessage(Graphics& graphics, int screenW, int y, const wchar_t* text, int alpha)
+{
+    if (alpha <= 0)
+        return;
+
+    int boxW = 460;
+    int boxH = 58;
+    int boxX = screenW / 2 - boxW / 2;
+
+    SolidBrush boxBrush(Color(alpha * 150 / 255, 20, 20, 35));
+    Pen boxPen(Color(alpha, 255, 240, 180), 2);
+    graphics.FillRectangle(&boxBrush, boxX, y, boxW, boxH);
+    graphics.DrawRectangle(&boxPen, boxX, y, boxW, boxH);
+
+    FontFamily fontFamily(L"Arial");
+    Font font(&fontFamily, 26, FontStyleBold, UnitPixel);
+    SolidBrush textBrush(Color(alpha, 255, 250, 210));
+    StringFormat format;
+    format.SetAlignment(StringAlignmentCenter);
+    format.SetLineAlignment(StringAlignmentCenter);
+    RectF rect((REAL)boxX, (REAL)y, (REAL)boxW, (REAL)boxH);
+    graphics.DrawString(text, -1, &font, rect, &format, &textBrush);
+}
+
+void DrawTransitionOverlay(Graphics& graphics, int screenW, int screenH)
+{
+    if (g_stageFadeTick > 0)
+    {
+        int alpha = g_stageFadeTick * 255 / STAGE_FADE_TICK_MAX;
+        if (alpha > 255) alpha = 255;
+        SolidBrush fadeBrush(Color(alpha, 0, 0, 0));
+        graphics.FillRectangle(&fadeBrush, 0, 0, screenW, screenH);
+    }
+
+    if (g_stageTitleTick > 0)
+    {
+        int alpha = g_stageTitleTick > 18 ? 230 : g_stageTitleTick * 230 / 18;
+        DrawStageMessage(graphics, screenW, 145, GetStageHudName(), alpha);
+    }
+
+    if (g_stageClearTick > 0)
+    {
+        int alpha = g_stageClearTick > 15 ? 245 : g_stageClearTick * 245 / 15;
+        DrawStageMessage(graphics, screenW, 210, L"STAGE CLEAR", alpha);
+    }
+}
+
+void UpdatePlayer(HWND hWnd)
+{
+    if (!isDragging && g_currentStage != 5)
+    {
+        UpdateKirbyPosition(hWnd);
+    }
+
+    UpdateBalloonLimit();
+    UpdateDashWindFrame();
+    UpdateSpaceRelease();
+    UpdateAbsorbFrontEffect();
+    UpdatePowerWait();
+    UpdatePowerAttack();
+    UpdatePowerDigest();
+    UpdateFireKirbyStates();
+    UpdateKirbyHitEffect();
+    UpdateKirbyStatusEffects();
+    UpdateHPBarAnimation();
+    UpdatePowerProjectile();
+    UpdateAbilityStar();
+}
+
+void UpdateStage(HWND hWnd)
+{
+    CheckRescueChildTouch();
+    UpdateRescueObjects();
+    CheckDoorTouch(hWnd);
+
+    // 폭탄병은 제거했지만, 나중에 폭탄 커비를 다시 쓸 수 있으니 투사체 갱신 코드는 유지
+    if (g_bombKCooldownTick > 0)
+        g_bombKCooldownTick--;
+
+    if (g_bombICooldownTick > 0)
+        g_bombICooldownTick--;
+
+    UpdateBombAttack();
+    UpdateBombObjects();
+    UpdateEnemyFireBalls();
+
+    if (g_currentStage == 4)
+        g_bossIntroTick++;
+
+    UpdateBossObjects();
+    UpdateDanceStage();
+}
+
+void CheckCollision()
+{
+    CheckPowerProjectileHitMonsters();
+    CheckFireAttacksHitMonsters();
+    CheckKirbyAttacksHitBoss();
+}
+
+void UpdateMonster()
+{
+    for (int i = 0; i < MONSTER_COUNT; i++)
+    {
+        g_monsters[i].Update();
+    }
+}
+
+void CheckKirbyCollision()
+{
+    CheckKirbyHitByMonsters();
+    CheckEnemyFireBallsHitKirby();
+}
+
+void DrawHUD(Graphics& graphics, int screenW, int screenH)
+{
+    DrawGameHUD(graphics);
+    DrawKirbyStatusUI(graphics);
+    DrawBossHpBar(graphics);
+    DrawBossPatternText(graphics);
+    DrawTransitionOverlay(graphics, screenW, screenH);
+}
 void DrawDebugInfo(HDC memDC, HWND hWnd)
 {
     if (!g_debugMode)
@@ -3049,6 +3328,7 @@ void DrawScene(HDC hdc, HWND hWnd)
     }
 
     DrawRescueObjects(graphics);
+    DrawRescueEffect(graphics);
 
     DrawDashWind(graphics);
 
@@ -3060,6 +3340,9 @@ void DrawScene(HDC hdc, HWND hWnd)
     DrawEnemyFireBalls(graphics);
     DrawBossObjects(graphics);
 
+    bool hideKirbyBlink = isKirbyHit && g_currentStage != 5 && ((kirbyHitTick / 3) % 2 == 1);
+    if (!hideKirbyBlink)
+    {
     if (g_currentStage == 5)
     {
         DrawDanceKirby(graphics);
@@ -3221,6 +3504,8 @@ void DrawScene(HDC hdc, HWND hWnd)
         DrawKirbyImage(graphics, g_idleFrame);
     }
 
+    }
+    DrawKirbyDamageFlash(graphics);
     if (g_invincibleMode)
     {
         Pen invPen(Color(220, 255, 255, 80), 3);
@@ -3242,10 +3527,7 @@ void DrawScene(HDC hdc, HWND hWnd)
         }
     }
 
-    DrawHPBar(graphics);
-    DrawKirbyStatusUI(graphics);
-    DrawBossHpBar(graphics);
-    DrawBossPatternText(graphics);
+    DrawHUD(graphics, rt.right, rt.bottom);
 
     graphics.Flush();
 
@@ -3326,6 +3608,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                         bombBalloonFrameIndex = 0;
                         bombBalloonStartFrameDone = false;
                         UpdateCamera(hWnd);
+                        StartStageTransitionEffect();
                     }
 
                     InvalidateRect(hWnd, NULL, FALSE);
@@ -3337,53 +3620,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
         if (wParam == 1)
         {
-            if (!isDragging && g_currentStage != 5)
-            {
-                UpdateKirbyPosition(hWnd);
-            }
-
-            UpdateBalloonLimit();
-            UpdateDashWindFrame();
-            UpdateSpaceRelease();
-            UpdateAbsorbFrontEffect();
-            UpdatePowerWait();
-            UpdatePowerAttack();
-            UpdatePowerDigest();
-            UpdateFireKirbyStates();
-            UpdateKirbyHitEffect();
-            UpdateKirbyStatusEffects();
-            UpdateHPBarAnimation();
-            UpdatePowerProjectile();
-            UpdateAbilityStar();
-            CheckRescueChildTouch();
-            UpdateRescueObjects();
-            CheckDoorTouch(hWnd);
-            // 폭탄병은 제거했지만, 나중에 폭탄 커비를 다시 쓸 수 있으니 투사체 갱신 코드는 유지
-            if (g_bombKCooldownTick > 0)
-                g_bombKCooldownTick--;
-
-            if (g_bombICooldownTick > 0)
-                g_bombICooldownTick--;
-
-            UpdateBombAttack();
-            UpdateBombObjects();
-            UpdateEnemyFireBalls();
-            if (g_currentStage == 4)
-                g_bossIntroTick++;
-
-            UpdateBossObjects();
-            UpdateDanceStage();
-            CheckPowerProjectileHitMonsters();
-            CheckFireAttacksHitMonsters();
-            CheckKirbyAttacksHitBoss();
-
-            for (int i = 0; i < MONSTER_COUNT; i++)
-            {
-                g_monsters[i].Update();
-            }
-
-            CheckKirbyHitByMonsters();
-            CheckEnemyFireBallsHitKirby();
+            UpdatePlayer(hWnd);
+            UpdateStage(hWnd);
+            CheckCollision();
+            UpdateMonster();
+            CheckKirbyCollision();
 
             if (isGameOver && !g_gameOverHandled)
             {
@@ -3410,6 +3651,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 }
             }
 
+            UpdateScreenEffects();
             UpdateCamera(hWnd);
 
             InvalidateRect(hWnd, NULL, FALSE);

@@ -357,6 +357,7 @@ void CheckRescueChildTouch()
             g_stage1Boy.active = false;
             g_stage1Boy.rescued = true;
             g_stage1ChildRescued++;
+            StartRescueEffect(g_stage1Boy.x + g_stage1Boy.w / 2, g_stage1Boy.y + g_stage1Boy.h / 2);
 
             if (g_stage1ChildRescued >= g_stage1ChildTotal)
             {
@@ -380,6 +381,7 @@ void CheckRescueChildTouch()
                 g_stage2Children[i].active = false;
                 g_stage2Children[i].rescued = true;
                 g_stage2ChildRescued++;
+                StartRescueEffect(g_stage2Children[i].x + g_stage2Children[i].w / 2, g_stage2Children[i].y + g_stage2Children[i].h / 2);
 
                 if (g_stage2ChildRescued >= g_stage2ChildTotal)
                 {
@@ -411,6 +413,7 @@ void UpdateDoorOpen(StageDoor* door)
             {
                 door->opened = true;
                 door->opening = false;
+                StartStageClearMessage();
             }
         }
     }
@@ -474,6 +477,7 @@ void GoNextMap(HWND hWnd)
         InitRescueObjects();
         InitMonsters();
         UpdateCamera(hWnd);
+        StartStageTransitionEffect();
         g_isChangingMap = false;
         return;
     }
@@ -489,6 +493,7 @@ void GoNextMap(HWND hWnd)
         InitRescueObjects();
         InitMonsters();
         UpdateCamera(hWnd);
+        StartStageTransitionEffect();
         g_isChangingMap = false;
         return;
     }
@@ -504,6 +509,7 @@ void GoNextMap(HWND hWnd)
         InitRescueObjects();
         InitMonsters();
         UpdateCamera(hWnd);
+        StartStageTransitionEffect();
         g_isChangingMap = false;
         return;
     }
@@ -520,6 +526,7 @@ void GoNextMap(HWND hWnd)
         InitRescueObjects();
         InitMonsters();
         UpdateCamera(hWnd);
+        StartStageTransitionEffect();
         g_isChangingMap = false;
         return;
     }
@@ -603,8 +610,9 @@ void DrawChildObject(Graphics& graphics, RescueChild child, int frameType)
     if (frameType == 83 && g_studentGirlFrame != NULL)
         childFrame = g_studentGirlFrame;
 
-    int shakeX = (g_rescueAnimTick / 4) % 2 == 0 ? -1 : 1;
-    DrawWorldImage(graphics, childFrame, child.x + shakeX, child.y, child.w, child.h);
+    int shakeX = (g_rescueAnimTick / 6) % 2 == 0 ? -1 : 1;
+    int bobY = (g_rescueAnimTick / 10) % 2 == 0 ? 0 : -1;
+    DrawWorldImage(graphics, childFrame, child.x + shakeX, child.y + bobY, child.w, child.h);
 }
 
 void DrawRescueObjects(Graphics& graphics)
