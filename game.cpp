@@ -591,6 +591,7 @@ bool g_kirbyFallGameOver = false;
 const int KIRBY_MAX_LIVES = 7;
 const int RETRY_COUNTDOWN_TICKS = 250; // GAME_TIMER_MS 40ms 기준 10초
 const int PAUSE_MENU_COUNT = 3;
+const int CONTROL_GUIDE_TICK_MAX = 150; // GAME_TIMER_MS 40ms 기준 약 6초
 int g_kirbyLives = KIRBY_MAX_LIVES;
 bool g_isPaused = false;
 int g_pauseMenuIndex = 0;
@@ -601,6 +602,7 @@ int g_retryRespawnX = 55;
 int g_retryRespawnY = 470;
 int g_lastSafeKirbyX = 55;
 int g_lastSafeKirbyY = 470;
+int g_controlGuideTick = CONTROL_GUIDE_TICK_MAX;
 
 enum GameSoundId
 {
@@ -3020,6 +3022,9 @@ void UpdateScreenEffects()
     if (g_stageClearTick > 0)
         g_stageClearTick--;
 
+    if (g_controlGuideTick > 0)
+        g_controlGuideTick--;
+
     if (g_rescueEffectTick > 0)
         g_rescueEffectTick--;
 }
@@ -3430,6 +3435,12 @@ void RestartCurrentStage(HWND hWnd)
     InitRescueObjects();
     InitMonsters();
     StartStageTransitionEffect();
+
+    if (g_currentStage == 1)
+        g_controlGuideTick = CONTROL_GUIDE_TICK_MAX;
+    else
+        g_controlGuideTick = 0;
+
     UpdateCamera(hWnd);
     PlayGameSound(SFX_RETRY);
 }
@@ -3528,30 +3539,36 @@ void UpdateRetryCountdown(HWND hWnd)
 
 void DrawControlGuide(Graphics& graphics, int screenW)
 {
-    if (g_currentStage == 5)
+    if (g_currentStage != 1 || g_controlGuideTick <= 0)
         return;
 
-    int boxW = 210;
-    int boxH = 130;
+    int boxW = 230;
+    int boxH = 172;
     int boxX = screenW - boxW - 16;
     int boxY = 14;
 
-    SolidBrush boxBrush(Color(145, 12, 16, 30));
-    Pen boxPen(Color(210, 255, 235, 150), 2);
+    int alpha = 155;
+    if (g_controlGuideTick < 35)
+        alpha = 155 * g_controlGuideTick / 35;
+
+    SolidBrush boxBrush(Color(alpha, 12, 16, 30));
+    Pen boxPen(Color(alpha + 70 > 255 ? 255 : alpha + 70, 255, 235, 150), 2);
     graphics.FillRectangle(&boxBrush, boxX, boxY, boxW, boxH);
     graphics.DrawRectangle(&boxPen, boxX, boxY, boxW, boxH);
 
     FontFamily fontFamily(L"Arial");
     Font titleFont(&fontFamily, 16, FontStyleBold, UnitPixel);
     Font lineFont(&fontFamily, 14, FontStyleBold, UnitPixel);
-    SolidBrush titleBrush(Color(245, 255, 245, 210));
-    SolidBrush lineBrush(Color(235, 230, 235, 255));
+    SolidBrush titleBrush(Color(alpha + 90 > 255 ? 255 : alpha + 90, 255, 245, 210));
+    SolidBrush lineBrush(Color(alpha + 80 > 255 ? 255 : alpha + 80, 230, 235, 255));
 
     graphics.DrawString(L"CONTROL", -1, &titleFont, PointF((REAL)(boxX + 14), (REAL)(boxY + 10)), &titleBrush);
     graphics.DrawString(L"\x2190 \x2192  이동", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 36)), &lineBrush);
-    graphics.DrawString(L"Space  점프/날기", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 58)), &lineBrush);
+    graphics.DrawString(L"Space  풍선 날기", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 58)), &lineBrush);
     graphics.DrawString(L"K  공격", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 80)), &lineBrush);
-    graphics.DrawString(L"O  변신 해제", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 102)), &lineBrush);
+    graphics.DrawString(L"I  특별 공격", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 102)), &lineBrush);
+    graphics.DrawString(L"O  변신 해제", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 124)), &lineBrush);
+    graphics.DrawString(L"ESC  일시정지", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 146)), &lineBrush);
 }
 
 void DrawPauseMenu(Graphics& graphics, int screenW, int screenH)
@@ -4288,6 +4305,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                         bombBalloonStartFrameDone = false;
                         UpdateCamera(hWnd);
                         StartStageTransitionEffect();
+                        g_controlGuideTick = CONTROL_GUIDE_TICK_MAX;
                     }
 
                     InvalidateRect(hWnd, NULL, FALSE);
@@ -4821,13 +4839,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             break;
 
         case 'K':
-            PlayGameSound(SFX_ATTACK);
             if (isBombKirby)
             {
+                PlayGameSound(SFX_ATTACK);
                 StartBombAttack();
             }
             else if (isFireKirby)
             {
+                PlayGameSound(SFX_ATTACK);
                 // 불 속성 커비 상태에서는 K가 빨아들이기가 아니라 46번 불 뿜기 공격
                 isSpace = false;
                 isSpaceRelease = false;
@@ -4836,6 +4855,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             }
             else if (isPowerKirby)
             {
+                PlayGameSound(SFX_ATTACK);
                 // 커진 커비 상태에서는 K가 빨아들이기가 아니라 33번 자세 + 34번 발사로 동작
                 isSpace = false;
                 isSpaceRelease = false;
@@ -4877,11 +4897,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
         case 'I':
             if (isFireKirby)
             {
+                PlayGameSound(SFX_ATTACK);
                 // 불 속성 커비 I 공격: 47번 화염구 발사
                 SpawnFireBall();
             }
             else if (isBombKirby)
             {
+                PlayGameSound(SFX_ATTACK);
                 // 폭탄 커비 I 필살기: 3배 크기 폭탄이 바닥을 튕기며 이동
                 StartBombSpecialAttack();
             }
