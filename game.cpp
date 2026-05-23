@@ -3,6 +3,7 @@
 #include <mmsystem.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 #pragma comment(lib, "gdiplus.lib")
 #pragma comment(lib, "winmm.lib")
@@ -879,6 +880,14 @@ int g_rescueEffectTick = 0;
 int g_rescueEffectX = 0;
 int g_rescueEffectY = 0;
 
+const int STAR_TRANSITION_CLOSE_TICK = 28;
+const int STAR_TRANSITION_OPEN_TICK = 28;
+bool g_starTransitionActive = false;
+bool g_starTransitionMapChanged = false;
+int g_starTransitionTick = 0;
+int g_starTransitionTargetStage = 1;
+HWND g_starTransitionHwnd = NULL;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 
 RECT GetPowerProjectileSweepRect();
@@ -921,6 +930,10 @@ void ResetDanceStage();
 void UpdateDanceStage();
 void DrawDanceKirby(Graphics& graphics);
 void StartStageTransitionEffect();
+void StartStarStageTransition(HWND hWnd, int targetStage);
+void UpdateStarStageTransition(HWND hWnd);
+void DrawStarStageTransition(Graphics& graphics, int screenW, int screenH);
+void ChangeStageNow(HWND hWnd, int targetStage);
 void StartStageClearMessage();
 void StartRescueEffect(int x, int y);
 void PlayGameSound(int soundId);
@@ -3007,6 +3020,110 @@ void StartStageTransitionEffect()
     g_stageTitleTick = STAGE_TITLE_TICK_MAX;
 }
 
+void StartStarStageTransition(HWND hWnd, int targetStage)
+{
+    if (g_starTransitionActive)
+        return;
+
+    g_starTransitionActive = true;
+    g_starTransitionMapChanged = false;
+    g_starTransitionTick = 0;
+    g_starTransitionTargetStage = targetStage;
+    g_starTransitionHwnd = hWnd;
+    g_isChangingMap = true;
+
+    StopMove();
+    isAbsorb = false;
+    isSpace = false;
+    isSpaceRelease = false;
+    isCrouch = false;
+    balloonTick = 0;
+    spaceKeyHeld = false;
+    ResetStageProjectiles();
+}
+
+void UpdateStarStageTransition(HWND hWnd)
+{
+    if (!g_starTransitionActive)
+        return;
+
+    g_starTransitionTick++;
+
+    if (!g_starTransitionMapChanged &&
+        g_starTransitionTick >= STAR_TRANSITION_CLOSE_TICK)
+    {
+        ChangeStageNow(hWnd, g_starTransitionTargetStage);
+        g_starTransitionMapChanged = true;
+    }
+
+    if (g_starTransitionTick >= STAR_TRANSITION_CLOSE_TICK + STAR_TRANSITION_OPEN_TICK)
+    {
+        g_starTransitionActive = false;
+        g_starTransitionMapChanged = false;
+        g_starTransitionTick = 0;
+        g_isChangingMap = false;
+    }
+}
+
+void MakeStarPoints(PointF* points, int cx, int cy, float outerR, float innerR)
+{
+    const double PI = 3.14159265358979323846;
+
+    for (int i = 0; i < 10; i++)
+    {
+        double angle = -PI / 2.0 + i * PI / 5.0;
+        float r = (i % 2 == 0) ? outerR : innerR;
+
+        points[i].X = (REAL)(cx + cos(angle) * r);
+        points[i].Y = (REAL)(cy + sin(angle) * r);
+    }
+}
+
+void DrawStarStageTransition(Graphics& graphics, int screenW, int screenH)
+{
+    if (!g_starTransitionActive)
+        return;
+
+    float progress = 0.0f;
+
+    if (g_starTransitionTick < STAR_TRANSITION_CLOSE_TICK)
+        progress = (float)g_starTransitionTick / (float)STAR_TRANSITION_CLOSE_TICK;
+    else
+    {
+        int openTick = g_starTransitionTick - STAR_TRANSITION_CLOSE_TICK;
+        progress = 1.0f - (float)openTick / (float)STAR_TRANSITION_OPEN_TICK;
+    }
+
+    if (progress < 0.0f) progress = 0.0f;
+    if (progress > 1.0f) progress = 1.0f;
+
+    float maxRadius = (float)(screenW > screenH ? screenW : screenH) * 0.95f;
+    float outerRadius = maxRadius * (1.0f - progress);
+    float innerRadius = outerRadius * 0.45f;
+
+    SolidBrush blackBrush(Color(255, 0, 0, 0));
+
+    if (outerRadius <= 2.0f)
+    {
+        graphics.FillRectangle(&blackBrush, 0, 0, screenW, screenH);
+        return;
+    }
+
+    PointF starPoints[10];
+    MakeStarPoints(starPoints, screenW / 2, screenH / 2, outerRadius, innerRadius);
+
+    GraphicsPath starPath;
+    starPath.AddPolygon(starPoints, 10);
+
+    Region darkRegion(Rect(0, 0, screenW, screenH));
+    darkRegion.Exclude(&starPath);
+
+    graphics.FillRegion(&blackBrush, &darkRegion);
+
+    Pen starPen(Color(180, 255, 245, 140), 3);
+    graphics.DrawPolygon(&starPen, starPoints, 10);
+}
+
 void ResetPlayTimer()
 {
     g_playTimerStarted = false;
@@ -4364,6 +4481,7 @@ void DrawScene(HDC hdc, HWND hWnd)
     DrawBossPhase2TransitionOverlay(graphics, rt.right, rt.bottom);
     DrawPauseMenu(graphics, rt.right, rt.bottom);
     DrawRetryOverlay(graphics, rt.right, rt.bottom);
+    DrawStarStageTransition(graphics, rt.right, rt.bottom);
 
     graphics.Flush();
 
@@ -4452,6 +4570,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
                     InvalidateRect(hWnd, NULL, FALSE);
                 }
+            }
+
+            return 0;
+        }
+
+        if (g_starTransitionActive)
+        {
+            if (wParam == 1)
+            {
+                UpdateStarStageTransition(hWnd);
+                SyncStageBGM();
+                InvalidateRect(hWnd, NULL, FALSE);
             }
 
             return 0;

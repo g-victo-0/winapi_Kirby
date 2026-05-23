@@ -452,25 +452,10 @@ void UpdateRescueObjects()
     }
 }
 
-void GoNextMap(HWND hWnd)
+void ChangeStageNow(HWND hWnd, int targetStage)
 {
-    if (g_isChangingMap)
-        return;
-
-    g_isChangingMap = true;
-
-    StopMove();
-    isAbsorb = false;
-    isSpace = false;
-    isSpaceRelease = false;
-    isCrouch = false;
-    balloonTick = 0;
-    spaceKeyHeld = false;
-    ResetStageProjectiles();
-
-    if (g_currentStage == 1)
+    if (targetStage == 2)
     {
-        // 능력 상태는 건드리지 않고 2스테이지로 이동
         g_currentStage = 2;
         kirbyX = 70;
         kirbyY = 330;
@@ -478,17 +463,16 @@ void GoNextMap(HWND hWnd)
         g_lastSafeKirbyX = kirbyX;
         g_lastSafeKirbyY = kirbyY;
         cameraX = 0;
+
         InitRescueObjects();
         InitMonsters();
         UpdateCamera(hWnd);
         StartStageTransitionEffect();
-        g_isChangingMap = false;
         return;
     }
 
-    if (g_currentStage == 2)
+    if (targetStage == 3)
     {
-        // 2스테이지 문에 들어가면 3스테이지로 이동
         g_currentStage = 3;
         kirbyX = 145;
         kirbyY = 500;
@@ -496,17 +480,16 @@ void GoNextMap(HWND hWnd)
         g_lastSafeKirbyX = kirbyX;
         g_lastSafeKirbyY = kirbyY;
         cameraX = 0;
+
         InitRescueObjects();
         InitMonsters();
         UpdateCamera(hWnd);
         StartStageTransitionEffect();
-        g_isChangingMap = false;
         return;
     }
 
-    if (g_currentStage == 3)
+    if (targetStage == 4)
     {
-        // 3스테이지 문에 들어가면 마지막 4스테이지/보스전으로 이동
         g_currentStage = 4;
         kirbyX = 80;
         kirbyY = 480;
@@ -514,17 +497,16 @@ void GoNextMap(HWND hWnd)
         g_lastSafeKirbyX = kirbyX;
         g_lastSafeKirbyY = kirbyY;
         cameraX = 0;
+
         InitRescueObjects();
         InitMonsters();
         UpdateCamera(hWnd);
         StartStageTransitionEffect();
-        g_isChangingMap = false;
         return;
     }
 
-    if (g_currentStage == 4)
+    if (targetStage == 5)
     {
-        // 보스전 보상 문으로 들어가면 임시 춤 확인 맵으로 이동
         g_currentStage = 5;
         g_stageClearTick = 0;
         kirbyX = DANCE_CENTER_X - NORMAL_KIRBY_W / 2;
@@ -533,14 +515,27 @@ void GoNextMap(HWND hWnd)
         g_lastSafeKirbyX = kirbyX;
         g_lastSafeKirbyY = kirbyY;
         cameraX = 0;
+
         SetKirbyNormalSizeKeepBottom();
         InitRescueObjects();
         InitMonsters();
         UpdateCamera(hWnd);
         StartStageTransitionEffect();
-        g_isChangingMap = false;
         return;
     }
+}
+
+void GoNextMap(HWND hWnd)
+{
+    if (g_isChangingMap || g_starTransitionActive)
+        return;
+
+    int targetStage = g_currentStage + 1;
+
+    if (targetStage > 5)
+        return;
+
+    StartStarStageTransition(hWnd, targetStage);
 }
 
 void CheckDoorTouch(HWND hWnd)
