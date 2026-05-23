@@ -54,6 +54,7 @@ void StartJump()
         kirbyVY = jumpPower;
         isOnGround = false;
         jumpKeyDown = true;
+        PlayGameSound(SFX_JUMP);
     }
 }
 
@@ -428,6 +429,7 @@ void StartKirbyHitEffect()
     isKirbyHit = true;
     kirbyHitTick = 0;
     kirbyHitCooldownTick = KIRBY_HIT_COOLDOWN;
+    PlayGameSound(SFX_HIT);
 
     // 몬스터에게 공격받을 때마다 실제 체력 목표값만 15% 감소
     // 화면 체력은 UpdateHPBarAnimation()에서 조금씩 따라 내려감

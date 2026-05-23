@@ -588,6 +588,33 @@ const int GAME_OVER_DELAY = 30; // HP 표시가 0이 된 뒤 약 0.5초 후 종료
 // 낙사 게임오버 상태. HP가 0이 된 게임오버와 메시지를 다르게 보여주기 위해 따로 저장
 bool g_kirbyFallGameOver = false;
 
+const int KIRBY_MAX_LIVES = 7;
+const int RETRY_COUNTDOWN_TICKS = 250; // GAME_TIMER_MS 40ms 기준 10초
+const int PAUSE_MENU_COUNT = 3;
+int g_kirbyLives = KIRBY_MAX_LIVES;
+bool g_isPaused = false;
+int g_pauseMenuIndex = 0;
+bool g_retryActive = false;
+bool g_finalGameOver = false;
+int g_retryCountdownTick = RETRY_COUNTDOWN_TICKS;
+int g_retryRespawnX = 55;
+int g_retryRespawnY = 470;
+int g_lastSafeKirbyX = 55;
+int g_lastSafeKirbyY = 470;
+
+enum GameSoundId
+{
+    SFX_JUMP = 0,
+    SFX_HIT,
+    SFX_RESCUE,
+    SFX_DOOR,
+    SFX_CLEAR,
+    SFX_BOSS_PHASE2,
+    SFX_PAUSE,
+    SFX_RETRY,
+    SFX_ATTACK
+};
+
 // 34번 투사체 상태
 bool isPowerProjectileActive = false;
 int powerProjectileX = 0;
@@ -887,6 +914,11 @@ void DrawDanceKirby(Graphics& graphics);
 void StartStageTransitionEffect();
 void StartStageClearMessage();
 void StartRescueEffect(int x, int y);
+void PlayGameSound(int soundId);
+void RestartCurrentStage(HWND hWnd);
+void StartRetrySequence();
+void RespawnKirbyAtRetryPoint(HWND hWnd);
+void UpdateRetryCountdown(HWND hWnd);
 
 // 보스 보상 문 변수는 아래쪽 보스전 코드에서 실제로 정의됨.
 // CheckDoorTouch가 그보다 위에 있어서 여기서는 미리 알려만 줌.
@@ -1188,6 +1220,7 @@ void StartBossPhase2()
     g_bossPhase2Transition = true;
     g_bossPhase2TransitionTick = BOSS_PHASE2_TRANSITION_TOTAL;
     g_screenShakeTick = BOSS_PHASE2_SHAKE_TICKS;
+    PlayGameSound(SFX_BOSS_PHASE2);
 
     // 2페이즈 패턴은 전환 연출이 끝난 뒤부터 시작되도록 여유를 둠.
     g_boss.fastDashCooldown = RandomRange(95, 150);
@@ -2342,6 +2375,7 @@ void UpdateBossRewardObjects()
                 g_rewardDoorOpening = false;
                 g_rewardDoorOpened = true;
                 g_rewardDoorFrameIndex = 3;
+                PlayGameSound(SFX_DOOR);
                 StartStageClearMessage();
             }
         }
@@ -2964,6 +2998,7 @@ void StartStageTransitionEffect()
 void StartStageClearMessage()
 {
     g_stageClearTick = STAGE_CLEAR_TICK_MAX;
+    PlayGameSound(SFX_CLEAR);
 }
 
 void StartRescueEffect(int x, int y)
@@ -2971,6 +3006,7 @@ void StartRescueEffect(int x, int y)
     g_rescueEffectX = x;
     g_rescueEffectY = y;
     g_rescueEffectTick = RESCUE_EFFECT_TICK_MAX;
+    PlayGameSound(SFX_RESCUE);
 }
 
 void UpdateScreenEffects()
@@ -3131,6 +3167,11 @@ void DrawGameHUD(Graphics& graphics)
         graphics.DrawString(L"BOSS", -1, &smallFont, bossRect, NULL, &subBrush);
     }
 
+    wchar_t lifeText[32];
+    wsprintf(lifeText, L"LIFE  %d", g_kirbyLives);
+    RectF lifeRect(28.0f, 116.0f, 110.0f, 20.0f);
+    graphics.DrawString(lifeText, -1, &smallFont, lifeRect, NULL, &subBrush);
+
     if (g_debugMode)
     {
         SolidBrush debugBrush(Color(230, 255, 120, 120));
@@ -3186,6 +3227,426 @@ void DrawTransitionOverlay(Graphics& graphics, int screenW, int screenH)
     }
 }
 
+const wchar_t* GetGameSoundFileName(int soundId)
+{
+    switch (soundId)
+    {
+    case SFX_JUMP: return L"jump.wav";
+    case SFX_HIT: return L"hit.wav";
+    case SFX_RESCUE: return L"rescue.wav";
+    case SFX_DOOR: return L"door.wav";
+    case SFX_CLEAR: return L"clear.wav";
+    case SFX_BOSS_PHASE2: return L"boss_phase2.wav";
+    case SFX_PAUSE: return L"pause.wav";
+    case SFX_RETRY: return L"retry.wav";
+    case SFX_ATTACK: return L"attack.wav";
+    }
+
+    return NULL;
+}
+
+const wchar_t* GetGameSoundAlias(int soundId)
+{
+    switch (soundId)
+    {
+    case SFX_JUMP: return L"sfx_jump";
+    case SFX_HIT: return L"sfx_hit";
+    case SFX_RESCUE: return L"sfx_rescue";
+    case SFX_DOOR: return L"sfx_door";
+    case SFX_CLEAR: return L"sfx_clear";
+    case SFX_BOSS_PHASE2: return L"sfx_phase2";
+    case SFX_PAUSE: return L"sfx_pause";
+    case SFX_RETRY: return L"sfx_retry";
+    case SFX_ATTACK: return L"sfx_attack";
+    }
+
+    return NULL;
+}
+
+bool IsFileExistsW(const wchar_t* path)
+{
+    DWORD attr = GetFileAttributesW(path);
+    return attr != INVALID_FILE_ATTRIBUTES && (attr & FILE_ATTRIBUTE_DIRECTORY) == 0;
+}
+
+void GetExeFolder(wchar_t* folder)
+{
+    GetModuleFileNameW(NULL, folder, MAX_PATH);
+
+    int len = lstrlen(folder);
+    for (int i = len - 1; i >= 0; i--)
+    {
+        if (folder[i] == L'\\' || folder[i] == L'/')
+        {
+            folder[i] = 0;
+            return;
+        }
+    }
+
+    folder[0] = 0;
+}
+
+bool BuildGameSoundPath(const wchar_t* fileName, wchar_t* outPath)
+{
+    wchar_t exeFolder[MAX_PATH];
+    GetExeFolder(exeFolder);
+
+    wsprintf(outPath, L"sound\\%s", fileName);
+    if (IsFileExistsW(outPath))
+        return true;
+
+    wsprintf(outPath, L"..\\..\\sound\\%s", fileName);
+    if (IsFileExistsW(outPath))
+        return true;
+
+    wsprintf(outPath, L"%s\\sound\\%s", exeFolder, fileName);
+    if (IsFileExistsW(outPath))
+        return true;
+
+    wsprintf(outPath, L"%s\\..\\..\\sound\\%s", exeFolder, fileName);
+    if (IsFileExistsW(outPath))
+        return true;
+
+    return false;
+}
+
+void PlayGameSound(int soundId)
+{
+    const wchar_t* fileName = GetGameSoundFileName(soundId);
+    const wchar_t* alias = GetGameSoundAlias(soundId);
+
+    if (fileName == NULL || alias == NULL)
+        return;
+
+    wchar_t path[MAX_PATH];
+    if (!BuildGameSoundPath(fileName, path))
+        return;
+
+    wchar_t command[512];
+    wsprintf(command, L"stop %s", alias);
+    mciSendStringW(command, NULL, 0, NULL);
+
+    wsprintf(command, L"close %s", alias);
+    mciSendStringW(command, NULL, 0, NULL);
+
+    wsprintf(command, L"open \"%s\" type waveaudio alias %s", path, alias);
+    if (mciSendStringW(command, NULL, 0, NULL) != 0)
+        return;
+
+    wsprintf(command, L"play %s from 0", alias);
+    mciSendStringW(command, NULL, 0, NULL);
+}
+
+void ResetKirbyPlayState(bool recoverHp)
+{
+    StopMove();
+    isDash = false;
+    isDragging = false;
+    jumpKeyDown = false;
+    isAbsorb = false;
+    isSpace = false;
+    isSpaceRelease = false;
+    isCrouch = false;
+    balloonTick = 0;
+    spaceKeyHeld = false;
+    spaceFrameIndex = 0;
+    spaceStartFrameDone = false;
+    fireBalloonFrameIndex = 0;
+    fireBalloonStartFrameDone = false;
+    bombBalloonFrameIndex = 0;
+    bombBalloonStartFrameDone = false;
+    kirbyVY = 0.0f;
+    isOnGround = false;
+
+    isGameOver = false;
+    g_gameOverHandled = false;
+    g_kirbyFallGameOver = false;
+    gameOverTick = 0;
+    isKirbyHit = false;
+    kirbyHitTick = 0;
+    kirbyHitCooldownTick = KIRBY_HIT_COOLDOWN;
+    g_kirbySlowTick = 0;
+    g_kirbyBurnTick = 0;
+    g_kirbyBurnDamageTick = 0;
+
+    isPowerProjectileActive = false;
+    isAbilityStarActive = false;
+    isFireBreath = false;
+    isFireBallActive = false;
+    isBombAttack = false;
+    g_bombSpecialAttackMode = false;
+
+    if (recoverHp)
+    {
+        kirbyHP = kirbyMaxHP;
+        kirbyDisplayHP = (float)kirbyMaxHP;
+    }
+}
+
+void SetKirbyStageStartPosition()
+{
+    if (g_currentStage == 1)
+    {
+        kirbyX = 55;
+        kirbyY = 470;
+    }
+    else if (g_currentStage == 2)
+    {
+        kirbyX = 70;
+        kirbyY = 330;
+    }
+    else if (g_currentStage == 3)
+    {
+        kirbyX = 145;
+        kirbyY = 500;
+    }
+    else if (g_currentStage == 4)
+    {
+        kirbyX = 80;
+        kirbyY = 480;
+    }
+    else if (g_currentStage == 5)
+    {
+        kirbyX = DANCE_CENTER_X - NORMAL_KIRBY_W / 2;
+        kirbyY = DANCE_FLOOR_Y - NORMAL_KIRBY_H;
+        SetKirbyNormalSizeKeepBottom();
+    }
+
+    g_lastSafeKirbyX = kirbyX;
+    g_lastSafeKirbyY = kirbyY;
+}
+
+void RestartCurrentStage(HWND hWnd)
+{
+    g_isPaused = false;
+    g_retryActive = false;
+    g_finalGameOver = false;
+    g_pauseMenuIndex = 0;
+
+    ResetKirbyPlayState(true);
+    SetKirbyStageStartPosition();
+    cameraX = 0;
+
+    InitRescueObjects();
+    InitMonsters();
+    StartStageTransitionEffect();
+    UpdateCamera(hWnd);
+    PlayGameSound(SFX_RETRY);
+}
+
+void StartRetrySequence()
+{
+    if (g_retryActive || g_finalGameOver)
+        return;
+
+    g_gameOverHandled = true;
+    StopMove();
+    isSpace = false;
+    isSpaceRelease = false;
+    isAbsorb = false;
+    isCrouch = false;
+    balloonTick = 0;
+    spaceKeyHeld = false;
+    kirbyVY = 0.0f;
+
+    if (g_kirbyFallGameOver)
+    {
+        g_retryRespawnX = g_lastSafeKirbyX;
+        g_retryRespawnY = g_lastSafeKirbyY;
+    }
+    else
+    {
+        g_retryRespawnX = kirbyX;
+        g_retryRespawnY = kirbyY;
+    }
+
+    if (g_kirbyLives > 0)
+        g_kirbyLives--;
+
+    PlayGameSound(SFX_HIT);
+
+    if (g_kirbyLives <= 0)
+    {
+        g_finalGameOver = true;
+        g_retryActive = false;
+        return;
+    }
+
+    g_retryActive = true;
+    g_retryCountdownTick = RETRY_COUNTDOWN_TICKS;
+}
+
+void RespawnKirbyAtRetryPoint(HWND hWnd)
+{
+    if (!g_retryActive || g_kirbyLives <= 0)
+        return;
+
+    ResetKirbyPlayState(true);
+
+    kirbyX = g_retryRespawnX;
+    kirbyY = g_retryRespawnY;
+
+    int currentWorldW = GetCurrentWorldW();
+    if (kirbyX < 0)
+        kirbyX = 0;
+
+    if (kirbyX + kirbyW > currentWorldW)
+        kirbyX = currentWorldW - kirbyW;
+
+    if (kirbyY < 0)
+        kirbyY = 0;
+
+    if (kirbyY + kirbyH > WORLD_H)
+        kirbyY = WORLD_H - kirbyH;
+
+    g_retryActive = false;
+    g_finalGameOver = false;
+    g_retryCountdownTick = RETRY_COUNTDOWN_TICKS;
+    g_lastSafeKirbyX = kirbyX;
+    g_lastSafeKirbyY = kirbyY;
+
+    StartStageTransitionEffect();
+    UpdateCamera(hWnd);
+    PlayGameSound(SFX_RETRY);
+}
+
+void UpdateRetryCountdown(HWND hWnd)
+{
+    if (!g_retryActive)
+        return;
+
+    if (g_retryCountdownTick > 0)
+        g_retryCountdownTick--;
+    else
+    {
+        g_retryActive = false;
+        g_finalGameOver = true;
+    }
+
+    InvalidateRect(hWnd, NULL, FALSE);
+}
+
+void DrawControlGuide(Graphics& graphics, int screenW)
+{
+    if (g_currentStage == 5)
+        return;
+
+    int boxW = 210;
+    int boxH = 130;
+    int boxX = screenW - boxW - 16;
+    int boxY = 14;
+
+    SolidBrush boxBrush(Color(145, 12, 16, 30));
+    Pen boxPen(Color(210, 255, 235, 150), 2);
+    graphics.FillRectangle(&boxBrush, boxX, boxY, boxW, boxH);
+    graphics.DrawRectangle(&boxPen, boxX, boxY, boxW, boxH);
+
+    FontFamily fontFamily(L"Arial");
+    Font titleFont(&fontFamily, 16, FontStyleBold, UnitPixel);
+    Font lineFont(&fontFamily, 14, FontStyleBold, UnitPixel);
+    SolidBrush titleBrush(Color(245, 255, 245, 210));
+    SolidBrush lineBrush(Color(235, 230, 235, 255));
+
+    graphics.DrawString(L"CONTROL", -1, &titleFont, PointF((REAL)(boxX + 14), (REAL)(boxY + 10)), &titleBrush);
+    graphics.DrawString(L"\x2190 \x2192  이동", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 36)), &lineBrush);
+    graphics.DrawString(L"Space  점프/날기", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 58)), &lineBrush);
+    graphics.DrawString(L"K  공격", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 80)), &lineBrush);
+    graphics.DrawString(L"O  변신 해제", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 102)), &lineBrush);
+}
+
+void DrawPauseMenu(Graphics& graphics, int screenW, int screenH)
+{
+    if (!g_isPaused)
+        return;
+
+    SolidBrush darkBrush(Color(170, 0, 0, 0));
+    graphics.FillRectangle(&darkBrush, 0, 0, screenW, screenH);
+
+    int boxW = 360;
+    int boxH = 260;
+    int boxX = screenW / 2 - boxW / 2;
+    int boxY = screenH / 2 - boxH / 2;
+
+    SolidBrush boxBrush(Color(220, 18, 18, 32));
+    Pen boxPen(Color(240, 255, 230, 120), 3);
+    graphics.FillRectangle(&boxBrush, boxX, boxY, boxW, boxH);
+    graphics.DrawRectangle(&boxPen, boxX, boxY, boxW, boxH);
+
+    FontFamily fontFamily(L"Arial");
+    Font titleFont(&fontFamily, 34, FontStyleBold, UnitPixel);
+    Font itemFont(&fontFamily, 22, FontStyleBold, UnitPixel);
+    StringFormat format;
+    format.SetAlignment(StringAlignmentCenter);
+    format.SetLineAlignment(StringAlignmentCenter);
+
+    SolidBrush titleBrush(Color(255, 255, 245, 210));
+    RectF titleRect((REAL)boxX, (REAL)(boxY + 22), (REAL)boxW, 48.0f);
+    graphics.DrawString(L"PAUSE", -1, &titleFont, titleRect, &format, &titleBrush);
+
+    const wchar_t* items[PAUSE_MENU_COUNT] = { L"Resume", L"Restart Stage", L"Quit" };
+    for (int i = 0; i < PAUSE_MENU_COUNT; i++)
+    {
+        int y = boxY + 92 + i * 48;
+        if (i == g_pauseMenuIndex)
+        {
+            SolidBrush selBrush(Color(160, 255, 80, 110));
+            graphics.FillRectangle(&selBrush, boxX + 48, y, boxW - 96, 36);
+        }
+
+        SolidBrush itemBrush(i == g_pauseMenuIndex ? Color(255, 255, 255, 255) : Color(230, 220, 220, 235));
+        RectF itemRect((REAL)boxX, (REAL)y, (REAL)boxW, 36.0f);
+        graphics.DrawString(items[i], -1, &itemFont, itemRect, &format, &itemBrush);
+    }
+}
+
+void DrawRetryOverlay(Graphics& graphics, int screenW, int screenH)
+{
+    if (!g_retryActive && !g_finalGameOver)
+        return;
+
+    SolidBrush darkBrush(Color(205, 0, 0, 0));
+    graphics.FillRectangle(&darkBrush, 0, 0, screenW, screenH);
+
+    FontFamily fontFamily(L"Arial");
+    Font titleFont(&fontFamily, 42, FontStyleBold, UnitPixel);
+    Font subFont(&fontFamily, 22, FontStyleBold, UnitPixel);
+    Font smallFont(&fontFamily, 16, FontStyleBold, UnitPixel);
+    StringFormat format;
+    format.SetAlignment(StringAlignmentCenter);
+    format.SetLineAlignment(StringAlignmentCenter);
+
+    SolidBrush titleBrush(Color(255, 255, 240, 200));
+    SolidBrush subBrush(Color(240, 230, 230, 255));
+    SolidBrush warnBrush(Color(255, 255, 80, 110));
+
+    if (g_finalGameOver)
+    {
+        RectF titleRect(0.0f, 205.0f, (REAL)screenW, 58.0f);
+        RectF subRect(0.0f, 270.0f, (REAL)screenW, 32.0f);
+        graphics.DrawString(L"GAME OVER", -1, &titleFont, titleRect, &format, &warnBrush);
+        graphics.DrawString(L"ESC  Quit", -1, &subFont, subRect, &format, &subBrush);
+        return;
+    }
+
+    int seconds = (g_retryCountdownTick + 24) / 25;
+    if (seconds < 0)
+        seconds = 0;
+
+    wchar_t lifeText[64];
+    wchar_t timeText[64];
+    wsprintf(lifeText, L"LIFE  %d", g_kirbyLives);
+    wsprintf(timeText, L"%d", seconds);
+
+    RectF titleRect(0.0f, 185.0f, (REAL)screenW, 58.0f);
+    RectF lifeRect(0.0f, 248.0f, (REAL)screenW, 32.0f);
+    RectF timeRect(0.0f, 288.0f, (REAL)screenW, 42.0f);
+    RectF guideRect(0.0f, 346.0f, (REAL)screenW, 30.0f);
+
+    graphics.DrawString(L"RETRY?", -1, &titleFont, titleRect, &format, &titleBrush);
+    graphics.DrawString(lifeText, -1, &subFont, lifeRect, &format, &subBrush);
+    graphics.DrawString(timeText, -1, &titleFont, timeRect, &format, &warnBrush);
+    graphics.DrawString(L"SPACE  다시 태어나기     ESC  포기", -1, &smallFont, guideRect, &format, &subBrush);
+}
 void UpdatePlayer(HWND hWnd)
 {
     if (!isDragging && g_currentStage != 5)
@@ -3206,6 +3667,12 @@ void UpdatePlayer(HWND hWnd)
     UpdateHPBarAnimation();
     UpdatePowerProjectile();
     UpdateAbilityStar();
+
+    if (!isGameOver && !g_retryActive && isOnGround && kirbyY < WORLD_H)
+    {
+        g_lastSafeKirbyX = kirbyX;
+        g_lastSafeKirbyY = kirbyY;
+    }
 }
 
 void UpdateStage(HWND hWnd)
@@ -3256,6 +3723,7 @@ void CheckKirbyCollision()
 void DrawHUD(Graphics& graphics, int screenW, int screenH)
 {
     DrawGameHUD(graphics);
+    DrawControlGuide(graphics, screenW);
     DrawKirbyStatusUI(graphics);
     DrawBossHpBar(graphics);
     DrawBossPatternText(graphics);
@@ -3734,6 +4202,8 @@ void DrawScene(HDC hdc, HWND hWnd)
 
     DrawHUD(graphics, rt.right, rt.bottom);
     DrawBossPhase2TransitionOverlay(graphics, rt.right, rt.bottom);
+    DrawPauseMenu(graphics, rt.right, rt.bottom);
+    DrawRetryOverlay(graphics, rt.right, rt.bottom);
 
     graphics.Flush();
 
@@ -3760,6 +4230,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
         LoadAllImages(hWnd);
         g_currentStage = 1;
+        g_kirbyLives = KIRBY_MAX_LIVES;
+        g_lastSafeKirbyX = kirbyX;
+        g_lastSafeKirbyY = kirbyY;
         InitMonsters();
         InitRescueObjects();
 
@@ -3824,6 +4297,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             return 0;
         }
 
+        if (g_isPaused || g_retryActive || g_finalGameOver)
+        {
+            if (wParam == 1)
+            {
+                if (g_retryActive)
+                    UpdateRetryCountdown(hWnd);
+                else
+                    InvalidateRect(hWnd, NULL, FALSE);
+            }
+
+            return 0;
+        }
+
         if (wParam == 1)
         {
             UpdatePlayer(hWnd);
@@ -3838,21 +4324,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
                 if (gameOverTick >= GAME_OVER_DELAY)
                 {
-                    // 메시지박스가 떠 있는 동안 타이머가 또 돌면서 MessageBox가 반복 생성되는 것을 막음
-                    g_gameOverHandled = true;
-
-                    KillTimer(hWnd, 1);
-                    KillTimer(hWnd, 2);
-                    KillTimer(hWnd, 3);
-                    KillTimer(hWnd, 5);
-                    KillTimer(hWnd, 7);
-
-                    if (g_kirbyFallGameOver)
-                        MessageBox(hWnd, L"아래로 떨어졌습니다. 게임 오버!", L"GAME OVER", MB_OK);
-                    else
-                        MessageBox(hWnd, L"체력이 0%가 되었습니다. 게임 오버!", L"GAME OVER", MB_OK);
-
-                    DestroyWindow(hWnd);
+                    StartRetrySequence();
+                    InvalidateRect(hWnd, NULL, FALSE);
                     return 0;
                 }
             }
@@ -4017,7 +4490,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
     case WM_LBUTTONDOWN:
     {
-        if (g_isOpening || g_isStory)
+        if (g_isOpening || g_isStory || g_isPaused || g_retryActive || g_finalGameOver)
             return 0;
 
         if (isAbsorb)
@@ -4046,7 +4519,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
     case WM_MOUSEMOVE:
     {
-        if (g_isOpening || g_isStory)
+        if (g_isOpening || g_isStory || g_isPaused || g_retryActive || g_finalGameOver)
             return 0;
 
         int mouseX = LOWORD(lParam);
@@ -4132,6 +4605,82 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             return 0;
         }
 
+        if (g_finalGameOver)
+        {
+            if (wParam == VK_ESCAPE)
+                DestroyWindow(hWnd);
+
+            return 0;
+        }
+
+        if (g_retryActive)
+        {
+            if (wParam == VK_SPACE)
+            {
+                RespawnKirbyAtRetryPoint(hWnd);
+                InvalidateRect(hWnd, NULL, FALSE);
+            }
+            else if (wParam == VK_ESCAPE)
+            {
+                g_retryActive = false;
+                g_finalGameOver = true;
+                InvalidateRect(hWnd, NULL, FALSE);
+            }
+
+            return 0;
+        }
+
+        if (g_isPaused)
+        {
+            if (wParam == VK_ESCAPE)
+            {
+                g_isPaused = false;
+                PlayGameSound(SFX_PAUSE);
+            }
+            else if (wParam == VK_UP || wParam == 'W')
+            {
+                g_pauseMenuIndex--;
+                if (g_pauseMenuIndex < 0)
+                    g_pauseMenuIndex = PAUSE_MENU_COUNT - 1;
+                PlayGameSound(SFX_PAUSE);
+            }
+            else if (wParam == VK_DOWN || wParam == 'S')
+            {
+                g_pauseMenuIndex++;
+                if (g_pauseMenuIndex >= PAUSE_MENU_COUNT)
+                    g_pauseMenuIndex = 0;
+                PlayGameSound(SFX_PAUSE);
+            }
+            else if (wParam == VK_RETURN || wParam == VK_SPACE)
+            {
+                if (g_pauseMenuIndex == 0)
+                {
+                    g_isPaused = false;
+                    PlayGameSound(SFX_PAUSE);
+                }
+                else if (g_pauseMenuIndex == 1)
+                {
+                    RestartCurrentStage(hWnd);
+                }
+                else
+                {
+                    DestroyWindow(hWnd);
+                }
+            }
+
+            InvalidateRect(hWnd, NULL, FALSE);
+            return 0;
+        }
+
+        if (wParam == VK_ESCAPE)
+        {
+            g_isPaused = true;
+            g_pauseMenuIndex = 0;
+            StopMove();
+            PlayGameSound(SFX_PAUSE);
+            InvalidateRect(hWnd, NULL, FALSE);
+            return 0;
+        }
         if (wParam == VK_F1)
         {
             g_debugMode = !g_debugMode;
@@ -4172,11 +4721,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             break;
 
         case 'A':
+        case VK_LEFT:
             moveLeft = true;
             kirbyFaceLeft = true;
             break;
 
         case 'D':
+        case VK_RIGHT:
             moveRight = true;
             kirbyFaceLeft = false;
             break;
@@ -4224,8 +4775,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
             if (!isAbsorb)
             {
+                if (isOnGround && !isSpace)
+                {
+                    StartJump();
+                    break;
+                }
+
                 if (!isSpace)
                 {
+                    PlayGameSound(SFX_JUMP);
                     balloonTick = 0;
                     spaceFrameIndex = 0;
                     spaceStartFrameDone = false;
@@ -4248,10 +4806,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 if (GetAsyncKeyState('S') & 0x8000)
                     moveDown = true;
 
-                if (GetAsyncKeyState('A') & 0x8000)
+                if (GetAsyncKeyState('A') & 0x8000 || GetAsyncKeyState(VK_LEFT) & 0x8000)
                     kirbyFaceLeft = true;
 
-                if (GetAsyncKeyState('D') & 0x8000)
+                if (GetAsyncKeyState('D') & 0x8000 || GetAsyncKeyState(VK_RIGHT) & 0x8000)
                     kirbyFaceLeft = false;
             }
             break;
@@ -4263,6 +4821,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             break;
 
         case 'K':
+            PlayGameSound(SFX_ATTACK);
             if (isBombKirby)
             {
                 StartBombAttack();
@@ -4333,7 +4892,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             break;
 
         case VK_ESCAPE:
-            DestroyWindow(hWnd);
             break;
         }
 
@@ -4341,7 +4899,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_KEYUP:
-        if (g_isOpening || g_isStory)
+        if (g_isOpening || g_isStory || g_isPaused || g_retryActive || g_finalGameOver)
             return 0;
 
         if (wParam == VK_SHIFT)
@@ -4366,17 +4924,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             break;
 
         case 'A':
+        case VK_LEFT:
             moveLeft = false;
 
-            if (GetAsyncKeyState('D') & 0x8000)
+            if (GetAsyncKeyState('D') & 0x8000 || GetAsyncKeyState(VK_RIGHT) & 0x8000)
                 kirbyFaceLeft = false;
 
             break;
 
         case 'D':
+        case VK_RIGHT:
             moveRight = false;
 
-            if (GetAsyncKeyState('A') & 0x8000)
+            if (GetAsyncKeyState('A') & 0x8000 || GetAsyncKeyState(VK_LEFT) & 0x8000)
                 kirbyFaceLeft = true;
 
             break;
@@ -4433,6 +4993,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
         // 프로그램 종료 시 소리 정지
         PlaySound(NULL, NULL, 0);
+        mciSendStringW(L"close all", NULL, 0, NULL);
 
         KillTimer(hWnd, 1);
         KillTimer(hWnd, 2);

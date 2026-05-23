@@ -413,6 +413,7 @@ void UpdateDoorOpen(StageDoor* door)
             {
                 door->opened = true;
                 door->opening = false;
+                PlayGameSound(SFX_DOOR);
                 StartStageClearMessage();
             }
         }
@@ -473,6 +474,8 @@ void GoNextMap(HWND hWnd)
         kirbyX = 70;
         kirbyY = 330;
         kirbyVY = 0.0f;
+        g_lastSafeKirbyX = kirbyX;
+        g_lastSafeKirbyY = kirbyY;
         cameraX = 0;
         InitRescueObjects();
         InitMonsters();
@@ -489,6 +492,8 @@ void GoNextMap(HWND hWnd)
         kirbyX = 145;
         kirbyY = 500;
         kirbyVY = 0.0f;
+        g_lastSafeKirbyX = kirbyX;
+        g_lastSafeKirbyY = kirbyY;
         cameraX = 0;
         InitRescueObjects();
         InitMonsters();
@@ -505,6 +510,8 @@ void GoNextMap(HWND hWnd)
         kirbyX = 80;
         kirbyY = 480;
         kirbyVY = 0.0f;
+        g_lastSafeKirbyX = kirbyX;
+        g_lastSafeKirbyY = kirbyY;
         cameraX = 0;
         InitRescueObjects();
         InitMonsters();
@@ -521,6 +528,8 @@ void GoNextMap(HWND hWnd)
         kirbyX = DANCE_CENTER_X - NORMAL_KIRBY_W / 2;
         kirbyY = DANCE_FLOOR_Y - NORMAL_KIRBY_H;
         kirbyVY = 0.0f;
+        g_lastSafeKirbyX = kirbyX;
+        g_lastSafeKirbyY = kirbyY;
         cameraX = 0;
         SetKirbyNormalSizeKeepBottom();
         InitRescueObjects();

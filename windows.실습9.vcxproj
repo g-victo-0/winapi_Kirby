@@ -146,6 +146,15 @@
     <None Include="collision.h" />
     <None Include="resource_manager.cpp" />
     <None Include="resource_manager.h" />
+    <None Include="sound\attack.wav" />
+    <None Include="sound\boss_phase2.wav" />
+    <None Include="sound\clear.wav" />
+    <None Include="sound\door.wav" />
+    <None Include="sound\hit.wav" />
+    <None Include="sound\jump.wav" />
+    <None Include="sound\pause.wav" />
+    <None Include="sound\rescue.wav" />
+    <None Include="sound\retry.wav" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\Desktop\기몬 맵 공격2.png" />
