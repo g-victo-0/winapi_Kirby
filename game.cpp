@@ -4991,12 +4991,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
         case 'K':
             if (isBombKirby)
             {
-                PlayGameSound(SFX_ATTACK);
                 StartBombAttack();
             }
             else if (isFireKirby)
             {
-                PlayGameSound(SFX_ATTACK);
                 // 불 속성 커비 상태에서는 K가 빨아들이기가 아니라 46번 불 뿜기 공격
                 isSpace = false;
                 isSpaceRelease = false;
@@ -5005,7 +5003,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             }
             else if (isPowerKirby)
             {
-                PlayGameSound(SFX_ATTACK);
                 // 커진 커비 상태에서는 K가 빨아들이기가 아니라 33번 자세 + 34번 발사로 동작
                 isSpace = false;
                 isSpaceRelease = false;
@@ -5047,13 +5044,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
         case 'I':
             if (isFireKirby)
             {
-                PlayGameSound(SFX_ATTACK);
                 // 불 속성 커비 I 공격: 47번 화염구 발사
                 SpawnFireBall();
             }
             else if (isBombKirby)
             {
-                PlayGameSound(SFX_ATTACK);
                 // 폭탄 커비 I 필살기: 3배 크기 폭탄이 바닥을 튕기며 이동
                 StartBombSpecialAttack();
             }
