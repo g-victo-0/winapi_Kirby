@@ -173,7 +173,7 @@ SolidBlock g_stage3SolidBlocks[] =
     { { 644, 539, 702, 650 }, L"S3_90_CENTER_GROUND" },
     { { 718, 539, 791, 650 }, L"S3_90_CENTER_PILLAR" },
     { { 806, 539, 875, 650 }, L"S3_90_RIGHT_LEDGE" },
-    { { 892, 539, 1000, 650 }, L"S3_90_RIGHT_GROUND" },
+    { { 892, 539, 1015, 650 }, L"S3_90_RIGHT_GROUND" },
 
 
     // 화면 끝에 걸리는 정도만 막는 얇은 벽
