@@ -466,6 +466,7 @@ void GoNextMap(HWND hWnd)
     isCrouch = false;
     balloonTick = 0;
     spaceKeyHeld = false;
+    ResetStageProjectiles();
 
     if (g_currentStage == 1)
     {

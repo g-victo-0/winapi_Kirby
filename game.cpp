@@ -605,11 +605,6 @@ int g_lastSafeKirbyX = 55;
 int g_lastSafeKirbyY = 470;
 int g_controlGuideTick = CONTROL_GUIDE_TICK_MAX;
 
-const int HIT_STOP_WEAK = 1;
-const int HIT_STOP_MEDIUM = 2;
-const int HIT_STOP_BOSS = 3;
-int g_hitStopTick = 0;
-
 bool g_playTimerStarted = false;
 int g_playTimeTick = 0;
 int g_clearTimeTick = 0;
@@ -900,7 +895,6 @@ void SpawnEnemyFireBall(int x, int y, int dir);
 void UpdateEnemyFireBalls();
 void CheckEnemyFireBallsHitKirby();
 void StartKirbyHitEffect();
-void StartHitStop(int tick);
 RECT GetKirbyBodyRect();
 void StartBombKirbyTransform();
 void StartBombAttack();
@@ -933,6 +927,7 @@ void RestartCurrentStage(HWND hWnd);
 void StartRetrySequence();
 void RespawnKirbyAtRetryPoint(HWND hWnd);
 void UpdateRetryCountdown(HWND hWnd);
+void ResetStageProjectiles();
 
 // 보스 보상 문 변수는 아래쪽 보스전 코드에서 실제로 정의됨.
 // CheckDoorTouch가 그보다 위에 있어서 여기서는 미리 알려만 줌.
@@ -1609,8 +1604,6 @@ void DamageBoss(int damage)
     g_boss.redFlashTick = 6;
     g_boss.dangerTextTick = 10;
     g_screenShakeTick = 7;
-
-    StartHitStop(HIT_STOP_BOSS);
 
     if (g_boss.hp <= BOSS_MAX_HP / 2)
         StartBossPhase2();
@@ -3012,12 +3005,6 @@ void StartStageTransitionEffect()
     g_stageTitleTick = STAGE_TITLE_TICK_MAX;
 }
 
-void StartHitStop(int tick)
-{
-    if (tick > g_hitStopTick)
-        g_hitStopTick = tick;
-}
-
 void ResetPlayTimer()
 {
     g_playTimerStarted = false;
@@ -3416,6 +3403,32 @@ void PlayGameSound(int soundId)
     mciSendStringW(command, NULL, 0, NULL);
 }
 
+void ResetStageProjectiles()
+{
+    isPowerProjectileActive = false;
+    isFireBallActive = false;
+    isFireBreath = false;
+    isFireAttackPose = false;
+    isBombAttack = false;
+    g_bombSpecialAttackMode = false;
+    bombAttackFrameIndex = 0;
+    bombAttackTick = 0;
+    bombAttackBombSpawned = false;
+    isAbilityStarActive = false;
+
+    for (int i = 0; i < ENEMY_FIREBALL_MAX; i++)
+        g_enemyFireBalls[i].active = false;
+
+    for (int i = 0; i < BOMB_OBJECT_MAX; i++)
+        g_bombs[i].active = false;
+
+    for (int i = 0; i < BOMB_EXPLOSION_MAX; i++)
+    {
+        g_bombExplosions[i].active = false;
+        g_bombExplosions[i].tick = 0;
+    }
+}
+
 void ResetKirbyPlayState(bool recoverHp)
 {
     StopMove();
@@ -3448,12 +3461,7 @@ void ResetKirbyPlayState(bool recoverHp)
     g_kirbyBurnTick = 0;
     g_kirbyBurnDamageTick = 0;
 
-    isPowerProjectileActive = false;
-    isAbilityStarActive = false;
-    isFireBreath = false;
-    isFireBallActive = false;
-    isBombAttack = false;
-    g_bombSpecialAttackMode = false;
+    ResetStageProjectiles();
 
     if (recoverHp)
     {
@@ -4412,16 +4420,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             return 0;
         }
 
-        if (g_hitStopTick > 0)
-        {
-            if (wParam == 1)
-            {
-                g_hitStopTick--;
-                InvalidateRect(hWnd, NULL, FALSE);
-            }
-
-            return 0;
-        }
 
         if (wParam == 1)
         {

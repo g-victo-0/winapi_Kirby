@@ -88,51 +88,19 @@ void UpdateStageAtmosphereEffects(int currentStage)
             g_stageEffectParticles[i].active = false;
     }
 
-    if (currentStage == 1)
-    {
-        if (g_stageEffectTick % 4 == 0)
-        {
-            SpawnStageParticle(
-                1,
-                EffectRandomRange(0, 1),
-                (float)EffectRandomRange(0, STAGE_EFFECT_WORLD_W),
-                (float)EffectRandomRange(80, 470),
-                (float)EffectRandomRange(-6, 6) / 10.0f,
-                -0.25f,
-                EffectRandomRange(32, 52),
-                EffectRandomRange(3, 6)
-            );
-        }
-    }
-    else if (currentStage == 2)
+    if (currentStage >= 1 && currentStage <= 3)
     {
         if (g_stageEffectTick % 3 == 0)
         {
             SpawnStageParticle(
-                2,
-                EffectRandomRange(0, 1),
-                (float)EffectRandomRange(0, STAGE_EFFECT_WORLD_W),
-                (float)EffectRandomRange(-20, 180),
-                (float)EffectRandomRange(-3, 3) / 10.0f,
-                (float)EffectRandomRange(2, 7) / 10.0f,
-                EffectRandomRange(70, 110),
-                EffectRandomRange(5, 13)
-            );
-        }
-    }
-    else if (currentStage == 3)
-    {
-        if (g_stageEffectTick % 2 == 0)
-        {
-            SpawnStageParticle(
-                3,
+                currentStage,
                 EffectRandomRange(0, 2),
                 (float)EffectRandomRange(0, STAGE_EFFECT_WORLD_W),
-                (float)EffectRandomRange(60, 530),
-                (float)EffectRandomRange(-10, 10) / 10.0f,
-                (float)EffectRandomRange(-4, 4) / 10.0f,
-                EffectRandomRange(24, 44),
-                EffectRandomRange(4, 8)
+                (float)EffectRandomRange(-30, 150),
+                (float)EffectRandomRange(-5, 5) / 10.0f,
+                (float)EffectRandomRange(2, 6) / 10.0f,
+                EffectRandomRange(45, 75),
+                EffectRandomRange(4, 9)
             );
         }
     }
@@ -170,7 +138,7 @@ void DrawEnergyShard(Graphics& graphics, int x, int y, int size, int alpha, bool
         Point(x - size / 2, y)
     };
 
-    Color color = red ? Color(alpha, 255, 70, 80) : Color(alpha, 170, 80, 255);
+    Color color = red ? Color(alpha, 210, 80, 255) : Color(alpha, 150, 80, 255);
     SolidBrush brush(color);
     graphics.FillPolygon(&brush, points, 4);
 }
@@ -197,24 +165,18 @@ void DrawStageAtmosphereEffects(Graphics& graphics, int currentStage, int camera
         if (alpha < 0)
             alpha = 0;
 
-        if (currentStage == 1)
+        if (p->type == 0)
         {
-            if (p->type == 0)
-                DrawTinyStar(graphics, sx, sy, p->size, alpha * 150 / 255);
-            else
-            {
-                SolidBrush dustBrush(Color(alpha * 80 / 255, 210, 255, 180));
-                graphics.FillEllipse(&dustBrush, sx, sy, p->size + 2, p->size);
-            }
+            DrawEnergyShard(graphics, sx, sy, p->size, alpha * 155 / 255, false);
         }
-        else if (currentStage == 2)
+        else if (p->type == 1)
         {
-            SolidBrush fogBrush(Color(alpha * 85 / 255, 55, 50, 70));
-            graphics.FillEllipse(&fogBrush, sx, sy, p->size * 2, p->size);
+            SolidBrush purpleBrush(Color(alpha * 90 / 255, 120, 65, 210));
+            graphics.FillEllipse(&purpleBrush, sx, sy, p->size + 5, p->size);
         }
-        else if (currentStage == 3)
+        else
         {
-            DrawEnergyShard(graphics, sx, sy, p->size, alpha * 160 / 255, p->type == 2);
+            DrawEnergyShard(graphics, sx, sy, p->size, alpha * 135 / 255, true);
         }
     }
 }
