@@ -146,6 +146,8 @@
     <None Include="collision.h" />
     <None Include="resource_manager.cpp" />
     <None Include="resource_manager.h" />
+    <None Include="effect_manager.cpp" />
+    <None Include="effect_manager.h" />
     <None Include="sound\attack.wav" />
     <None Include="sound\boss_phase2.wav" />
     <None Include="sound\clear.wav" />

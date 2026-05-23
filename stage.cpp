@@ -525,6 +525,7 @@ void GoNextMap(HWND hWnd)
     {
         // 보스전 보상 문으로 들어가면 임시 춤 확인 맵으로 이동
         g_currentStage = 5;
+        g_stageClearTick = 0;
         kirbyX = DANCE_CENTER_X - NORMAL_KIRBY_W / 2;
         kirbyY = DANCE_FLOOR_Y - NORMAL_KIRBY_H;
         kirbyVY = 0.0f;

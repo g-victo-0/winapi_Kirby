@@ -13,6 +13,7 @@ using namespace Gdiplus;
 #include "stage.h"
 #include "player.h"
 #include "resource_manager.h"
+#include "effect_manager.h"
 
 
 #ifndef IDB_PNG93
@@ -604,6 +605,16 @@ int g_lastSafeKirbyX = 55;
 int g_lastSafeKirbyY = 470;
 int g_controlGuideTick = CONTROL_GUIDE_TICK_MAX;
 
+const int HIT_STOP_WEAK = 1;
+const int HIT_STOP_MEDIUM = 2;
+const int HIT_STOP_BOSS = 3;
+int g_hitStopTick = 0;
+
+bool g_playTimerStarted = false;
+int g_playTimeTick = 0;
+int g_clearTimeTick = 0;
+bool g_clearTimeSaved = false;
+
 enum GameSoundId
 {
     SFX_JUMP = 0,
@@ -889,6 +900,7 @@ void SpawnEnemyFireBall(int x, int y, int dir);
 void UpdateEnemyFireBalls();
 void CheckEnemyFireBallsHitKirby();
 void StartKirbyHitEffect();
+void StartHitStop(int tick);
 RECT GetKirbyBodyRect();
 void StartBombKirbyTransform();
 void StartBombAttack();
@@ -980,6 +992,7 @@ void UpdateCamera(HWND hWnd)
 #include "monster.cpp"
 #include "player.cpp"
 #include "stage.cpp"
+#include "effect_manager.cpp"
 
 void StartBombKirbyTransform();
 void StartBombAttack();
@@ -1596,6 +1609,8 @@ void DamageBoss(int damage)
     g_boss.redFlashTick = 6;
     g_boss.dangerTextTick = 10;
     g_screenShakeTick = 7;
+
+    StartHitStop(HIT_STOP_BOSS);
 
     if (g_boss.hp <= BOSS_MAX_HP / 2)
         StartBossPhase2();
@@ -2997,9 +3012,59 @@ void StartStageTransitionEffect()
     g_stageTitleTick = STAGE_TITLE_TICK_MAX;
 }
 
+void StartHitStop(int tick)
+{
+    if (tick > g_hitStopTick)
+        g_hitStopTick = tick;
+}
+
+void ResetPlayTimer()
+{
+    g_playTimerStarted = false;
+    g_playTimeTick = 0;
+    g_clearTimeTick = 0;
+    g_clearTimeSaved = false;
+}
+
+void StartPlayTimer()
+{
+    if (!g_playTimerStarted)
+        g_playTimerStarted = true;
+}
+
+void UpdatePlayTimer()
+{
+    if (!g_playTimerStarted || g_clearTimeSaved)
+        return;
+
+    g_playTimeTick++;
+}
+
+void SaveFinalClearTime()
+{
+    if (g_clearTimeSaved)
+        return;
+
+    g_clearTimeTick = g_playTimeTick;
+    g_clearTimeSaved = true;
+}
+
+void FormatClearTimeText(wchar_t* buffer, int tick)
+{
+    int totalSeconds = tick * GAME_TIMER_MS / 1000;
+    int minutes = totalSeconds / 60;
+    int seconds = totalSeconds % 60;
+
+    wsprintf(buffer, L"CLEAR TIME : %02d:%02d", minutes, seconds);
+}
+
 void StartStageClearMessage()
 {
     g_stageClearTick = STAGE_CLEAR_TICK_MAX;
+
+    if (g_currentStage == 4)
+        SaveFinalClearTime();
+
     PlayGameSound(SFX_CLEAR);
 }
 
@@ -3027,6 +3092,8 @@ void UpdateScreenEffects()
 
     if (g_rescueEffectTick > 0)
         g_rescueEffectTick--;
+
+    UpdateStageAtmosphereEffects(g_currentStage);
 }
 
 void DrawSparkleStar(Graphics& graphics, int cx, int cy, int size, int alpha, bool whiteStar)
@@ -3229,6 +3296,13 @@ void DrawTransitionOverlay(Graphics& graphics, int screenW, int screenH)
     {
         int alpha = g_stageClearTick > 15 ? 245 : g_stageClearTick * 245 / 15;
         DrawStageMessage(graphics, screenW, 210, L"STAGE CLEAR", alpha);
+
+        if (g_currentStage == 4 && g_clearTimeSaved)
+        {
+            wchar_t clearTimeText[64];
+            FormatClearTimeText(clearTimeText, g_clearTimeTick);
+            DrawStageMessage(graphics, screenW, 276, clearTimeText, alpha);
+        }
     }
 }
 
@@ -4006,6 +4080,8 @@ void DrawScene(HDC hdc, HWND hWnd)
         graphics.DrawImage(bg2Image, bg2X, shakeY, BG_PART_W, BG_PART_H);
     }
 
+    DrawStageAtmosphereEffects(graphics, g_currentStage, cameraX - shakeX, rt.right, rt.bottom);
+
     // 커비/몬스터/이펙트는 전부 월드 좌표로 움직이고,
     // 그릴 때만 -cameraX만큼 이동해서 화면에 표시
     GraphicsState worldState = graphics.Save();
@@ -4248,6 +4324,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
         LoadAllImages(hWnd);
         g_currentStage = 1;
         g_kirbyLives = KIRBY_MAX_LIVES;
+        ResetPlayTimer();
+        ResetStageAtmosphereEffects();
         g_lastSafeKirbyX = kirbyX;
         g_lastSafeKirbyY = kirbyY;
         InitMonsters();
@@ -4305,6 +4383,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                         bombBalloonStartFrameDone = false;
                         UpdateCamera(hWnd);
                         StartStageTransitionEffect();
+                        StartPlayTimer();
                         g_controlGuideTick = CONTROL_GUIDE_TICK_MAX;
                     }
 
@@ -4320,9 +4399,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             if (wParam == 1)
             {
                 if (g_retryActive)
+                {
+                    UpdatePlayTimer();
                     UpdateRetryCountdown(hWnd);
+                }
                 else
+                {
                     InvalidateRect(hWnd, NULL, FALSE);
+                }
+            }
+
+            return 0;
+        }
+
+        if (g_hitStopTick > 0)
+        {
+            if (wParam == 1)
+            {
+                g_hitStopTick--;
+                InvalidateRect(hWnd, NULL, FALSE);
             }
 
             return 0;
@@ -4330,6 +4425,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
         if (wParam == 1)
         {
+            UpdatePlayTimer();
             UpdatePlayer(hWnd);
             UpdateStage(hWnd);
             CheckCollision();

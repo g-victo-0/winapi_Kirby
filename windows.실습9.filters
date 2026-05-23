@@ -57,6 +57,9 @@
     <None Include="resource_manager.cpp">
       <Filter>소스 파일</Filter>
     </None>
+    <None Include="effect_manager.cpp">
+      <Filter>소스 파일</Filter>
+    </None>
     <None Include="player.h">
       <Filter>헤더 파일</Filter>
     </None>
@@ -70,6 +73,9 @@
       <Filter>헤더 파일</Filter>
     </None>
     <None Include="resource_manager.h">
+      <Filter>헤더 파일</Filter>
+    </None>
+    <None Include="effect_manager.h">
       <Filter>헤더 파일</Filter>
     </None>
   </ItemGroup>
