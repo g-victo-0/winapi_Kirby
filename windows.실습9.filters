@@ -78,6 +78,12 @@
     <None Include="effect_manager.h">
       <Filter>헤더 파일</Filter>
     </None>
+    <None Include="sound\kirby_final_boss_nightmare.wav">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="sound\kirby_stage_clear_theme.wav">
+      <Filter>리소스 파일</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\Downloads\Game-Boy-Advance-Kirby-_-the-Amazing-Mirror-Playable-Characters-Beam-Kirby-_1_.png">

@@ -154,6 +154,8 @@
     <None Include="sound\door.wav" />
     <None Include="sound\hit.wav" />
     <None Include="sound\jump.wav" />
+    <None Include="sound\kirby_final_boss_nightmare.wav" />
+    <None Include="sound\kirby_stage_clear_theme.wav" />
     <None Include="sound\pause.wav" />
     <None Include="sound\rescue.wav" />
     <None Include="sound\retry.wav" />

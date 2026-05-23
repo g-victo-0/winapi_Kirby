@@ -604,6 +604,7 @@ int g_retryRespawnY = 470;
 int g_lastSafeKirbyX = 55;
 int g_lastSafeKirbyY = 470;
 int g_controlGuideTick = CONTROL_GUIDE_TICK_MAX;
+int g_currentBgmMode = -1;
 
 bool g_playTimerStarted = false;
 int g_playTimeTick = 0;
@@ -928,6 +929,7 @@ void StartRetrySequence();
 void RespawnKirbyAtRetryPoint(HWND hWnd);
 void UpdateRetryCountdown(HWND hWnd);
 void ResetStageProjectiles();
+void SyncStageBGM();
 
 // 보스 보상 문 변수는 아래쪽 보스전 코드에서 실제로 정의됨.
 // CheckDoorTouch가 그보다 위에 있어서 여기서는 미리 알려만 줌.
@@ -3376,6 +3378,63 @@ bool BuildGameSoundPath(const wchar_t* fileName, wchar_t* outPath)
     return false;
 }
 
+int GetStageBgmMode()
+{
+    if (g_currentStage == 4)
+        return 1;
+
+    if (g_currentStage == 5)
+        return 2;
+
+    return 0;
+}
+
+void StopFileBGM()
+{
+    mciSendStringW(L"stop bgm_music", NULL, 0, NULL);
+    mciSendStringW(L"close bgm_music", NULL, 0, NULL);
+}
+
+void PlayDefaultStageBGM()
+{
+    StopFileBGM();
+    PlaySound(MAKEINTRESOURCE(IDR_WAVE1), g_hInst, SND_RESOURCE | SND_ASYNC | SND_LOOP);
+}
+
+void PlayFileBGM(const wchar_t* fileName)
+{
+    wchar_t path[MAX_PATH];
+    if (!BuildGameSoundPath(fileName, path))
+        return;
+
+    PlaySound(NULL, NULL, 0);
+    StopFileBGM();
+
+    wchar_t command[512];
+    wsprintf(command, L"open \"%s\" type waveaudio alias bgm_music", path);
+    if (mciSendStringW(command, NULL, 0, NULL) != 0)
+        return;
+
+    mciSendStringW(L"setaudio bgm_music volume to 650", NULL, 0, NULL);
+    mciSendStringW(L"play bgm_music repeat", NULL, 0, NULL);
+}
+
+void SyncStageBGM()
+{
+    int nextMode = GetStageBgmMode();
+    if (g_currentBgmMode == nextMode)
+        return;
+
+    g_currentBgmMode = nextMode;
+
+    if (nextMode == 1)
+        PlayFileBGM(L"kirby_final_boss_nightmare.wav");
+    else if (nextMode == 2)
+        PlayFileBGM(L"kirby_stage_clear_theme.wav");
+    else
+        PlayDefaultStageBGM();
+}
+
 void PlayGameSound(int soundId)
 {
     const wchar_t* fileName = GetGameSoundFileName(soundId);
@@ -4341,11 +4400,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
         // WAV 리소스 배경음악 재생
         // resource.h에 있는 실제 소리 ID 이름이 다르면 IDR_WAVE1만 바꾸면 됨
-        PlaySound(
-            MAKEINTRESOURCE(IDR_WAVE1),
-            g_hInst,
-            SND_RESOURCE | SND_ASYNC | SND_LOOP
-        );
+        SyncStageBGM();
 
         UpdateCamera(hWnd);
 
@@ -4426,6 +4481,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             UpdatePlayTimer();
             UpdatePlayer(hWnd);
             UpdateStage(hWnd);
+            SyncStageBGM();
             CheckCollision();
             UpdateMonster();
             CheckKirbyCollision();
@@ -5109,6 +5165,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
         // 프로그램 종료 시 소리 정지
         PlaySound(NULL, NULL, 0);
+        StopFileBGM();
         mciSendStringW(L"close all", NULL, 0, NULL);
 
         KillTimer(hWnd, 1);
