@@ -400,8 +400,6 @@ void UpdateKirbyPosition(HWND hWnd)
         isOnGround = true;
     }
 
-    if (!wasOnGround && isOnGround)
-        StartCameraShake(3, 6);
 
     // 예전처럼 WORLD_H에서 멈추게 하면 구멍으로 떨어져도 바닥에 붙어버림.
     // 이제는 아래로 충분히 빠지면 게임오버 처리함.

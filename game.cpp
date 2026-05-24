@@ -1088,6 +1088,7 @@ const int BOSS_PHASE2_SHAKE_TICKS = 18;
 const int BOSS_PHASE2_BLACK_END = 44;
 const int BOSS_PHASE2_DROP_END = 74;
 const int BOSS_PHASE2_DROP_START_Y = 8;
+const int BOSS_BERSERK_HEAL_Y = 160;
 
 enum BossState
 {
@@ -1330,13 +1331,16 @@ int GetCameraDrawOffsetY()
 
 void UpdateStageRandomCameraShake()
 {
-    if (g_currentStage < 1 || g_currentStage > 3 || isGameOver || g_retryActive || g_isPaused)
+    if (g_currentStage < 1 || g_currentStage > 3)
     {
-        g_stageRandomShakeStage = g_currentStage;
+        g_stageRandomShakeStage = 0;
         g_stageRandomShakeDone = 0;
         g_stageRandomShakeCooldown = 0;
         return;
     }
+
+    if (isGameOver || g_retryActive || g_isPaused)
+        return;
 
     if (g_stageRandomShakeStage != g_currentStage)
     {
@@ -1355,7 +1359,7 @@ void UpdateStageRandomCameraShake()
         return;
     }
 
-    StartCameraShake(2 + g_currentStage, 6 + g_currentStage * 2);
+    StartCameraShake(2 + g_currentStage, 5 + g_currentStage);
     g_stageRandomShakeDone++;
     g_stageRandomShakeCooldown = RandomRange(140, 260);
 }
@@ -2072,7 +2076,7 @@ void StartBossBerserkHeal()
 
     g_boss.state = BOSS_STATE_IDLE;
     g_boss.x = BG_PART_W / 2 - g_boss.w / 2;
-    g_boss.y = GetBossGroundY();
+    g_boss.y = BOSS_BERSERK_HEAL_Y;
     g_boss.vx = 0.0f;
     g_boss.vy = 0.0f;
     g_boss.dangerTextTick = 40;
@@ -2088,7 +2092,7 @@ void UpdateBossBerserkHeal()
     g_bossBerserkHealTick--;
 
     g_boss.x = BG_PART_W / 2 - g_boss.w / 2;
-    g_boss.y = GetBossGroundY();
+    g_boss.y = BOSS_BERSERK_HEAL_Y;
     g_boss.vx = 0.0f;
     g_boss.vy = 0.0f;
     g_boss.redFlashTick = 4;
@@ -3085,23 +3089,37 @@ void DrawBossBerserkHealEffect(Graphics& graphics)
 
     int cx = g_boss.x + g_boss.w / 2;
     int cy = g_boss.y + g_boss.h / 2;
-    int pulse = g_bossBerserkHealTick % 18;
+    int floorY = 548;
+    int t = 90 - g_bossBerserkHealTick;
+    if (t < 0) t = 0;
 
-    Pen energyPen(Color(190, 190, 70, 255), 3);
-    SolidBrush coreBrush(Color(120, 120, 20, 210));
-    graphics.FillEllipse(&coreBrush, cx - 42, cy - 42, 84, 84);
+    SolidBrush floorGlow(Color(120, 95, 0, 150));
+    graphics.FillEllipse(&floorGlow, cx - 180, floorY - 28, 360, 56);
 
-    for (int i = 0; i < 14; i++)
+    for (int i = 0; i < 18; i++)
     {
-        double angle = (double)(i * 360 / 14 + g_bossBerserkHealTick * 7) * 3.14159265358979323846 / 180.0;
-        int outer = 150 - pulse * 3 + (i % 3) * 18;
-        int inner = 55 + pulse;
-        int x1 = cx + (int)(cos(angle) * outer);
-        int y1 = cy + (int)(sin(angle) * outer);
-        int x2 = cx + (int)(cos(angle) * inner);
-        int y2 = cy + (int)(sin(angle) * inner);
-        graphics.DrawLine(&energyPen, x1, y1, x2, y2);
+        int lane = i % 6;
+        int wave = (t * 9 + i * 37) % 260;
+        int startX = cx - 135 + lane * 54 + ((i / 6) * 13 - 13);
+        int startY = floorY - wave;
+        int endX = cx + (startX - cx) / 5;
+        int endY = cy + 38;
+        int alpha = 80 + (i % 3) * 45;
+        Pen streamPen(Color(alpha, 145, 40, 255), (REAL)(2 + (i % 2)));
+        graphics.DrawLine(&streamPen, startX, startY, endX, endY);
+
+        SolidBrush orbBrush(Color(alpha + 40 > 255 ? 255 : alpha + 40, 210, 120, 255));
+        graphics.FillEllipse(&orbBrush, startX - 5, startY - 5, 10, 10);
     }
+
+    int pulse = (t / 2) % 18;
+    Pen ringPen(Color(210, 220, 160, 255), 4);
+    Pen ringPen2(Color(130, 90, 0, 170), 8);
+    graphics.DrawEllipse(&ringPen2, cx - 58 - pulse, cy - 58 - pulse, 116 + pulse * 2, 116 + pulse * 2);
+    graphics.DrawEllipse(&ringPen, cx - 38, cy - 38, 76, 76);
+
+    SolidBrush coreBrush(Color(150, 150, 20, 230));
+    graphics.FillEllipse(&coreBrush, cx - 28, cy - 28, 56, 56);
 }
 
 void DrawBossProjectiles(Graphics& graphics)
