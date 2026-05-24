@@ -152,6 +152,9 @@ void LoadAllImages(HWND hWnd)
     g_bossKeyFrame = LoadPNGFromResource(g_hInst, IDB_PNG112);
     g_bossChestClosedFrame = LoadPNGFromResource(g_hInst, IDB_PNG113);
     g_bossChestOpenFrame = LoadPNGFromResource(g_hInst, IDB_PNG114);
+    g_bossBerserkAbsorbFrame1 = LoadPNGFromResource(g_hInst, IDB_PNG140);
+    g_bossBerserkAbsorbFrame2 = LoadPNGFromResource(g_hInst, IDB_PNG141);
+    g_bossBerserkEnergyBallFrame = LoadPNGFromResource(g_hInst, IDB_PNG142);
 
     g_danceFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG115);
     g_danceFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG116);
@@ -586,6 +589,24 @@ void DeleteAllImages()
     {
         delete g_bossChestOpenFrame;
         g_bossChestOpenFrame = NULL;
+    }
+
+    if (g_bossBerserkAbsorbFrame1 != NULL)
+    {
+        delete g_bossBerserkAbsorbFrame1;
+        g_bossBerserkAbsorbFrame1 = NULL;
+    }
+
+    if (g_bossBerserkAbsorbFrame2 != NULL)
+    {
+        delete g_bossBerserkAbsorbFrame2;
+        g_bossBerserkAbsorbFrame2 = NULL;
+    }
+
+    if (g_bossBerserkEnergyBallFrame != NULL)
+    {
+        delete g_bossBerserkEnergyBallFrame;
+        g_bossBerserkEnergyBallFrame = NULL;
     }
 
     for (int i = 0; i < DANCE_FRAME_COUNT; i++)

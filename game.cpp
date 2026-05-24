@@ -160,6 +160,15 @@ using namespace Gdiplus;
 #ifndef IDB_PNG139
 #define IDB_PNG139 139
 #endif
+#ifndef IDB_PNG140
+#define IDB_PNG140 140
+#endif
+#ifndef IDB_PNG141
+#define IDB_PNG141 141
+#endif
+#ifndef IDB_PNG142
+#define IDB_PNG142 142
+#endif
 
 
 HINSTANCE g_hInst;
@@ -324,7 +333,10 @@ Image* g_bossHalfFloorBoomFrame = NULL;   // 107번: 바닥 절반 폭발
 Image* g_bossDoorFrames[4] = { NULL, NULL, NULL, NULL }; // 108~111번 문 열림
 Image* g_bossKeyFrame = NULL;         // 112번 열쇠
 Image* g_bossChestClosedFrame = NULL; // 113번 닫힌 상자
-Image* g_bossChestOpenFrame = NULL;   // 114번 열린 상자
+Image* g_bossChestOpenFrame = NULL;
+Image* g_bossBerserkAbsorbFrame1 = NULL;
+Image* g_bossBerserkAbsorbFrame2 = NULL;
+Image* g_bossBerserkEnergyBallFrame = NULL;
 
 // 24번: 몬스터를 먹은 뒤 커진 커비 가만히 있는 프레임
 Image* g_powerIdleFrame = NULL;
@@ -2105,6 +2117,16 @@ void UpdateBossBerserkHeal()
     if (g_boss.hp < targetHP)
         g_boss.hp = g_bossBerserkHealStartHP + (targetHP - g_bossBerserkHealStartHP) * elapsed / 90;
 
+    int cx = g_boss.x + g_boss.w / 2;
+    int cy = g_boss.y + g_boss.h / 2;
+    RECT energyRc;
+    energyRc.left = cx - 58;
+    energyRc.top = cy + 60;
+    energyRc.right = cx + 58;
+    energyRc.bottom = cy + 176;
+    if (!isKirbyHit && kirbyHitCooldownTick <= 0 && IsRectHit(GetKirbyBodyRect(), energyRc))
+        StartKirbyHitEffect();
+
     if (g_bossBerserkHealTick <= 0)
     {
         g_boss.hp = targetHP;
@@ -3089,39 +3111,39 @@ void DrawBossBerserkHealEffect(Graphics& graphics)
 
     int cx = g_boss.x + g_boss.w / 2;
     int cy = g_boss.y + g_boss.h / 2;
-    int floorY = 548;
     int t = 90 - g_bossBerserkHealTick;
     if (t < 0) t = 0;
 
-    SolidBrush floorGlow(Color(120, 95, 0, 150));
-    graphics.FillEllipse(&floorGlow, cx - 180, floorY - 28, 360, 56);
+    Image* absorbFrame = ((t / 8) % 2 == 0) ? g_bossBerserkAbsorbFrame1 : g_bossBerserkAbsorbFrame2;
+    bool absorbFromRight = ((t / 18) % 2 == 0);
 
-    for (int i = 0; i < 18; i++)
+    if (absorbFrame != NULL)
     {
-        int lane = i % 6;
-        int wave = (t * 9 + i * 37) % 260;
-        int startX = cx - 135 + lane * 54 + ((i / 6) * 13 - 13);
-        int startY = floorY - wave;
-        int endX = cx + (startX - cx) / 5;
-        int endY = cy + 38;
-        int alpha = 80 + (i % 3) * 45;
-        Pen streamPen(Color(alpha, 145, 40, 255), (REAL)(2 + (i % 2)));
-        graphics.DrawLine(&streamPen, startX, startY, endX, endY);
+        int absorbW = 245;
+        int absorbH = 245;
+        int absorbY = cy - absorbH / 2 + 18;
+        int absorbX = absorbFromRight ? cx + 26 : cx - absorbW - 26;
 
-        SolidBrush orbBrush(Color(alpha + 40 > 255 ? 255 : alpha + 40, 210, 120, 255));
-        graphics.FillEllipse(&orbBrush, startX - 5, startY - 5, 10, 10);
+        if (absorbFromRight)
+            DrawWorldImage(graphics, absorbFrame, absorbX, absorbY, absorbW, absorbH);
+        else
+            DrawImageFlipX(graphics, absorbFrame, absorbX, absorbY, absorbW, absorbH);
     }
 
-    int pulse = (t / 2) % 18;
-    Pen ringPen(Color(210, 220, 160, 255), 4);
-    Pen ringPen2(Color(130, 90, 0, 170), 8);
-    graphics.DrawEllipse(&ringPen2, cx - 58 - pulse, cy - 58 - pulse, 116 + pulse * 2, 116 + pulse * 2);
-    graphics.DrawEllipse(&ringPen, cx - 38, cy - 38, 76, 76);
-
-    SolidBrush coreBrush(Color(150, 150, 20, 230));
-    graphics.FillEllipse(&coreBrush, cx - 28, cy - 28, 56, 56);
+    if (g_bossBerserkEnergyBallFrame != NULL)
+    {
+        int pulse = (t / 2) % 14;
+        int ballSize = 112 + pulse * 2;
+        int ballX = cx - ballSize / 2;
+        int ballY = cy + 64 - pulse;
+        DrawWorldImage(graphics, g_bossBerserkEnergyBallFrame, ballX, ballY, ballSize, ballSize);
+    }
+    else
+    {
+        SolidBrush coreBrush(Color(150, 150, 20, 230));
+        graphics.FillEllipse(&coreBrush, cx - 34, cy + 58, 68, 68);
+    }
 }
-
 void DrawBossProjectiles(Graphics& graphics)
 {
     for (int i = 0; i < BOSS_PROJECTILE_MAX; i++)
