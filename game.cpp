@@ -206,6 +206,7 @@ const int STORY_FRAME_DURATION = 22; // 40ms 타이머 기준 약 0.9초
 // 처음 실행하면 72번 오프닝, SPACE를 누르면 73~79번 스토리 진행 후 1스테이지 시작
 bool g_isOpening = true;
 bool g_isStory = false;
+int g_openingTick = 0;
 
 
 // 81번: 악몽 속에서 떨고 있는 남자 아이
@@ -4064,7 +4065,11 @@ void DrawDarkVisionOverlay(Graphics& graphics, int screenW, int screenH)
 
     int centerX = kirbyX - cameraX + kirbyW / 2;
     int centerY = kirbyY + kirbyH / 2;
-    int radius = 205;
+    int radius = 135;
+
+    // Fire Kirby lights up the nightmare darkness more widely.
+    if (isFireKirby || kirbyAbilityType == 1)
+        radius = 205;
 
     GraphicsPath viewPath;
     viewPath.AddEllipse(centerX - radius, centerY - radius, radius * 2, radius * 2);
@@ -4584,6 +4589,30 @@ void DrawHPBar(Graphics& graphics)
     graphics.FillRectangle(&hpBrush, hpX, hpY, currentW, hpH);
 }
 
+void DrawOpeningPressSpace(Graphics& graphics, int screenW, int screenH)
+{
+    // Opening screen only: tell the player how to start.
+    if (!g_isOpening)
+        return;
+
+    if ((g_openingTick / 12) % 2 == 1)
+        return;
+
+    FontFamily fontFamily(L"Arial");
+    Font font(&fontFamily, 32, FontStyleBold, UnitPixel);
+    StringFormat format;
+    format.SetAlignment(StringAlignmentCenter);
+    format.SetLineAlignment(StringAlignmentCenter);
+
+    RectF rect(0.0f, (REAL)(screenH - 96), (REAL)screenW, 48.0f);
+    SolidBrush shadowBrush(Color(220, 0, 0, 0));
+    SolidBrush textBrush(Color(245, 255, 245, 190));
+
+    RectF shadowRect(2.0f, (REAL)(screenH - 94), (REAL)screenW, 48.0f);
+    graphics.DrawString(L"Press Space", -1, &font, shadowRect, &format, &shadowBrush);
+    graphics.DrawString(L"Press Space", -1, &font, rect, &format, &textBrush);
+}
+
 void DrawScene(HDC hdc, HWND hWnd)
 {
     RECT rt;
@@ -4622,6 +4651,8 @@ void DrawScene(HDC hdc, HWND hWnd)
             SetTextColor(memDC, RGB(255, 255, 255));
 
         }
+
+        DrawOpeningPressSpace(graphics, rt.right, rt.bottom);
 
         BitBlt(hdc, 0, 0, rt.right, rt.bottom, memDC, 0, 0, SRCCOPY);
 
@@ -5018,7 +5049,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
     case WM_TIMER:
         if (g_isOpening)
         {
-            // 오프닝은 정지 화면이라 계속 다시 그릴 필요 없음
+            if (wParam == 1)
+            {
+                g_openingTick++;
+                InvalidateRect(hWnd, NULL, FALSE);
+            }
             return 0;
         }
 
@@ -5357,6 +5392,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             {
                 g_isOpening = false;
                 g_isStory = true;
+                g_openingTick = 0;
                 g_storyFrameIndex = 0;
                 g_storyTick = 0;
                 StopMove();
