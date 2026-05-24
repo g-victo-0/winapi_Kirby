@@ -3101,11 +3101,10 @@ void DrawStarStageTransition(Graphics& graphics, int screenW, int screenH)
     float outerRadius = maxRadius * (1.0f - progress);
     float innerRadius = outerRadius * 0.45f;
 
-    SolidBrush blackBrush(Color(255, 0, 0, 0));
-
+    SolidBrush outsideBrush(Color(230, 20, 15, 45));
     if (outerRadius <= 2.0f)
     {
-        graphics.FillRectangle(&blackBrush, 0, 0, screenW, screenH);
+        graphics.FillRectangle(&outsideBrush, 0, 0, screenW, screenH);
         return;
     }
 
@@ -3118,9 +3117,9 @@ void DrawStarStageTransition(Graphics& graphics, int screenW, int screenH)
     Region darkRegion(Rect(0, 0, screenW, screenH));
     darkRegion.Exclude(&starPath);
 
-    graphics.FillRegion(&blackBrush, &darkRegion);
+    graphics.FillRegion(&outsideBrush, &darkRegion);
 
-    Pen starPen(Color(180, 255, 245, 140), 3);
+    Pen starPen(Color(220, 255, 230, 80), 4);
     graphics.DrawPolygon(&starPen, starPoints, 10);
 }
 
