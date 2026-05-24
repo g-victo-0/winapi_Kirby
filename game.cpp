@@ -178,7 +178,7 @@ const int DANCE_DRAW_H = 72;
 // 춤 위치 이동용 값
 // 영상처럼 제자리에서 프레임만 바뀌는 게 아니라
 // 오른쪽 -> 왼쪽 -> 가운데 순서로 x값이 움직이게 함.
-const int DANCE_FLOOR_Y = 375; // 춤 위치 Y좌표. 값을 줄이면 위로 올라감
+const int DANCE_FLOOR_Y = 392; // 춤 위치 Y좌표. 값을 줄이면 위로 올라감
 const int DANCE_CENTER_X = 500;
 const int DANCE_RIGHT_X = 555;
 const int DANCE_LEFT_X = 445;
@@ -622,6 +622,7 @@ int g_totalDeathCount = 0;
 int g_bossDamageCount = 0;
 int g_bossDeathCount = 0;
 int g_totalStudentsRescued = 0;
+int g_gameScore = 0;
 
 // Stage gimmick state
 const int WIND_DURATION = 50;      // about 2 seconds
@@ -972,6 +973,7 @@ void DrawStarStageTransition(Graphics& graphics, int screenW, int screenH);
 void ChangeStageNow(HWND hWnd, int targetStage);
 void StartStageClearMessage();
 void StartRescueEffect(int x, int y);
+void AddGameScore(int score);
 void PlayGameSound(int soundId);
 void RestartCurrentStage(HWND hWnd);
 void StartRetrySequence();
@@ -1668,6 +1670,7 @@ void DamageBoss(int damage)
         g_boss.hp = 0;
         g_boss.active = false;
         g_bossClear = true;
+        AddGameScore(3000);
         g_bossDeadEffect = true;
         g_bossDeadEffectTick = 80;
         g_screenShakeTick = 35;
@@ -3173,6 +3176,7 @@ void ResetPlayTimer()
     g_bossDamageCount = 0;
     g_bossDeathCount = 0;
     g_totalStudentsRescued = 0;
+    g_gameScore = 0;
 }
 
 void StartPlayTimer()
@@ -3189,6 +3193,9 @@ void UpdatePlayTimer()
     g_playTimeTick++;
 }
 
+bool IsFastClear();
+void AddFinalScoreBonus();
+
 void SaveFinalClearTime()
 {
     if (g_clearTimeSaved)
@@ -3196,6 +3203,7 @@ void SaveFinalClearTime()
 
     g_clearTimeTick = g_playTimeTick;
     g_clearTimeSaved = true;
+    AddFinalScoreBonus();
 }
 
 void FormatClearTimeText(wchar_t* buffer, int tick)
@@ -3207,38 +3215,63 @@ void FormatClearTimeText(wchar_t* buffer, int tick)
     wsprintf(buffer, L"CLEAR TIME : %02d:%02d", minutes, seconds);
 }
 
+void AddGameScore(int score)
+{
+    if (score <= 0)
+        return;
+
+    g_gameScore += score;
+}
+
 int GetTotalStudentCount()
 {
     return g_stage1ChildTotal + g_stage2ChildTotal;
 }
 
-int GetClearScore()
+bool IsFastClear();
+
+void AddFinalScoreBonus()
 {
-    int clearSeconds = g_clearTimeTick * GAME_TIMER_MS / 1000;
     int rescuedCount = g_totalStudentsRescued;
     int totalStudents = GetTotalStudentCount();
     if (rescuedCount > totalStudents)
         rescuedCount = totalStudents;
 
-    int score = 10000;
+    AddGameScore(g_kirbyLives * 500);
+    AddGameScore(rescuedCount * 300);
 
-    score -= clearSeconds * 8;
-    score += g_kirbyLives * 500;
-    score += rescuedCount * 800;
-    score -= g_totalDeathCount * 900;
-    score -= g_totalDamageCount * 250;
-
-    if (score < 0)
-        score = 0;
-
-    return score;
+    if (IsFastClear())
+        AddGameScore(1200);
+    if (g_bossDamageCount == 0 && g_bossDeathCount == 0)
+        AddGameScore(1200);
+    if (g_totalDamageCount == 0)
+        AddGameScore(1600);
 }
 
-const wchar_t* GetClearRankText(int score)
+int GetClearScore()
 {
-    if (score >= 11000) return L"S";
-    if (score >= 8500) return L"A";
-    if (score >= 6000) return L"B";
+    return g_gameScore;
+}
+
+int GetAchievementCount()
+{
+    int count = 0;
+
+    if (IsFastClear())
+        count++;
+    if (g_bossDamageCount == 0 && g_bossDeathCount == 0)
+        count++;
+    if (g_totalDamageCount == 0)
+        count++;
+
+    return count;
+}
+
+const wchar_t* GetClearRankText(int achievementCount)
+{
+    if (achievementCount >= 3) return L"S";
+    if (achievementCount == 2) return L"A";
+    if (achievementCount == 1) return L"B";
     return L"C";
 }
 
@@ -3280,7 +3313,8 @@ void DrawClearResultPanel(Graphics& graphics, int screenW, int screenH)
     centerFormat.SetLineAlignment(StringAlignmentCenter);
 
     int score = GetClearScore();
-    const wchar_t* rankText = GetClearRankText(score);
+    int achievementCount = GetAchievementCount();
+    const wchar_t* rankText = GetClearRankText(achievementCount);
     int totalStudents = GetTotalStudentCount();
     int rescuedCount = g_totalStudentsRescued;
     if (rescuedCount > totalStudents)
@@ -3304,21 +3338,19 @@ void DrawClearResultPanel(Graphics& graphics, int screenW, int screenH)
 
     graphics.DrawString(L"ACHIEVEMENTS", -1, &lineFont, PointF((REAL)(panelX + 24), (REAL)(panelY + 142)), &titleBrush);
 
-    bool achievements[4];
-    achievements[0] = (rescuedCount >= totalStudents);
-    achievements[1] = (g_totalDamageCount == 0);
-    achievements[2] = IsFastClear();
-    achievements[3] = (g_bossDamageCount == 0 && g_bossDeathCount == 0);
+    bool achievements[3];
+    achievements[0] = IsFastClear();
+    achievements[1] = (g_bossDamageCount == 0 && g_bossDeathCount == 0);
+    achievements[2] = (g_totalDamageCount == 0);
 
-    const wchar_t* names[4] =
+    const wchar_t* names[3] =
     {
-        L"All Students Rescued",
-        L"No Damage Clear",
         L"Fast Clear",
-        L"Boss No Miss"
+        L"Boss No Miss",
+        L"No Damage Clear"
     };
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 3; i++)
     {
         SolidBrush* brush = achievements[i] ? &goodBrush : &offBrush;
         const wchar_t* mark = achievements[i] ? L"[OK]" : L"[--]";
@@ -3460,6 +3492,30 @@ void DrawKirbyDamageFlash(Graphics& graphics)
 
     SolidBrush flashBrush(Color(alpha, 255, 80, 120));
     graphics.FillEllipse(&flashBrush, kirbyX - 4, kirbyY - 4, kirbyW + 8, kirbyH + 8);
+}
+
+void DrawScoreHUD(Graphics& graphics, int screenW)
+{
+    if (g_isOpening || g_isStory)
+        return;
+
+    int boxW = 185;
+    int boxH = 34;
+    int boxX = screenW - boxW - 18;
+    int boxY = 18;
+
+    SolidBrush boxBrush(Color(145, 18, 18, 35));
+    Pen boxPen(Color(210, 255, 230, 100), 2);
+    graphics.FillRectangle(&boxBrush, boxX, boxY, boxW, boxH);
+    graphics.DrawRectangle(&boxPen, boxX, boxY, boxW, boxH);
+
+    FontFamily fontFamily(L"Arial");
+    Font font(&fontFamily, 17, FontStyleBold, UnitPixel);
+    SolidBrush textBrush(Color(245, 255, 245, 210));
+
+    wchar_t scoreText[64];
+    wsprintf(scoreText, L"SCORE  %d", g_gameScore);
+    graphics.DrawString(scoreText, -1, &font, PointF((REAL)(boxX + 14), (REAL)(boxY + 8)), &textBrush);
 }
 
 void DrawGameHUD(Graphics& graphics)
@@ -4422,6 +4478,7 @@ void CheckKirbyCollision()
 void DrawHUD(Graphics& graphics, int screenW, int screenH)
 {
     DrawGameHUD(graphics);
+    DrawScoreHUD(graphics, screenW);
     DrawControlGuide(graphics, screenW);
     DrawKirbyStatusUI(graphics);
     DrawBossHpBar(graphics);

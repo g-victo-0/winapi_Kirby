@@ -1010,6 +1010,7 @@ void CheckPowerProjectileHitMonsters()
         if (IsRectHit(projectileRc, monsterRc))
         {
             // 충돌하면 발사체는 사라지고, 몬스터는 35번 죽는 프레임을 잠깐 보여준 뒤 사라짐
+            AddGameScore(300);
             g_monsters[i].StartDeadEffect();
 
             isPowerProjectileActive = false;
@@ -1342,12 +1343,14 @@ void CheckFireAttacksHitMonsters()
 
         if (hasBreath && IsRectHit(fireBreathRc, monsterRc))
         {
+            AddGameScore(300);
             g_monsters[i].StartDeadEffect();
             continue;
         }
 
         if (hasFireBall && IsRectHit(fireBallRc, monsterRc))
         {
+            AddGameScore(300);
             g_monsters[i].StartDeadEffect();
             isFireBallActive = false;
             return;
@@ -1637,6 +1640,7 @@ void CheckBombHitMonsters(RECT bombRc, bool fromEnemy)
 
         if (IsRectHit(bombRc, monsterRc))
         {
+            AddGameScore(300);
             g_monsters[i].StartDeadEffect();
 
         }

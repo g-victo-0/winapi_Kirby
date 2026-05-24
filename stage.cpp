@@ -358,6 +358,7 @@ void CheckRescueChildTouch()
             g_stage1Boy.rescued = true;
             g_stage1ChildRescued++;
             g_totalStudentsRescued++;
+            AddGameScore(1000);
             StartRescueEffect(g_stage1Boy.x + g_stage1Boy.w / 2, g_stage1Boy.y + g_stage1Boy.h / 2);
 
             if (g_stage1ChildRescued >= g_stage1ChildTotal)
@@ -383,6 +384,7 @@ void CheckRescueChildTouch()
                 g_stage2Children[i].rescued = true;
                 g_stage2ChildRescued++;
                 g_totalStudentsRescued++;
+                AddGameScore(1000);
                 StartRescueEffect(g_stage2Children[i].x + g_stage2Children[i].w / 2, g_stage2Children[i].y + g_stage2Children[i].h / 2);
 
                 if (g_stage2ChildRescued >= g_stage2ChildTotal)

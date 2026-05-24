@@ -3,7 +3,7 @@
 
 using namespace Gdiplus;
 
-const int STAGE_EFFECT_MAX = 64;
+const int STAGE_EFFECT_MAX = 96;
 const int STAGE_EFFECT_WORLD_W = 2000;
 
 struct StageEffectParticle
@@ -104,6 +104,22 @@ void UpdateStageAtmosphereEffects(int currentStage)
             );
         }
     }
+    else if (currentStage == 5)
+    {
+        if (g_stageEffectTick % 2 == 0)
+        {
+            SpawnStageParticle(
+                currentStage,
+                EffectRandomRange(3, 4),
+                (float)EffectRandomRange(0, 1000),
+                (float)EffectRandomRange(-80, 80),
+                (float)EffectRandomRange(-2, 2) / 10.0f,
+                (float)EffectRandomRange(10, 22) / 10.0f,
+                EffectRandomRange(70, 110),
+                EffectRandomRange(3, 8)
+            );
+        }
+    }
 }
 
 void DrawTinyStar(Graphics& graphics, int x, int y, int size, int alpha)
@@ -145,7 +161,7 @@ void DrawEnergyShard(Graphics& graphics, int x, int y, int size, int alpha, bool
 
 void DrawStageAtmosphereEffects(Graphics& graphics, int currentStage, int cameraX, int screenW, int screenH)
 {
-    if (currentStage < 1 || currentStage > 3)
+    if ((currentStage < 1 || currentStage > 3) && currentStage != 5)
         return;
 
     for (int i = 0; i < STAGE_EFFECT_MAX; i++)
@@ -164,6 +180,20 @@ void DrawStageAtmosphereEffects(Graphics& graphics, int currentStage, int camera
         int alpha = 255 - p->tick * 255 / p->life;
         if (alpha < 0)
             alpha = 0;
+
+        if (currentStage == 5)
+        {
+            if (p->type == 3)
+            {
+                Pen lightPen(Color(alpha * 150 / 255, 255, 245, 170), 2);
+                graphics.DrawLine(&lightPen, sx, sy - p->size * 3, sx, sy + p->size);
+            }
+            else
+            {
+                DrawTinyStar(graphics, sx, sy, p->size, alpha * 210 / 255);
+            }
+            continue;
+        }
 
         if (p->type == 0)
         {
