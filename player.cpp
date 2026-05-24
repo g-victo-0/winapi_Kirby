@@ -425,6 +425,10 @@ void StartKirbyHitEffect()
     if (isGameOver)
         return;
 
+    g_totalDamageCount++;
+    if (g_currentStage == 4)
+        g_bossDamageCount++;
+
     // 피격 프레임 표시
     isKirbyHit = true;
     kirbyHitTick = 0;

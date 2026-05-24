@@ -617,6 +617,11 @@ bool g_playTimerStarted = false;
 int g_playTimeTick = 0;
 int g_clearTimeTick = 0;
 bool g_clearTimeSaved = false;
+int g_totalDamageCount = 0;
+int g_totalDeathCount = 0;
+int g_bossDamageCount = 0;
+int g_bossDeathCount = 0;
+int g_totalStudentsRescued = 0;
 
 // Stage gimmick state
 const int WIND_DURATION = 50;      // about 2 seconds
@@ -3163,6 +3168,11 @@ void ResetPlayTimer()
     g_playTimeTick = 0;
     g_clearTimeTick = 0;
     g_clearTimeSaved = false;
+    g_totalDamageCount = 0;
+    g_totalDeathCount = 0;
+    g_bossDamageCount = 0;
+    g_bossDeathCount = 0;
+    g_totalStudentsRescued = 0;
 }
 
 void StartPlayTimer()
@@ -3195,6 +3205,126 @@ void FormatClearTimeText(wchar_t* buffer, int tick)
     int seconds = totalSeconds % 60;
 
     wsprintf(buffer, L"CLEAR TIME : %02d:%02d", minutes, seconds);
+}
+
+int GetTotalStudentCount()
+{
+    return g_stage1ChildTotal + g_stage2ChildTotal;
+}
+
+int GetClearScore()
+{
+    int clearSeconds = g_clearTimeTick * GAME_TIMER_MS / 1000;
+    int rescuedCount = g_totalStudentsRescued;
+    int totalStudents = GetTotalStudentCount();
+    if (rescuedCount > totalStudents)
+        rescuedCount = totalStudents;
+
+    int score = 10000;
+
+    score -= clearSeconds * 8;
+    score += g_kirbyLives * 500;
+    score += rescuedCount * 800;
+    score -= g_totalDeathCount * 900;
+    score -= g_totalDamageCount * 250;
+
+    if (score < 0)
+        score = 0;
+
+    return score;
+}
+
+const wchar_t* GetClearRankText(int score)
+{
+    if (score >= 11000) return L"S";
+    if (score >= 8500) return L"A";
+    if (score >= 6000) return L"B";
+    return L"C";
+}
+
+bool IsFastClear()
+{
+    int clearSeconds = g_clearTimeTick * GAME_TIMER_MS / 1000;
+    return clearSeconds <= 240;
+}
+
+void DrawClearResultPanel(Graphics& graphics, int screenW, int screenH)
+{
+    if (g_currentStage != 5 || !g_clearTimeSaved)
+        return;
+
+    int panelW = 390;
+    int panelH = 270;
+    int panelX = screenW - panelW - 34;
+    int panelY = 178;
+
+    SolidBrush panelBrush(Color(190, 12, 12, 28));
+    Pen panelPen(Color(230, 255, 230, 90), 2);
+    graphics.FillRectangle(&panelBrush, panelX, panelY, panelW, panelH);
+    graphics.DrawRectangle(&panelPen, panelX, panelY, panelW, panelH);
+
+    FontFamily fontFamily(L"Arial");
+    Font titleFont(&fontFamily, 22, FontStyleBold, UnitPixel);
+    Font rankFont(&fontFamily, 54, FontStyleBold, UnitPixel);
+    Font lineFont(&fontFamily, 16, FontStyleBold, UnitPixel);
+    Font smallFont(&fontFamily, 14, FontStyleBold, UnitPixel);
+
+    SolidBrush titleBrush(Color(255, 255, 245, 200));
+    SolidBrush rankBrush(Color(255, 255, 230, 80));
+    SolidBrush textBrush(Color(240, 230, 235, 255));
+    SolidBrush goodBrush(Color(250, 150, 255, 170));
+    SolidBrush offBrush(Color(155, 135, 135, 155));
+
+    StringFormat centerFormat;
+    centerFormat.SetAlignment(StringAlignmentCenter);
+    centerFormat.SetLineAlignment(StringAlignmentCenter);
+
+    int score = GetClearScore();
+    const wchar_t* rankText = GetClearRankText(score);
+    int totalStudents = GetTotalStudentCount();
+    int rescuedCount = g_totalStudentsRescued;
+    if (rescuedCount > totalStudents)
+        rescuedCount = totalStudents;
+
+    RectF titleRect((REAL)panelX, (REAL)(panelY + 12), (REAL)panelW, 30.0f);
+    graphics.DrawString(L"CLEAR RESULT", -1, &titleFont, titleRect, &centerFormat, &titleBrush);
+
+    RectF rankRect((REAL)(panelX + 22), (REAL)(panelY + 48), 90.0f, 66.0f);
+    graphics.DrawString(rankText, -1, &rankFont, rankRect, &centerFormat, &rankBrush);
+
+    wchar_t line[96];
+    wsprintf(line, L"SCORE  %d", score);
+    graphics.DrawString(line, -1, &lineFont, PointF((REAL)(panelX + 126), (REAL)(panelY + 55)), &textBrush);
+
+    wsprintf(line, L"LIFE %d   RESCUE %d/%d", g_kirbyLives, rescuedCount, totalStudents);
+    graphics.DrawString(line, -1, &lineFont, PointF((REAL)(panelX + 126), (REAL)(panelY + 80)), &textBrush);
+
+    wsprintf(line, L"DEATH %d   DAMAGE %d", g_totalDeathCount, g_totalDamageCount);
+    graphics.DrawString(line, -1, &lineFont, PointF((REAL)(panelX + 126), (REAL)(panelY + 105)), &textBrush);
+
+    graphics.DrawString(L"ACHIEVEMENTS", -1, &lineFont, PointF((REAL)(panelX + 24), (REAL)(panelY + 142)), &titleBrush);
+
+    bool achievements[4];
+    achievements[0] = (rescuedCount >= totalStudents);
+    achievements[1] = (g_totalDamageCount == 0);
+    achievements[2] = IsFastClear();
+    achievements[3] = (g_bossDamageCount == 0 && g_bossDeathCount == 0);
+
+    const wchar_t* names[4] =
+    {
+        L"All Students Rescued",
+        L"No Damage Clear",
+        L"Fast Clear",
+        L"Boss No Miss"
+    };
+
+    for (int i = 0; i < 4; i++)
+    {
+        SolidBrush* brush = achievements[i] ? &goodBrush : &offBrush;
+        const wchar_t* mark = achievements[i] ? L"[OK]" : L"[--]";
+        wsprintf(line, L"%s  %s", mark, names[i]);
+        graphics.DrawString(line, -1, &smallFont, PointF((REAL)(panelX + 28), (REAL)(panelY + 170 + i * 22)), brush);
+    }
 }
 
 void StartStageClearMessage()
@@ -3444,8 +3574,10 @@ void DrawTransitionOverlay(Graphics& graphics, int screenW, int screenH)
     {
         wchar_t clearTimeText[64];
         FormatClearTimeText(clearTimeText, g_clearTimeTick);
-        DrawStageMessage(graphics, screenW, 88, clearTimeText, 235);
+        DrawStageMessage(graphics, screenW, 78, clearTimeText, 235);
     }
+
+    DrawClearResultPanel(graphics, screenW, screenH);
 }
 
 const wchar_t* GetGameSoundFileName(int soundId)
@@ -4012,6 +4144,10 @@ void StartRetrySequence()
         g_retryRespawnX = kirbyX;
         g_retryRespawnY = kirbyY;
     }
+
+    g_totalDeathCount++;
+    if (g_currentStage == 4)
+        g_bossDeathCount++;
 
     if (g_kirbyLives > 0)
         g_kirbyLives--;

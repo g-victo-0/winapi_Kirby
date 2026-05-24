@@ -357,6 +357,7 @@ void CheckRescueChildTouch()
             g_stage1Boy.active = false;
             g_stage1Boy.rescued = true;
             g_stage1ChildRescued++;
+            g_totalStudentsRescued++;
             StartRescueEffect(g_stage1Boy.x + g_stage1Boy.w / 2, g_stage1Boy.y + g_stage1Boy.h / 2);
 
             if (g_stage1ChildRescued >= g_stage1ChildTotal)
@@ -381,6 +382,7 @@ void CheckRescueChildTouch()
                 g_stage2Children[i].active = false;
                 g_stage2Children[i].rescued = true;
                 g_stage2ChildRescued++;
+                g_totalStudentsRescued++;
                 StartRescueEffect(g_stage2Children[i].x + g_stage2Children[i].w / 2, g_stage2Children[i].y + g_stage2Children[i].h / 2);
 
                 if (g_stage2ChildRescued >= g_stage2ChildTotal)
@@ -731,45 +733,45 @@ const DanceFrame g_danceSequence[] =
     { 12, 10, false, 0, 0 },
 
     // Clockwise turn: rise and land like the reference dance.
-    { 15, 5, false, 4, -3 },
-    { 16, 5, false, 9, -8 },
-    { 17, 5, false, 14, -14 },
-    { 18, 5, false, 19, -18 },
-    { 19, 5, false, 24, -14 },
-    { 20, 5, false, 29, -8 },
-    { 21, 8, false, 34, -3 },
+    { 15, 5, false, 3, -3 },
+    { 16, 5, false, 6, -8 },
+    { 17, 5, false, 9, -14 },
+    { 18, 5, false, 12, -18 },
+    { 19, 5, false, 10, -14 },
+    { 20, 5, false, 7, -8 },
+    { 21, 8, false, 4, -3 },
 
     // Counter-turn: same turn frames, mirrored on draw only, with the same bounce arc.
-    { 20, 5, true, 29, -3 },
-    { 19, 5, true, 24, -8 },
-    { 18, 5, true, 19, -14 },
-    { 17, 5, true, 14, -18 },
-    { 16, 5, true, 9, -14 },
-    { 15, 8, true, 4, -6 },
+    { 20, 5, true, -4, -3 },
+    { 19, 5, true, -7, -8 },
+    { 18, 5, true, -10, -14 },
+    { 17, 5, true, -12, -18 },
+    { 16, 5, true, -8, -14 },
+    { 15, 8, true, -4, -6 },
 
     // Right-side dance accents: grounded poses, with only the step frames bouncing.
-    { 4, 7, false, 44, 0 },
-    { 5, 7, false, 52, -4 },
-    { 6, 7, false, 58, -7 },
-    { 7, 8, false, 52, -4 },
-    { 11, 8, false, 44, 0 },
-    { 12, 10, false, 36, 0 },
-    { 14, 8, false, 30, 0 },
-    { 10, 8, false, 24, 0 },
+    { 4, 7, false, 18, 0 },
+    { 5, 7, false, 26, -4 },
+    { 6, 7, false, 32, -7 },
+    { 7, 8, false, 26, -4 },
+    { 11, 8, false, 18, 0 },
+    { 12, 10, false, 12, 0 },
+    { 14, 8, false, 8, 0 },
+    { 10, 8, false, 4, 0 },
 
     // Left-side dance accents: same rhythm mirrored; still frames keep yOffset at 0.
-    { 4, 7, true, -44, 0 },
-    { 5, 7, true, -52, -4 },
-    { 6, 7, true, -58, -7 },
-    { 7, 8, true, -52, -4 },
-    { 11, 8, true, -44, 0 },
-    { 12, 10, true, -36, 0 },
-    { 14, 8, true, -30, 0 },
-    { 10, 8, true, -24, 0 },
+    { 4, 7, true, -18, 0 },
+    { 5, 7, true, -26, -4 },
+    { 6, 7, true, -32, -7 },
+    { 7, 8, true, -26, -4 },
+    { 11, 8, true, -18, 0 },
+    { 12, 10, true, -12, 0 },
+    { 14, 8, true, -8, 0 },
+    { 10, 8, true, -4, 0 },
 
     // Return to center: one small hop, then grounded finish.
-    { 0, 8, false, -14, -3 },
-    { 1, 8, false, -8, -5 },
+    { 0, 8, false, -6, -3 },
+    { 1, 8, false, -3, -5 },
     { 4, 8, false, 0, -2 },
     { 11, 9, false, 0, 0 },
     { 14, 9, false, 0, 0 },
