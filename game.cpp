@@ -986,6 +986,14 @@ void ResetStageGimmicks();
 void UpdateStageGimmicks(HWND hWnd);
 void DrawStageGimmicks(Graphics& graphics, int screenW, int screenH);
 void DrawDarkVisionOverlay(Graphics& graphics, int screenW, int screenH);
+void StartCameraShake(int power, int duration);
+void UpdateCameraShake();
+int GetCameraDrawOffsetX();
+int GetCameraDrawOffsetY();
+void StartCameraPush(int dir, int power, int duration);
+void UpdateCameraPush();
+int GetCameraPushOffsetX();
+void DrawScreenEdgeEffects(Graphics& graphics, int screenW, int screenH);
 
 // 보스 보상 문 변수는 아래쪽 보스전 코드에서 실제로 정의됨.
 // CheckDoorTouch가 그보다 위에 있어서 여기서는 미리 알려만 줌.
@@ -1152,6 +1160,17 @@ int g_bossDeadEffectTick = 0;
 bool g_bossClear = false;
 int g_screenShakeTick = 0;
 
+// Camera action effects. Only world drawing uses these offsets, so HUD stays fixed.
+int g_cameraShakeTick = 0;
+int g_cameraShakePower = 0;
+int g_cameraOffsetX = 0;
+int g_cameraOffsetY = 0;
+int g_cameraPushTick = 0;
+int g_cameraPushDuration = 0;
+int g_cameraPushDir = 0;
+int g_cameraPushPower = 0;
+int g_edgeEffectTick = 0;
+
 // 보스 처치 후 보상/문 연출
 bool g_rewardStarted = false;
 bool g_rewardChestActive = false;
@@ -1203,6 +1222,97 @@ int RandomRange(int minValue, int maxValue)
         return minValue;
 
     return minValue + rand() % (maxValue - minValue + 1);
+}
+
+void StartCameraShake(int power, int duration)
+{
+    if (power <= 0 || duration <= 0)
+        return;
+
+    if (power > g_cameraShakePower || duration > g_cameraShakeTick)
+    {
+        g_cameraShakePower = power;
+        g_cameraShakeTick = duration;
+    }
+}
+
+void UpdateCameraShake()
+{
+    if (g_cameraShakeTick > 0)
+    {
+        int range = g_cameraShakePower * 2 + 1;
+        g_cameraOffsetX = rand() % range - g_cameraShakePower;
+        g_cameraOffsetY = rand() % range - g_cameraShakePower;
+        g_cameraShakeTick--;
+
+        if (g_cameraShakeTick <= 0)
+        {
+            g_cameraShakePower = 0;
+            g_cameraOffsetX = 0;
+            g_cameraOffsetY = 0;
+        }
+    }
+    else
+    {
+        g_cameraOffsetX = 0;
+        g_cameraOffsetY = 0;
+    }
+}
+
+void StartCameraPush(int dir, int power, int duration)
+{
+    if (power <= 0 || duration <= 0)
+        return;
+
+    if (dir < 0)
+        dir = -1;
+    else
+        dir = 1;
+
+    g_cameraPushDir = dir;
+    g_cameraPushPower = power;
+    g_cameraPushDuration = duration;
+    g_cameraPushTick = duration;
+}
+
+void UpdateCameraPush()
+{
+    if (g_cameraPushTick > 0)
+    {
+        g_cameraPushTick--;
+
+        if (g_cameraPushTick <= 0)
+        {
+            g_cameraPushTick = 0;
+            g_cameraPushDuration = 0;
+            g_cameraPushDir = 0;
+            g_cameraPushPower = 0;
+        }
+    }
+}
+
+int GetCameraPushOffsetX()
+{
+    if (g_cameraPushTick <= 0 || g_cameraPushDuration <= 0)
+        return 0;
+
+    return g_cameraPushDir * g_cameraPushPower * g_cameraPushTick / g_cameraPushDuration;
+}
+
+int GetCameraDrawOffsetX()
+{
+    if (g_starTransitionActive || g_isChangingMap)
+        return 0;
+
+    return g_cameraOffsetX + GetCameraPushOffsetX();
+}
+
+int GetCameraDrawOffsetY()
+{
+    if (g_starTransitionActive || g_isChangingMap)
+        return 0;
+
+    return g_cameraOffsetY;
 }
 
 RECT GetBossRect()
@@ -1288,6 +1398,7 @@ void StartBossPhase2()
     g_bossPhase2Transition = true;
     g_bossPhase2TransitionTick = BOSS_PHASE2_TRANSITION_TOTAL;
     g_screenShakeTick = BOSS_PHASE2_SHAKE_TICKS;
+    StartCameraShake(12, 25);
     // 2페이즈 패턴은 전환 연출이 끝난 뒤부터 시작되도록 여유를 둠.
     g_boss.fastDashCooldown = RandomRange(95, 150);
     g_boss.dangerTextTick = 50;
@@ -1320,6 +1431,14 @@ void InitBossObjects()
     g_bossDeadEffectTick = 0;
     g_bossClear = false;
     g_screenShakeTick = 0;
+    g_cameraShakeTick = 0;
+    g_cameraShakePower = 0;
+    g_cameraOffsetX = 0;
+    g_cameraOffsetY = 0;
+    g_cameraPushTick = 0;
+    g_cameraPushDuration = 0;
+    g_cameraPushDir = 0;
+    g_cameraPushPower = 0;
 
     g_rewardStarted = false;
     g_rewardChestActive = false;
@@ -1469,6 +1588,7 @@ void SpawnBossRainAttack()
 
 void SpawnBossRainBomb()
 {
+    StartCameraShake(5, 10);
     // 바로 떨어지지 않고 바닥에 경고 표시 후 101번 낙하 폭탄 생성
     int x = RandomRange(30, BG_PART_W - 60);
     SpawnBossWarning(3, x, 545 - 20, 29, 20, 18, 0);
@@ -1512,6 +1632,7 @@ void SpawnBossSpreadShot()
 
 void SpawnBossGroundWave()
 {
+    StartCameraShake(7, 16);
     // 바닥을 타고 좌우로 퍼지는 공격. 점프로 피하게 만드는 패턴.
     if (!g_boss.active)
         return;
@@ -1527,6 +1648,7 @@ void SpawnBossGroundWave()
 
 void SpawnBossRainBurst()
 {
+    StartCameraShake(8, 18);
     // 2페이즈 연속 낙하 패턴. 세로 경고 표시는 유지함.
     for (int i = 0; i < 5; i++)
     {
@@ -1579,6 +1701,7 @@ void SpawnBossAimedShot()
 
 void SpawnBossWallRain()
 {
+    StartCameraShake(8, 18);
     // 여러 줄이 떨어지지만 커비 근처 한 칸은 안전구역으로 남기는 패턴
     int gapCenter = kirbyX + kirbyW / 2;
     int gapW = 145;
@@ -1632,6 +1755,8 @@ void SpawnBossHalfFloorAttack()
 
 void SpawnBossMouthBomb()
 {
+    StartCameraShake(8, 16);
+
     if (!g_boss.active)
         return;
 
@@ -1660,6 +1785,7 @@ void DamageBoss(int damage)
     g_boss.redFlashTick = 6;
     g_boss.dangerTextTick = 10;
     g_screenShakeTick = 7;
+    StartCameraShake(3, 5);
 
     if (g_boss.hp <= BOSS_MAX_HP / 2)
         StartBossPhase2();
@@ -1673,6 +1799,7 @@ void DamageBoss(int damage)
         g_bossDeadEffect = true;
         g_bossDeadEffectTick = 80;
         g_screenShakeTick = 35;
+        StartCameraShake(12, 30);
         ResetBossProjectiles();
         ResetBossWarnings();
     }
@@ -1790,6 +1917,7 @@ void UpdateBossProjectiles()
                 g_bossProjectiles[i].type = 13;
                 g_bossProjectiles[i].tick = 0;
                 g_screenShakeTick = 8;
+                StartCameraShake(8, 18);
             }
         }
 
@@ -1923,6 +2051,7 @@ void UpdateBossObjects()
         {
             g_bossIntro = false;
             g_screenShakeTick = 12;
+            StartCameraShake(8, 16);
         }
 
         return;
@@ -1974,7 +2103,10 @@ void UpdateBossObjects()
             g_boss.y = BOSS_PHASE2_GROUND_Y;
             FaceBossToKirby();
             if (elapsed == BOSS_PHASE2_DROP_END)
+            {
                 g_screenShakeTick = 10;
+                StartCameraShake(10, 18);
+            }
             return;
         }
 
@@ -1985,6 +2117,7 @@ void UpdateBossObjects()
         g_boss.vx = (float)(2 * g_boss.dir);
         g_boss.vy = 0.0f;
         g_screenShakeTick = 10;
+        StartCameraShake(10, 18);
         return;
     }
 
@@ -2308,6 +2441,8 @@ void UpdateBossObjects()
         FaceBossToKirby();
         g_boss.dangerTextTick = 24;
         g_screenShakeTick = 6;
+        StartCameraShake(5, 8);
+        StartCameraPush(g_boss.dir, 18, 20);
         g_boss.vx = 5.6f * g_boss.dir;
         g_boss.vy = -8.2f;
         g_boss.state = BOSS_STATE_DASH;
@@ -2321,6 +2456,8 @@ void UpdateBossObjects()
         g_boss.dangerTextTick = 24;
         g_screenShakeTick = 10;
         int dashDir = RandomRange(0, 1) == 0 ? -1 : 1;
+        StartCameraShake(6, 10);
+        StartCameraPush(dashDir, 22, 24);
         g_boss.dir = dashDir;
         g_boss.vx = 13.0f * dashDir;
         g_boss.vy = 0.0f;
@@ -3403,6 +3540,10 @@ void UpdateScreenEffects()
 
     if (g_rescueEffectTick > 0)
         g_rescueEffectTick--;
+
+    g_edgeEffectTick++;
+    UpdateCameraShake();
+    UpdateCameraPush();
 
     UpdateStageAtmosphereEffects(g_currentStage);
 }
@@ -4497,6 +4638,51 @@ void DrawHUD(Graphics& graphics, int screenW, int screenH)
     DrawBossPatternText(graphics);
     DrawTransitionOverlay(graphics, screenW, screenH);
 }
+
+void DrawEdgeBox(Graphics& graphics, int screenW, int screenH, int alpha, int red, int green, int blue, int startInset, int layerCount)
+{
+    if (alpha <= 0)
+        return;
+
+    for (int i = 0; i < layerCount; i++)
+    {
+        int curAlpha = alpha * (layerCount - i) / layerCount;
+        int inset = startInset + i * 5;
+        Pen edgePen(Color(curAlpha, red, green, blue), 5);
+        graphics.DrawRectangle(&edgePen, inset, inset, screenW - inset * 2 - 1, screenH - inset * 2 - 1);
+    }
+}
+
+void DrawScreenEdgeEffects(Graphics& graphics, int screenW, int screenH)
+{
+    // Nightmare stages get a soft dark edge, separate from the stage 2 vision mask.
+    if (g_currentStage == 2 || g_currentStage == 3 || g_currentStage == 4)
+    {
+        DrawEdgeBox(graphics, screenW, screenH, 70, 0, 0, 0, 0, 9);
+        DrawEdgeBox(graphics, screenW, screenH, 48, 35, 0, 65, 8, 7);
+    }
+
+    if (g_currentStage == 4 && IsBossBerserk())
+    {
+        int pulse = (g_edgeEffectTick / 3) % 32;
+        if (pulse > 16)
+            pulse = 32 - pulse;
+
+        int alpha = 85 + pulse * 5;
+        DrawEdgeBox(graphics, screenW, screenH, alpha, 150, 40, 255, 0, 8);
+    }
+
+    if (!isGameOver && !g_retryActive && kirbyMaxHP > 0 && kirbyHP <= kirbyMaxHP / 5)
+    {
+        int pulse = (g_edgeEffectTick / 2) % 24;
+        if (pulse > 12)
+            pulse = 24 - pulse;
+
+        int alpha = 70 + pulse * 6;
+        DrawEdgeBox(graphics, screenW, screenH, alpha, 255, 20, 20, 16, 6);
+    }
+}
+
 void DrawDebugInfo(HDC memDC, HWND hWnd)
 {
     if (!g_debugMode)
@@ -4696,35 +4882,12 @@ void DrawScene(HDC hdc, HWND hWnd)
 
     // 5스테이지는 138번 클리어 배경을 사용함
 
-    int shakeX = 0;
-    int shakeY = 0;
-    if (g_currentStage == 4 && g_screenShakeTick > 0)
-    {
-        int powerX = 4;
-        int powerY = 3;
+    int cameraDrawOffsetX = GetCameraDrawOffsetX();
+    int cameraDrawOffsetY = GetCameraDrawOffsetY();
 
-        if (g_bossPhase2Transition)
-        {
-            int phaseElapsed = BOSS_PHASE2_TRANSITION_TOTAL - g_bossPhase2TransitionTick;
-            if (phaseElapsed < BOSS_PHASE2_SHAKE_TICKS)
-            {
-                powerX = 12;
-                powerY = 8;
-            }
-            else
-            {
-                powerX = 7;
-                powerY = 5;
-            }
-        }
-
-        shakeX = RandomRange(-powerX, powerX);
-        shakeY = RandomRange(-powerY, powerY);
-    }
-
-    // 배경도 같이 흔들리도록 cameraX와 화면 흔들림을 함께 적용
-    int bg1X = -cameraX + shakeX;
-    int bg2X = BG_PART_W - cameraX + shakeX;
+    // Apply camera effects only to world drawing.
+    int bg1X = -cameraX + cameraDrawOffsetX;
+    int bg2X = BG_PART_W - cameraX + cameraDrawOffsetX;
 
     Image* bg1Image = NULL;
     Image* bg2Image = NULL;
@@ -4761,7 +4924,7 @@ void DrawScene(HDC hdc, HWND hWnd)
 
     if (bg1Image != NULL && bg1X + BG_PART_W > 0 && bg1X < rt.right)
     {
-        graphics.DrawImage(bg1Image, bg1X, shakeY, BG_PART_W, BG_PART_H);
+        graphics.DrawImage(bg1Image, bg1X, cameraDrawOffsetY, BG_PART_W, BG_PART_H);
     }
     else if (bg1Image == NULL && g_currentStage != 5)
     {
@@ -4780,16 +4943,16 @@ void DrawScene(HDC hdc, HWND hWnd)
 
     if (bg2Image != NULL && bg2X + BG_PART_W > 0 && bg2X < rt.right)
     {
-        graphics.DrawImage(bg2Image, bg2X, shakeY, BG_PART_W, BG_PART_H);
+        graphics.DrawImage(bg2Image, bg2X, cameraDrawOffsetY, BG_PART_W, BG_PART_H);
     }
 
-    DrawStageAtmosphereEffects(graphics, g_currentStage, cameraX - shakeX, rt.right, rt.bottom);
+    DrawStageAtmosphereEffects(graphics, g_currentStage, cameraX - cameraDrawOffsetX, rt.right, rt.bottom);
 
     // 커비/몬스터/이펙트는 전부 월드 좌표로 움직이고,
     // 그릴 때만 -cameraX만큼 이동해서 화면에 표시
     GraphicsState worldState = graphics.Save();
 
-    graphics.TranslateTransform((REAL)(-cameraX + shakeX), (REAL)shakeY);
+    graphics.TranslateTransform((REAL)(-cameraX + cameraDrawOffsetX), (REAL)cameraDrawOffsetY);
 
     DrawStageGimmicks(graphics, rt.right, rt.bottom);
 
@@ -5001,6 +5164,7 @@ void DrawScene(HDC hdc, HWND hWnd)
     DrawDarkVisionOverlay(graphics, rt.right, rt.bottom);
 
     DrawHUD(graphics, rt.right, rt.bottom);
+    DrawScreenEdgeEffects(graphics, rt.right, rt.bottom);
     DrawBossPhase2TransitionOverlay(graphics, rt.right, rt.bottom);
     DrawPauseMenu(graphics, rt.right, rt.bottom);
     DrawRetryOverlay(graphics, rt.right, rt.bottom);

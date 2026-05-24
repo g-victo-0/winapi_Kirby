@@ -218,6 +218,8 @@ void UpdateKirbyPosition(HWND hWnd)
         return;
     }
 
+    bool wasOnGround = isOnGround;
+
     RECT rt;
     GetClientRect(hWnd, &rt);
 
@@ -397,6 +399,9 @@ void UpdateKirbyPosition(HWND hWnd)
         kirbyVY = 0;
         isOnGround = true;
     }
+
+    if (!wasOnGround && isOnGround)
+        StartCameraShake(3, 6);
 
     // 예전처럼 WORLD_H에서 멈추게 하면 구멍으로 떨어져도 바닥에 붙어버림.
     // 이제는 아래로 충분히 빠지면 게임오버 처리함.
@@ -1486,6 +1491,7 @@ void SpawnBombExplosion(int x, int y)
             g_bombExplosions[i].x = x - g_bombExplosions[i].w / 2;
             g_bombExplosions[i].y = y - g_bombExplosions[i].h + 6;
             g_bombExplosions[i].tick = 0;
+            StartCameraShake(8, 18);
 
             RECT explosionRc;
             explosionRc.left = g_bombExplosions[i].x;
