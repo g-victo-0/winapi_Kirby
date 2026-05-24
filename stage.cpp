@@ -725,38 +725,37 @@ struct DanceFrame
 // The base Y is fixed; yOffset is used only on jump/bounce frames and stays 0 on still poses.
 const DanceFrame g_danceSequence[] =
 {
-    // Clear dance: return to the previous flow, but add short in-between frames to avoid empty gaps.
+    // Clear dance: use nearby frame numbers in order so the motion does not feel like frames are missing.
     { 0, 7, false, 0, 0 },
     { 1, 7, false, 5, 0 },
-    { 2, 2, false, 9, 1 },
-    { 3, 2, false, 13, 1 },
-    { 4, 7, false, 18, 0 },
-    { 5, 7, false, 24, -2 },
-    { 6, 7, false, 30, -4 },
-    { 7, 7, false, 36, -2 },
-    { 8, 5, false, 42, 0 },
-    { 9, 4, false, 46, -1 },
-    { 10, 6, false, 40, 0 },
-    { 11, 8, false, 32, 0 },
-    { 10, 6, false, 24, 0 },
-    { 8, 5, false, 14, 0 },
-    { 4, 7, false, 5, 0 },
-    { 1, 7, false, 0, 0 },
-
-    { 1, 7, true, -5, 0 },
-    { 4, 7, true, -14, 0 },
-    { 8, 5, true, -24, 0 },
-    { 10, 6, true, -34, 0 },
-    { 11, 8, true, -42, 0 },
-    { 10, 6, true, -34, 0 },
-    { 9, 4, true, -26, -1 },
-    { 8, 5, true, -18, 0 },
-    { 7, 7, true, -10, -2 },
-    { 6, 7, true, -4, -4 },
-    { 5, 7, true, 0, -2 },
-    { 4, 7, true, 0, 0 },
-    { 2, 2, true, -2, 1 },
-    { 1, 7, false, 0, 0 }
+    { 2, 4, false, 10, 1 },
+    { 3, 4, false, 15, 1 },
+    { 4, 7, false, 20, 0 },
+    { 5, 7, false, 26, -2 },
+    { 6, 7, false, 32, -4 },
+    { 7, 7, false, 38, -2 },
+    { 8, 6, false, 44, 0 },
+    { 9, 5, false, 48, -1 },
+    { 10, 6, false, 42, 0 },
+    { 11, 8, false, 34, 0 },
+    { 10, 6, false, 26, 0 },
+    { 9, 5, false, 18, -1 },
+    { 8, 6, false, 10, 0 },
+    { 7, 7, true, 0, -2 },
+    { 6, 7, true, -8, -4 },
+    { 5, 7, true, -16, -2 },
+    { 4, 7, true, -24, 0 },
+    { 3, 4, true, -30, 1 },
+    { 2, 4, true, -36, 1 },
+    { 1, 7, true, -42, 0 },
+    { 0, 7, true, -48, 0 },
+    { 1, 7, true, -38, 0 },
+    { 4, 7, true, -28, 0 },
+    { 5, 7, true, -18, -2 },
+    { 6, 7, true, -8, -4 },
+    { 7, 7, false, 0, -2 },
+    { 10, 6, false, 0, 0 },
+    { 11, 8, false, 0, 0 }
 };
 const int g_danceSequenceCount = sizeof(g_danceSequence) / sizeof(g_danceSequence[0]);
 
@@ -858,6 +857,7 @@ void DrawDanceKirby(Graphics& graphics)
     int drawW = DANCE_DRAW_W;
     int drawH = DANCE_DRAW_H;
 
+    // Fixed draw box keeps the sprite size stable between differently sized PNG frames.
     int drawX = g_danceX - drawW / 2;
     int drawY = DANCE_FLOOR_Y - drawH + danceFrame->yOffset;
 

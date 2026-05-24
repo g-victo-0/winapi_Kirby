@@ -1193,6 +1193,7 @@ int g_cameraPushDuration = 0;
 int g_cameraPushDir = 0;
 int g_cameraPushPower = 0;
 int g_edgeEffectTick = 0;
+int g_bossBerserkFogTick = 0;
 
 // Stage ambient quakes: stage 1/2/3 shake 1/2/3 times at random moments.
 int g_stageRandomShakeStage = 0;
@@ -1506,6 +1507,7 @@ void InitBossObjects()
     g_bossBerserkHealStartHP = 0;
     g_bossBerserkDropActive = false;
     g_bossBerserkDropTick = 0;
+    g_bossBerserkFogTick = 0;
     g_bossTopBombShakeCount = 0;
     g_screenShakeTick = 0;
     g_cameraShakeTick = 0;
@@ -3802,6 +3804,12 @@ void UpdateScreenEffects()
         g_rescueEffectTick--;
 
     g_edgeEffectTick++;
+
+    if (g_currentStage == 4 && IsBossBerserk())
+        g_bossBerserkFogTick++;
+    else
+        g_bossBerserkFogTick = 0;
+
     UpdateCameraShake();
     UpdateCameraPush();
     UpdateStageRandomCameraShake();
@@ -4933,6 +4941,19 @@ void DrawScreenEdgeEffects(Graphics& graphics, int screenW, int screenH)
         DrawEdgeBox(graphics, screenW, screenH, 95, 0, 0, 0, 0, 5);
         DrawEdgeBox(graphics, screenW, screenH, alpha, 150, 40, 255, 0, 4);
         DrawEdgeBox(graphics, screenW, screenH, 55, 45, 0, 80, 20, 3);
+
+        // Every 10 seconds in berserk mode, the purple fog creeps farther into the map.
+        int fogLevel = g_bossBerserkFogTick / 600;
+        if (fogLevel > 5)
+            fogLevel = 5;
+
+        int fogAlpha = 35 + fogLevel * 12;
+        int fogInset = 42 - fogLevel * 7;
+        int fogLayers = 3 + fogLevel;
+        if (fogInset < 4)
+            fogInset = 4;
+
+        DrawEdgeBox(graphics, screenW, screenH, fogAlpha, 95, 20, 170, fogInset, fogLayers);
     }
 
     if (!isGameOver && !g_retryActive && kirbyMaxHP > 0 && kirbyHP <= kirbyMaxHP / 5)
