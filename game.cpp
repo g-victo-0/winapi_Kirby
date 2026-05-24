@@ -5680,6 +5680,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             InvalidateRect(hWnd, NULL, FALSE);
             return 0;
         }
+        if ((lParam & 0x40000000) != 0)
+        {
+            switch (wParam)
+            {
+            case 'W':
+            case 'A':
+            case 'S':
+            case 'D':
+            case VK_LEFT:
+            case VK_RIGHT:
+            case VK_SPACE:
+            case VK_SHIFT:
+            case 'K':
+            case 'I':
+            case 'O':
+            case 'L':
+            case 'U':
+                return 0;
+            }
+        }
+
         if (wParam == VK_F1)
         {
             g_debugMode = !g_debugMode;
