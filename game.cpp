@@ -3120,7 +3120,7 @@ void DrawNightmareParticles(Graphics& graphics)
         return;
 
     // 간단한 보라색 입자. 리소스 없이도 보스맵 분위기를 살림
-    for (int i = 0; i < 14; i++)
+    for (int i = 0; i < 8; i++)
     {
         int x = (i * 73 + g_bossIntroTick * 3 + g_boss.hp) % BG_PART_W;
         int y = (i * 47 + g_bossIntroTick * 5 + g_boss.phase2 * 120) % 520;
@@ -3146,12 +3146,12 @@ void DrawBossBerserkHealEffect(Graphics& graphics)
     const double PI = 3.14159265358979323846;
 
     // 1/2 PNG swirl in from 360 degrees. This is only a heal effect, not an attack.
-    for (int i = 0; i < 14; i++)
+    for (int i = 0; i < 8; i++)
     {
         Image* absorbFrame = (((t / 5) + i) % 2 == 0) ? g_bossBerserkAbsorbFrame1 : g_bossBerserkAbsorbFrame2;
-        double angle = i * PI * 2.0 / 14.0 + t * 0.06;
-        float local = (float)((t * 3 + i * 23) % 100) / 100.0f;
-        float radius = 560.0f - local * 475.0f;
+        double angle = i * PI * 2.0 / 8.0 + t * 0.05;
+        float local = (float)((t * 3 + i * 31) % 100) / 100.0f;
+        float radius = 500.0f - local * 420.0f;
         float squashY = 0.64f;
 
         int tailX = cx + (int)(cos(angle) * (radius + 105.0f));
@@ -3168,20 +3168,15 @@ void DrawBossBerserkHealEffect(Graphics& graphics)
         if (absorbFrame == NULL)
             continue;
 
-        int drawW = 132 - (int)(local * 22.0f) + (i % 3) * 8;
+        int drawW = 112 - (int)(local * 18.0f) + (i % 2) * 8;
         int drawH = drawW;
         int drawX = headX - drawW / 2;
         int drawY = headY - drawH / 2;
 
-        GraphicsState state = graphics.Save();
-        graphics.TranslateTransform((REAL)(drawX + drawW / 2), (REAL)(drawY + drawH / 2));
-        graphics.RotateTransform((REAL)(angle * 180.0 / PI + 180.0));
-
         if (headX < cx)
-            graphics.ScaleTransform(-1.0f, 1.0f);
-
-        graphics.DrawImage(absorbFrame, -drawW / 2, -drawH / 2, drawW, drawH);
-        graphics.Restore(state);
+            DrawImageFlipX(graphics, absorbFrame, drawX, drawY, drawW, drawH);
+        else
+            DrawWorldImage(graphics, absorbFrame, drawX, drawY, drawW, drawH);
     }
 
     int pulse = (t / 2) % 18;

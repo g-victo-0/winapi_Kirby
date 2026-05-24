@@ -725,59 +725,23 @@ struct DanceFrame
 // The base Y is fixed; yOffset is used only on jump/bounce frames and stays 0 on still poses.
 const DanceFrame g_danceSequence[] =
 {
-    // Opening beat: front pose, squash, then rise. These stay grounded.
-    { 0, 10, false, 0, 0 },
-    { 1, 10, false, 0, 0 },
-    { 14, 8, false, 0, 0 },
-    { 9, 7, false, 0, 0 },
-    { 10, 7, false, 0, 0 },
-    { 11, 8, false, 0, 0 },
-    { 12, 10, false, 0, 0 },
-
-    // Clockwise turn: rise and land like the reference dance.
-    { 15, 5, false, 3, -3 },
-    { 16, 5, false, 6, -8 },
-    { 17, 5, false, 9, -14 },
-    { 18, 5, false, 12, -18 },
-    { 19, 5, false, 10, -14 },
-    { 20, 5, false, 7, -8 },
-    { 21, 8, false, 4, -3 },
-
-    // Counter-turn: same turn frames, mirrored on draw only, with the same bounce arc.
-    { 20, 5, true, -4, -3 },
-    { 19, 5, true, -7, -8 },
-    { 18, 5, true, -10, -14 },
-    { 17, 5, true, -12, -18 },
-    { 16, 5, true, -8, -14 },
-    { 15, 8, true, -4, -6 },
-
-    // Right-side dance accents: grounded poses, with only the step frames bouncing.
-    { 4, 7, false, 18, 0 },
-    { 5, 7, false, 26, -4 },
-    { 6, 7, false, 32, -7 },
-    { 7, 8, false, 26, -4 },
-    { 11, 8, false, 18, 0 },
-    { 12, 10, false, 12, 0 },
-    { 14, 8, false, 8, 0 },
-    { 10, 8, false, 4, 0 },
-
-    // Left-side dance accents: same rhythm mirrored; still frames keep yOffset at 0.
-    { 4, 7, true, -18, 0 },
-    { 5, 7, true, -26, -4 },
-    { 6, 7, true, -32, -7 },
-    { 7, 8, true, -26, -4 },
-    { 11, 8, true, -18, 0 },
-    { 12, 10, true, -12, 0 },
-    { 14, 8, true, -8, 0 },
-    { 10, 8, true, -4, 0 },
-
-    // Return to center: one small hop, then grounded finish.
-    { 0, 8, false, -6, -3 },
-    { 1, 8, false, -3, -5 },
-    { 4, 8, false, 0, -2 },
-    { 11, 9, false, 0, 0 },
-    { 14, 9, false, 0, 0 },
-    { 22, 28, false, 0, 0 }
+    // Simple looping clear dance. 1~12 frames keep the floor line stable and avoid jitter.
+    { 0, 8, false, 0, 0 },
+    { 1, 8, false, 0, 0 },
+    { 4, 7, false, 10, 0 },
+    { 5, 7, false, 18, -3 },
+    { 6, 7, false, 22, -5 },
+    { 7, 7, false, 18, -3 },
+    { 11, 8, false, 8, 0 },
+    { 10, 8, false, 0, 0 },
+    { 9, 6, false, 0, 0 },
+    { 10, 8, false, 0, 0 },
+    { 11, 8, true, -8, 0 },
+    { 7, 7, true, -18, -3 },
+    { 6, 7, true, -22, -5 },
+    { 5, 7, true, -18, -3 },
+    { 4, 7, true, -10, 0 },
+    { 1, 8, false, 0, 0 }
 };
 const int g_danceSequenceCount = sizeof(g_danceSequence) / sizeof(g_danceSequence[0]);
 
@@ -846,22 +810,14 @@ void UpdateDanceStage()
 
     StopMove();
 
-    if (g_danceFinished)
-    {
-        g_danceTick = GetDanceSequenceTotalTicks() - 1;
-        ApplyDanceFrameState();
-        return;
-    }
-
     g_danceTick++;
 
     int totalTicks = GetDanceSequenceTotalTicks();
+    if (totalTicks <= 0)
+        return;
 
     if (g_danceTick >= totalTicks)
-    {
-        g_danceTick = totalTicks - 1;
-        g_danceFinished = true;
-    }
+        g_danceTick = 0;
 
     ApplyDanceFrameState();
 }
@@ -879,19 +835,33 @@ void DrawDanceKirby(Graphics& graphics)
     if (frameIndex >= DANCE_FRAME_COUNT)
         frameIndex = DANCE_FRAME_COUNT - 1;
 
-    int drawX = g_danceX - DANCE_DRAW_W / 2;
-    int drawY = DANCE_FLOOR_Y - DANCE_DRAW_H + danceFrame->yOffset;
-
     Image* frame = g_idleFrame;
 
     if (g_danceFrames[frameIndex] != NULL)
         frame = g_danceFrames[frameIndex];
 
+    int drawW = DANCE_DRAW_W;
+    int drawH = DANCE_DRAW_H;
+
+    if (frame != NULL)
+    {
+        drawW = (int)frame->GetWidth() * 2;
+        drawH = (int)frame->GetHeight() * 2;
+
+        if (drawW < 44) drawW = 44;
+        if (drawH < 44) drawH = 44;
+        if (drawW > 70) drawW = 70;
+        if (drawH > 76) drawH = 76;
+    }
+
+    int drawX = g_danceX - drawW / 2;
+    int drawY = DANCE_FLOOR_Y - drawH + danceFrame->yOffset;
+
     if (danceFrame->flipX)
     {
-        DrawImageFlipX(graphics, frame, drawX, drawY, DANCE_DRAW_W, DANCE_DRAW_H);
+        DrawImageFlipX(graphics, frame, drawX, drawY, drawW, drawH);
         return;
     }
 
-    DrawWorldImage(graphics, frame, drawX, drawY, DANCE_DRAW_W, DANCE_DRAW_H);
+    DrawWorldImage(graphics, frame, drawX, drawY, drawW, drawH);
 }
