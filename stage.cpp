@@ -725,37 +725,38 @@ struct DanceFrame
 // The base Y is fixed; yOffset is used only on jump/bounce frames and stays 0 on still poses.
 const DanceFrame g_danceSequence[] =
 {
-    // Clear dance: use nearby frame numbers in order so the motion does not feel like frames are missing.
+    // Clear dance: return to the previous flow, but add short in-between frames to avoid empty gaps.
     { 0, 7, false, 0, 0 },
     { 1, 7, false, 5, 0 },
-    { 2, 2, false, 10, 1 },
-    { 3, 2, false, 15, 1 },
-    { 4, 7, false, 20, 0 },
-    { 5, 7, false, 26, -2 },
-    { 6, 7, false, 32, -4 },
-    { 7, 7, false, 38, -2 },
-    { 8, 6, false, 44, 0 },
-    { 9, 5, false, 48, -1 },
-    { 10, 6, false, 42, 0 },
-    { 11, 8, false, 34, 0 },
-    { 10, 6, false, 26, 0 },
-    { 9, 5, false, 18, -1 },
-    { 8, 6, false, 10, 0 },
-    { 7, 7, true, 0, -2 },
-    { 6, 7, true, -8, -4 },
-    { 5, 7, true, -16, -2 },
-    { 4, 7, true, -24, 0 },
-    { 3, 2, true, -30, 1 },
-    { 2, 2, true, -36, 1 },
-    { 1, 7, true, -42, 0 },
-    { 0, 7, true, -48, 0 },
-    { 1, 7, true, -38, 0 },
-    { 4, 7, true, -28, 0 },
-    { 5, 7, true, -18, -2 },
-    { 6, 7, true, -8, -4 },
-    { 7, 7, false, 0, -2 },
-    { 10, 6, false, 0, 0 },
-    { 11, 8, false, 0, 0 }
+    { 2, 2, false, 9, 1 },
+    { 3, 2, false, 13, 1 },
+    { 4, 7, false, 18, 0 },
+    { 5, 7, false, 24, -2 },
+    { 6, 7, false, 30, -4 },
+    { 7, 7, false, 36, -2 },
+    { 8, 5, false, 42, 0 },
+    { 9, 4, false, 46, -1 },
+    { 10, 6, false, 40, 0 },
+    { 11, 8, false, 32, 0 },
+    { 10, 6, false, 24, 0 },
+    { 8, 5, false, 14, 0 },
+    { 4, 7, false, 5, 0 },
+    { 1, 7, false, 0, 0 },
+
+    { 1, 7, true, -5, 0 },
+    { 4, 7, true, -14, 0 },
+    { 8, 5, true, -24, 0 },
+    { 10, 6, true, -34, 0 },
+    { 11, 8, true, -42, 0 },
+    { 10, 6, true, -34, 0 },
+    { 9, 4, true, -26, -1 },
+    { 8, 5, true, -18, 0 },
+    { 7, 7, true, -10, -2 },
+    { 6, 7, true, -4, -4 },
+    { 5, 7, true, 0, -2 },
+    { 4, 7, true, 0, 0 },
+    { 2, 2, true, -2, 1 },
+    { 1, 7, false, 0, 0 }
 };
 const int g_danceSequenceCount = sizeof(g_danceSequence) / sizeof(g_danceSequence[0]);
 
@@ -836,111 +837,35 @@ void UpdateDanceStage()
     ApplyDanceFrameState();
 }
 
-void DrawDanceImageAlpha(Graphics& graphics, Image* image, bool flipX, int x, int y, int w, int h, float alpha)
-{
-    if (image == NULL || alpha <= 0.0f)
-        return;
-
-    if (alpha > 1.0f)
-        alpha = 1.0f;
-
-    ColorMatrix matrix =
-    {
-        1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, alpha, 0.0f,
-        0.0f, 0.0f, 0.0f, 0.0f, 1.0f
-    };
-
-    ImageAttributes attr;
-    attr.SetColorMatrix(&matrix, ColorMatrixFlagsDefault, ColorAdjustTypeBitmap);
-
-    if (flipX)
-    {
-        GraphicsState state = graphics.Save();
-        graphics.TranslateTransform((REAL)(x + w), (REAL)y);
-        graphics.ScaleTransform(-1.0f, 1.0f);
-        graphics.DrawImage(image, Rect(0, 0, w, h), 0, 0, image->GetWidth(), image->GetHeight(), UnitPixel, &attr);
-        graphics.Restore(state);
-        return;
-    }
-
-    graphics.DrawImage(image, Rect(x, y, w, h), 0, 0, image->GetWidth(), image->GetHeight(), UnitPixel, &attr);
-}
-
-int GetDanceSequenceIndexByTick(int tick, int* localTick)
-{
-    int elapsed = 0;
-
-    for (int i = 0; i < g_danceSequenceCount; i++)
-    {
-        int next = elapsed + g_danceSequence[i].duration;
-        if (tick < next)
-        {
-            if (localTick != NULL)
-                *localTick = tick - elapsed;
-            return i;
-        }
-
-        elapsed = next;
-    }
-
-    if (localTick != NULL)
-        *localTick = 0;
-    return g_danceSequenceCount - 1;
-}
-
 void DrawDanceKirby(Graphics& graphics)
 {
     if (g_currentStage != 5)
         return;
 
-    int localTick = 0;
-    int seqIndex = GetDanceSequenceIndexByTick(g_danceTick, &localTick);
-    const DanceFrame* danceFrame = &g_danceSequence[seqIndex];
-    const DanceFrame* nextFrameInfo = &g_danceSequence[(seqIndex + 1) % g_danceSequenceCount];
+    const DanceFrame* danceFrame = GetDanceFrameByTick(g_danceTick);
 
     int frameIndex = danceFrame->frameIndex;
-    int nextFrameIndex = nextFrameInfo->frameIndex;
+    if (frameIndex < 0)
+        frameIndex = 0;
+    if (frameIndex >= DANCE_FRAME_COUNT)
+        frameIndex = DANCE_FRAME_COUNT - 1;
 
-    if (frameIndex < 0) frameIndex = 0;
-    if (frameIndex >= DANCE_FRAME_COUNT) frameIndex = DANCE_FRAME_COUNT - 1;
-    if (nextFrameIndex < 0) nextFrameIndex = 0;
-    if (nextFrameIndex >= DANCE_FRAME_COUNT) nextFrameIndex = DANCE_FRAME_COUNT - 1;
+    Image* frame = g_idleFrame;
 
-    Image* frame = (g_danceFrames[frameIndex] != NULL) ? g_danceFrames[frameIndex] : g_idleFrame;
-    Image* nextFrame = (g_danceFrames[nextFrameIndex] != NULL) ? g_danceFrames[nextFrameIndex] : frame;
+    if (g_danceFrames[frameIndex] != NULL)
+        frame = g_danceFrames[frameIndex];
 
     int drawW = DANCE_DRAW_W;
     int drawH = DANCE_DRAW_H;
-    int duration = danceFrame->duration;
-    if (duration <= 0)
-        duration = 1;
 
-    float progress = (float)localTick / (float)duration;
-    if (progress < 0.0f) progress = 0.0f;
-    if (progress > 1.0f) progress = 1.0f;
+    int drawX = g_danceX - drawW / 2;
+    int drawY = DANCE_FLOOR_Y - drawH + danceFrame->yOffset;
 
-    float smooth = progress * progress * (3.0f - 2.0f * progress);
-    float fade = (progress - 0.45f) / 0.55f;
-    if (fade < 0.0f) fade = 0.0f;
-    if (fade > 1.0f) fade = 1.0f;
-
-    int curX = DANCE_CENTER_X + danceFrame->xOffset;
-    int curY = DANCE_FLOOR_Y - drawH + danceFrame->yOffset;
-    int nextX = DANCE_CENTER_X + nextFrameInfo->xOffset;
-    int nextY = DANCE_FLOOR_Y - drawH + nextFrameInfo->yOffset;
-
-    int drawX = curX + (int)((nextX - curX) * smooth) - drawW / 2;
-    int drawY = curY + (int)((nextY - curY) * smooth);
-
-    DrawDanceImageAlpha(graphics, frame, danceFrame->flipX, drawX, drawY, drawW, drawH, 1.0f - fade * 0.55f);
-
-    if (fade > 0.0f)
+    if (danceFrame->flipX)
     {
-        int nextDrawX = nextX - drawW / 2;
-        int nextDrawY = nextY;
-        DrawDanceImageAlpha(graphics, nextFrame, nextFrameInfo->flipX, nextDrawX, nextDrawY, drawW, drawH, fade * 0.55f);
+        DrawImageFlipX(graphics, frame, drawX, drawY, drawW, drawH);
+        return;
     }
+
+    DrawWorldImage(graphics, frame, drawX, drawY, drawW, drawH);
 }

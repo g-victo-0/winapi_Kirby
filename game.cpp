@@ -2763,7 +2763,7 @@ void UpdateBossRewardObjects()
 
     if (g_rewardChestActive && !g_rewardChestLanded)
     {
-        g_rewardChestY += 4;
+        g_rewardChestY += 6;
         if (g_rewardChestY >= g_rewardChestTargetY)
         {
             g_rewardChestY = g_rewardChestTargetY;
@@ -3173,10 +3173,6 @@ void DrawBossBerserkHealEffect(Graphics& graphics)
         int headY = cy + (int)(sin(angle) * radius * squashY);
         int coreX = cx + (int)(cos(angle) * 38.0f);
         int coreY = cy + (int)(sin(angle) * 24.0f);
-
-        int alpha = 55 + (int)(local * 80.0f);
-        Pen trailPen(Color(alpha, 160, 45, 255), (REAL)(2 + (i % 2)));
-        graphics.DrawLine(&trailPen, tailX, tailY, coreX, coreY);
 
         if (absorbFrame == NULL)
             continue;
