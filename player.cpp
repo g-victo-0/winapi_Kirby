@@ -1491,7 +1491,6 @@ void SpawnBombExplosion(int x, int y)
             g_bombExplosions[i].x = x - g_bombExplosions[i].w / 2;
             g_bombExplosions[i].y = y - g_bombExplosions[i].h + 6;
             g_bombExplosions[i].tick = 0;
-            StartCameraShake(8, 18);
 
             RECT explosionRc;
             explosionRc.left = g_bombExplosions[i].x;

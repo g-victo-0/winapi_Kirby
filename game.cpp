@@ -962,6 +962,8 @@ void InitMonsters();
 void InitBossObjects();
 void UpdateBossObjects();
 void DrawBossObjects(Graphics& graphics);
+void StartBossBerserkHeal();
+void UpdateBossBerserkHeal();
 void CheckKirbyAttacksHitBoss();
 void ResetBossProjectiles();
 void ResetDanceStage();
@@ -1158,6 +1160,12 @@ int g_bossPhase2TransitionTick = 0;
 bool g_bossDeadEffect = false;
 int g_bossDeadEffectTick = 0;
 bool g_bossClear = false;
+bool g_bossBerserkMode = false;
+bool g_bossBerserkHealActive = false;
+bool g_bossBerserkHealDone = false;
+int g_bossBerserkHealTick = 0;
+int g_bossBerserkHealStartHP = 0;
+int g_bossTopBombShakeCount = 0;
 int g_screenShakeTick = 0;
 
 // Camera action effects. Only world drawing uses these offsets, so HUD stays fixed.
@@ -1170,6 +1178,11 @@ int g_cameraPushDuration = 0;
 int g_cameraPushDir = 0;
 int g_cameraPushPower = 0;
 int g_edgeEffectTick = 0;
+
+// Stage ambient quakes: stage 1/2/3 shake 1/2/3 times at random moments.
+int g_stageRandomShakeStage = 0;
+int g_stageRandomShakeDone = 0;
+int g_stageRandomShakeCooldown = 0;
 
 // 보스 처치 후 보상/문 연출
 bool g_rewardStarted = false;
@@ -1315,6 +1328,38 @@ int GetCameraDrawOffsetY()
     return g_cameraOffsetY;
 }
 
+void UpdateStageRandomCameraShake()
+{
+    if (g_currentStage < 1 || g_currentStage > 3 || isGameOver || g_retryActive || g_isPaused)
+    {
+        g_stageRandomShakeStage = g_currentStage;
+        g_stageRandomShakeDone = 0;
+        g_stageRandomShakeCooldown = 0;
+        return;
+    }
+
+    if (g_stageRandomShakeStage != g_currentStage)
+    {
+        g_stageRandomShakeStage = g_currentStage;
+        g_stageRandomShakeDone = 0;
+        g_stageRandomShakeCooldown = RandomRange(90, 180);
+    }
+
+    int targetShakeCount = g_currentStage;
+    if (g_stageRandomShakeDone >= targetShakeCount)
+        return;
+
+    if (g_stageRandomShakeCooldown > 0)
+    {
+        g_stageRandomShakeCooldown--;
+        return;
+    }
+
+    StartCameraShake(2 + g_currentStage, 6 + g_currentStage * 2);
+    g_stageRandomShakeDone++;
+    g_stageRandomShakeCooldown = RandomRange(140, 260);
+}
+
 RECT GetBossRect()
 {
     RECT rc;
@@ -1436,6 +1481,12 @@ void InitBossObjects()
     g_bossDeadEffect = false;
     g_bossDeadEffectTick = 0;
     g_bossClear = false;
+    g_bossBerserkMode = false;
+    g_bossBerserkHealActive = false;
+    g_bossBerserkHealDone = false;
+    g_bossBerserkHealTick = 0;
+    g_bossBerserkHealStartHP = 0;
+    g_bossTopBombShakeCount = 0;
     g_screenShakeTick = 0;
     g_cameraShakeTick = 0;
     g_cameraShakePower = 0;
@@ -1777,6 +1828,9 @@ void DamageBoss(int damage)
     if (!g_boss.active)
         return;
 
+    if (g_bossBerserkHealActive)
+        return;
+
     if (damage <= 0)
         return;
 
@@ -1788,6 +1842,12 @@ void DamageBoss(int damage)
 
     if (g_boss.hp <= BOSS_MAX_HP / 2)
         StartBossPhase2();
+
+    if (g_boss.phase2 && !g_bossBerserkHealDone && g_boss.hp > 0 && g_boss.hp <= BOSS_MAX_HP * 15 / 100)
+    {
+        StartBossBerserkHeal();
+        return;
+    }
 
     if (g_boss.hp <= 0)
     {
@@ -1996,9 +2056,76 @@ void UpdateBossRewardObjects();
 void TryBossRewardInteraction();
 void DrawBossRewardObjects(Graphics& graphics);
 
+void StartBossBerserkHeal()
+{
+    if (g_bossBerserkHealDone || g_bossBerserkHealActive || !g_boss.active || !g_boss.phase2)
+        return;
+
+    g_bossBerserkMode = true;
+    g_bossBerserkHealActive = true;
+    g_bossBerserkHealDone = true;
+    g_bossBerserkHealTick = 90;
+    g_bossBerserkHealStartHP = g_boss.hp;
+
+    ResetBossProjectiles();
+    ResetBossWarnings();
+
+    g_boss.state = BOSS_STATE_IDLE;
+    g_boss.x = BG_PART_W / 2 - g_boss.w / 2;
+    g_boss.y = GetBossGroundY();
+    g_boss.vx = 0.0f;
+    g_boss.vy = 0.0f;
+    g_boss.dangerTextTick = 40;
+
+    StartCameraShake(8, 18);
+}
+
+void UpdateBossBerserkHeal()
+{
+    if (!g_bossBerserkHealActive)
+        return;
+
+    g_bossBerserkHealTick--;
+
+    g_boss.x = BG_PART_W / 2 - g_boss.w / 2;
+    g_boss.y = GetBossGroundY();
+    g_boss.vx = 0.0f;
+    g_boss.vy = 0.0f;
+    g_boss.redFlashTick = 4;
+
+    int targetHP = BOSS_MAX_HP * 30 / 100;
+    int elapsed = 90 - g_bossBerserkHealTick;
+    if (elapsed < 0) elapsed = 0;
+    if (elapsed > 90) elapsed = 90;
+
+    if (g_boss.hp < targetHP)
+        g_boss.hp = g_bossBerserkHealStartHP + (targetHP - g_bossBerserkHealStartHP) * elapsed / 90;
+
+    if (g_bossBerserkHealTick <= 0)
+    {
+        g_boss.hp = targetHP;
+        g_bossBerserkHealActive = false;
+        g_bossBerserkHealTick = 0;
+        g_boss.vx = (float)(2 * g_boss.dir);
+
+        g_bossRainAttackCooldown = 12;
+        g_bossRainBombCooldown = 18;
+        g_bossSideBallCooldown = 20;
+        g_bossSpreadShotCooldown = 35;
+        g_bossGroundWaveCooldown = 42;
+        g_bossRainBurstCooldown = 48;
+        g_bossAimedShotCooldown = 30;
+        g_bossWallRainCooldown = 55;
+        g_bossZigzagCooldown = 34;
+        g_bossBounceCooldown = 44;
+        g_boss.topBombCooldown = 70;
+        g_boss.fastDashCooldown = 55;
+    }
+}
+
 bool IsBossBerserk()
 {
-    return g_currentStage == 4 && g_boss.active && g_boss.phase2 && g_boss.hp <= BOSS_MAX_HP * 15 / 100;
+    return g_currentStage == 4 && g_boss.active && g_boss.phase2 && g_bossBerserkMode;
 }
 
 void UpdateBossObjects()
@@ -2051,6 +2178,12 @@ void UpdateBossObjects()
             g_screenShakeTick = 0;
         }
 
+        return;
+    }
+
+    if (g_bossBerserkHealActive)
+    {
+        UpdateBossBerserkHeal();
         return;
     }
 
@@ -2298,6 +2431,7 @@ void UpdateBossObjects()
         else
         {
             g_boss.y = BOSS_TOP_Y;
+            g_bossTopBombShakeCount = 0;
             g_boss.state = BOSS_STATE_TOP_BOMB;
             g_boss.actionTick = 95;
             g_boss.vx = (g_boss.x < BG_PART_W / 2) ? 3.0f : -3.0f;
@@ -2387,7 +2521,14 @@ void UpdateBossObjects()
         }
 
         if (g_boss.actionTick % 12 == 0)
+        {
             SpawnBossMouthBomb();
+            if (g_bossTopBombShakeCount < 2)
+            {
+                StartCameraShake(7, 12);
+                g_bossTopBombShakeCount++;
+            }
+        }
 
         if (g_boss.actionTick <= 0)
         {
@@ -2937,6 +3078,32 @@ void DrawNightmareParticles(Graphics& graphics)
     }
 }
 
+void DrawBossBerserkHealEffect(Graphics& graphics)
+{
+    if (!g_bossBerserkHealActive)
+        return;
+
+    int cx = g_boss.x + g_boss.w / 2;
+    int cy = g_boss.y + g_boss.h / 2;
+    int pulse = g_bossBerserkHealTick % 18;
+
+    Pen energyPen(Color(190, 190, 70, 255), 3);
+    SolidBrush coreBrush(Color(120, 120, 20, 210));
+    graphics.FillEllipse(&coreBrush, cx - 42, cy - 42, 84, 84);
+
+    for (int i = 0; i < 14; i++)
+    {
+        double angle = (double)(i * 360 / 14 + g_bossBerserkHealTick * 7) * 3.14159265358979323846 / 180.0;
+        int outer = 150 - pulse * 3 + (i % 3) * 18;
+        int inner = 55 + pulse;
+        int x1 = cx + (int)(cos(angle) * outer);
+        int y1 = cy + (int)(sin(angle) * outer);
+        int x2 = cx + (int)(cos(angle) * inner);
+        int y2 = cy + (int)(sin(angle) * inner);
+        graphics.DrawLine(&energyPen, x1, y1, x2, y2);
+    }
+}
+
 void DrawBossProjectiles(Graphics& graphics)
 {
     for (int i = 0; i < BOSS_PROJECTILE_MAX; i++)
@@ -3000,6 +3167,7 @@ void DrawBossObjects(Graphics& graphics)
     DrawBossLaserDanger(graphics);
     DrawBossWarnings(graphics);
     DrawBossProjectiles(graphics);
+    DrawBossBerserkHealEffect(graphics);
     DrawBossDeathEffect(graphics);
     DrawBossRewardObjects(graphics);
 
@@ -3545,6 +3713,7 @@ void UpdateScreenEffects()
     g_edgeEffectTick++;
     UpdateCameraShake();
     UpdateCameraPush();
+    UpdateStageRandomCameraShake();
 
     UpdateStageAtmosphereEffects(g_currentStage);
 }
