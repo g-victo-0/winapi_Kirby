@@ -581,7 +581,7 @@ const int KIRBY_HIT_COOLDOWN = 60; // 약 1초
 int kirbyMaxHP = 100;
 int kirbyHP = 100;          // 실제 체력 목표값
 float kirbyDisplayHP = 100.0f; // 화면에 부드럽게 표시되는 체력
-const int KIRBY_DAMAGE = 15;
+const int KIRBY_DAMAGE = 25;
 const float HP_ANIM_SPEED = 0.5f; // 16ms 타이머 기준. 작을수록 천천히 줄어듦
 bool isGameOver = false;
 bool g_gameOverHandled = false; // 게임오버 메시지박스가 여러 번 뜨는 것 방지
@@ -1072,7 +1072,7 @@ void CheckBombHitMonsters(RECT bombRc, bool fromEnemy);
 // 94: 대각선 돌진, 99: 2페이즈 기본, 98: 2페이즈 상단 폭탄 자세, 97: 입 폭탄
 // 100/101: 보스맵 입장 후 계속 위에서 떨어지는 공격
 // =========================
-const int BOSS_MAX_HP = 650; // 보스 체력 증가
+const int BOSS_MAX_HP = 1000; // Boss HP
 const int BOSS_W = 72;   // 커비 기본 크기 48의 1.5배
 const int BOSS_H = 72;   // 커비 기본 크기 48의 1.5배
 const int BOSS_PHASE2_W = 200; // 2페이즈 99번 모습을 더 크게 표시
@@ -1375,7 +1375,7 @@ int GetBossGroundY()
     return BOSS_GROUND_Y;
 }
 
-void StartBossPhase2()
+void ApplyBossPhase2Form()
 {
     if (g_boss.phase2)
         return;
@@ -1392,6 +1392,12 @@ void StartBossPhase2()
 
     if (g_boss.x + g_boss.w > BG_PART_W - 70)
         g_boss.x = BG_PART_W - 70 - g_boss.w;
+}
+
+void StartBossPhase2()
+{
+    if (g_boss.phase2 || g_bossPhase2Transition)
+        return;
 
     ResetBossProjectiles();
     ResetBossWarnings();
@@ -1588,7 +1594,6 @@ void SpawnBossRainAttack()
 
 void SpawnBossRainBomb()
 {
-    StartCameraShake(5, 10);
     // 바로 떨어지지 않고 바닥에 경고 표시 후 101번 낙하 폭탄 생성
     int x = RandomRange(30, BG_PART_W - 60);
     SpawnBossWarning(3, x, 545 - 20, 29, 20, 18, 0);
@@ -1632,7 +1637,6 @@ void SpawnBossSpreadShot()
 
 void SpawnBossGroundWave()
 {
-    StartCameraShake(7, 16);
     // 바닥을 타고 좌우로 퍼지는 공격. 점프로 피하게 만드는 패턴.
     if (!g_boss.active)
         return;
@@ -1648,7 +1652,6 @@ void SpawnBossGroundWave()
 
 void SpawnBossRainBurst()
 {
-    StartCameraShake(8, 18);
     // 2페이즈 연속 낙하 패턴. 세로 경고 표시는 유지함.
     for (int i = 0; i < 5; i++)
     {
@@ -1701,7 +1704,6 @@ void SpawnBossAimedShot()
 
 void SpawnBossWallRain()
 {
-    StartCameraShake(8, 18);
     // 여러 줄이 떨어지지만 커비 근처 한 칸은 안전구역으로 남기는 패턴
     int gapCenter = kirbyX + kirbyW / 2;
     int gapW = 145;
@@ -1755,8 +1757,6 @@ void SpawnBossHalfFloorAttack()
 
 void SpawnBossMouthBomb()
 {
-    StartCameraShake(8, 16);
-
     if (!g_boss.active)
         return;
 
@@ -1784,8 +1784,7 @@ void DamageBoss(int damage)
     g_boss.hitCooldown = 10;
     g_boss.redFlashTick = 6;
     g_boss.dangerTextTick = 10;
-    g_screenShakeTick = 7;
-    StartCameraShake(3, 5);
+    g_screenShakeTick = 0;
 
     if (g_boss.hp <= BOSS_MAX_HP / 2)
         StartBossPhase2();
@@ -1916,8 +1915,7 @@ void UpdateBossProjectiles()
             {
                 g_bossProjectiles[i].type = 13;
                 g_bossProjectiles[i].tick = 0;
-                g_screenShakeTick = 8;
-                StartCameraShake(8, 18);
+                g_screenShakeTick = 0;
             }
         }
 
@@ -2000,7 +1998,7 @@ void DrawBossRewardObjects(Graphics& graphics);
 
 bool IsBossBerserk()
 {
-    return g_currentStage == 4 && g_boss.active && g_boss.phase2 && g_boss.hp <= BOSS_MAX_HP / 10;
+    return g_currentStage == 4 && g_boss.active && g_boss.phase2 && g_boss.hp <= BOSS_MAX_HP * 15 / 100;
 }
 
 void UpdateBossObjects()
@@ -2050,8 +2048,7 @@ void UpdateBossObjects()
         if (g_boss.y >= groundY && g_bossIntroTick > 45)
         {
             g_bossIntro = false;
-            g_screenShakeTick = 12;
-            StartCameraShake(8, 16);
+            g_screenShakeTick = 0;
         }
 
         return;
@@ -2075,6 +2072,7 @@ void UpdateBossObjects()
 
         if (elapsed < BOSS_PHASE2_BLACK_END)
         {
+            ApplyBossPhase2Form();
             g_boss.x = BG_PART_W / 2 - g_boss.w / 2;
             g_boss.y = BOSS_PHASE2_DROP_START_Y;
             g_boss.vx = 0.0f;
@@ -2084,6 +2082,7 @@ void UpdateBossObjects()
 
         if (elapsed < BOSS_PHASE2_DROP_END)
         {
+            ApplyBossPhase2Form();
             int dropTick = elapsed - BOSS_PHASE2_BLACK_END;
             int dropTotal = BOSS_PHASE2_DROP_END - BOSS_PHASE2_BLACK_END;
             int targetY = BOSS_PHASE2_GROUND_Y;
@@ -2100,6 +2099,7 @@ void UpdateBossObjects()
 
         if (elapsed < BOSS_PHASE2_TRANSITION_TOTAL)
         {
+            ApplyBossPhase2Form();
             g_boss.y = BOSS_PHASE2_GROUND_Y;
             FaceBossToKirby();
             if (elapsed == BOSS_PHASE2_DROP_END)
@@ -2110,6 +2110,7 @@ void UpdateBossObjects()
             return;
         }
 
+        ApplyBossPhase2Form();
         g_bossPhase2Transition = false;
         g_bossPhase2TransitionTick = 0;
         g_boss.y = BOSS_PHASE2_GROUND_Y;
@@ -4669,7 +4670,9 @@ void DrawScreenEdgeEffects(Graphics& graphics, int screenW, int screenH)
             pulse = 32 - pulse;
 
         int alpha = 85 + pulse * 5;
+        DrawEdgeBox(graphics, screenW, screenH, 115, 0, 0, 0, 0, 11);
         DrawEdgeBox(graphics, screenW, screenH, alpha, 150, 40, 255, 0, 8);
+        DrawEdgeBox(graphics, screenW, screenH, 70, 45, 0, 80, 18, 7);
     }
 
     if (!isGameOver && !g_retryActive && kirbyMaxHP > 0 && kirbyHP <= kirbyMaxHP / 5)
