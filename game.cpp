@@ -1178,6 +1178,8 @@ bool g_bossBerserkHealActive = false;
 bool g_bossBerserkHealDone = false;
 int g_bossBerserkHealTick = 0;
 int g_bossBerserkHealStartHP = 0;
+bool g_bossBerserkDropActive = false;
+int g_bossBerserkDropTick = 0;
 int g_bossTopBombShakeCount = 0;
 int g_screenShakeTick = 0;
 
@@ -1502,6 +1504,8 @@ void InitBossObjects()
     g_bossBerserkHealDone = false;
     g_bossBerserkHealTick = 0;
     g_bossBerserkHealStartHP = 0;
+    g_bossBerserkDropActive = false;
+    g_bossBerserkDropTick = 0;
     g_bossTopBombShakeCount = 0;
     g_screenShakeTick = 0;
     g_cameraShakeTick = 0;
@@ -2082,6 +2086,8 @@ void StartBossBerserkHeal()
     g_bossBerserkHealDone = true;
     g_bossBerserkHealTick = 90;
     g_bossBerserkHealStartHP = g_boss.hp;
+    g_bossBerserkDropActive = false;
+    g_bossBerserkDropTick = 0;
 
     ResetBossProjectiles();
     ResetBossWarnings();
@@ -2117,48 +2123,17 @@ void UpdateBossBerserkHeal()
     if (g_boss.hp < targetHP)
         g_boss.hp = g_bossBerserkHealStartHP + (targetHP - g_bossBerserkHealStartHP) * elapsed / 90;
 
-    int cx = g_boss.x + g_boss.w / 2;
-    int cy = g_boss.y + g_boss.h / 2;
-
-    // Fire the 3rd phase energy ball three times toward Kirby during absorption.
-    if (g_bossBerserkHealTick == 68 || g_bossBerserkHealTick == 48 || g_bossBerserkHealTick == 28)
-    {
-        int size = 92;
-        int sx = cx - size / 2;
-        int sy = cy + 18;
-        int targetX = kirbyX + kirbyW / 2;
-        int targetY = kirbyY + kirbyH / 2;
-        float dx = (float)(targetX - sx);
-        float dy = (float)(targetY - sy);
-        float len = (float)sqrt(dx * dx + dy * dy);
-        if (len < 1.0f)
-            len = 1.0f;
-
-        float speed = 8.5f;
-        SpawnBossProjectile(14, sx, sy, size, size, dx / len * speed, dy / len * speed);
-    }
-
-    UpdateBossProjectiles();
-
     if (g_bossBerserkHealTick <= 0)
     {
         g_boss.hp = targetHP;
         g_bossBerserkHealActive = false;
         g_bossBerserkHealTick = 0;
-        g_boss.vx = (float)(2 * g_boss.dir);
-
-        g_bossRainAttackCooldown = 12;
-        g_bossRainBombCooldown = 18;
-        g_bossSideBallCooldown = 20;
-        g_bossSpreadShotCooldown = 35;
-        g_bossGroundWaveCooldown = 42;
-        g_bossRainBurstCooldown = 48;
-        g_bossAimedShotCooldown = 30;
-        g_bossWallRainCooldown = 55;
-        g_bossZigzagCooldown = 34;
-        g_bossBounceCooldown = 44;
-        g_boss.topBombCooldown = 70;
-        g_boss.fastDashCooldown = 55;
+        g_bossBerserkDropActive = true;
+        g_bossBerserkDropTick = 0;
+        g_boss.vx = 0.0f;
+        g_boss.vy = 0.0f;
+        ResetBossProjectiles();
+        ResetBossWarnings();
     }
 }
 
@@ -2223,6 +2198,47 @@ void UpdateBossObjects()
     if (g_bossBerserkHealActive)
     {
         UpdateBossBerserkHeal();
+        return;
+    }
+
+    if (g_bossBerserkDropActive)
+    {
+        const int BERSERK_DROP_TOTAL = 30;
+        int targetY = BOSS_PHASE2_GROUND_Y;
+        g_bossBerserkDropTick++;
+
+        if (g_bossBerserkDropTick > BERSERK_DROP_TOTAL)
+            g_bossBerserkDropTick = BERSERK_DROP_TOTAL;
+
+        g_boss.x = BG_PART_W / 2 - g_boss.w / 2;
+        g_boss.y = BOSS_BERSERK_HEAL_Y + (targetY - BOSS_BERSERK_HEAL_Y) * g_bossBerserkDropTick / BERSERK_DROP_TOTAL;
+        g_boss.vx = 0.0f;
+        g_boss.vy = 0.0f;
+        FaceBossToKirby();
+        ResetBossProjectiles();
+        ResetBossWarnings();
+
+        if (g_bossBerserkDropTick >= BERSERK_DROP_TOTAL)
+        {
+            g_bossBerserkDropActive = false;
+            g_bossBerserkDropTick = 0;
+            g_boss.y = targetY;
+            g_boss.vx = (float)(2 * g_boss.dir);
+            g_bossRainAttackCooldown = 12;
+            g_bossRainBombCooldown = 18;
+            g_bossSideBallCooldown = 20;
+            g_bossSpreadShotCooldown = 35;
+            g_bossGroundWaveCooldown = 42;
+            g_bossRainBurstCooldown = 48;
+            g_bossAimedShotCooldown = 30;
+            g_bossWallRainCooldown = 55;
+            g_bossZigzagCooldown = 34;
+            g_bossBounceCooldown = 44;
+            g_boss.topBombCooldown = 70;
+            g_boss.fastDashCooldown = 55;
+            StartCameraShake(5, 10);
+        }
+
         return;
     }
 
@@ -3129,37 +3145,53 @@ void DrawBossBerserkHealEffect(Graphics& graphics)
 
     const double PI = 3.14159265358979323846;
 
-    // 1/2 PNG are reused as many incoming energy streams from every direction.
-    for (int i = 0; i < 16; i++)
+    // 1/2 PNG swirl in from 360 degrees. This is only a heal effect, not an attack.
+    for (int i = 0; i < 28; i++)
     {
-        Image* absorbFrame = (((t / 6) + i) % 2 == 0) ? g_bossBerserkAbsorbFrame1 : g_bossBerserkAbsorbFrame2;
+        Image* absorbFrame = (((t / 5) + i) % 2 == 0) ? g_bossBerserkAbsorbFrame1 : g_bossBerserkAbsorbFrame2;
+        double angle = i * PI * 2.0 / 28.0 + t * 0.055;
+        float local = (float)((t * 3 + i * 17) % 100) / 100.0f;
+        float radius = 620.0f - local * 535.0f;
+        float squashY = 0.64f;
+
+        int tailX = cx + (int)(cos(angle) * (radius + 120.0f));
+        int tailY = cy + (int)(sin(angle) * (radius + 120.0f) * squashY);
+        int midX = cx + (int)(cos(angle + 0.45) * (radius * 0.58f));
+        int midY = cy + (int)(sin(angle + 0.45) * (radius * 0.58f) * squashY);
+        int headX = cx + (int)(cos(angle) * radius);
+        int headY = cy + (int)(sin(angle) * radius * squashY);
+        int coreX = cx + (int)(cos(angle) * 38.0f);
+        int coreY = cy + (int)(sin(angle) * 24.0f);
+
+        int alpha = 45 + (int)(local * 95.0f);
+        Pen trailPen(Color(alpha, 160, 45, 255), (REAL)(2 + (i % 3)));
+        graphics.DrawBezier(&trailPen, (REAL)tailX, (REAL)tailY, (REAL)midX, (REAL)midY, (REAL)headX, (REAL)headY, (REAL)coreX, (REAL)coreY);
+
         if (absorbFrame == NULL)
             continue;
 
-        float local = (float)((t * 2 + i * 11) % 90) / 90.0f;
-        float radius = 430.0f - local * 335.0f;
-        double angle = i * PI * 2.0 / 16.0 + t * 0.035;
-        int drawW = 145 + (i % 3) * 18;
-        int drawH = 145 + (i % 3) * 18;
-        int drawX = cx + (int)(cos(angle) * radius) - drawW / 2;
-        int drawY = cy + (int)(sin(angle) * radius * 0.62) - drawH / 2;
+        int drawW = 150 - (int)(local * 28.0f) + (i % 3) * 10;
+        int drawH = drawW;
+        int drawX = headX - drawW / 2;
+        int drawY = headY - drawH / 2;
 
         GraphicsState state = graphics.Save();
         graphics.TranslateTransform((REAL)(drawX + drawW / 2), (REAL)(drawY + drawH / 2));
         graphics.RotateTransform((REAL)(angle * 180.0 / PI + 180.0));
 
-        // Left side streams are flipped in this local transform so every stream points inward.
-        if (drawX < cx)
+        if (headX < cx)
             graphics.ScaleTransform(-1.0f, 1.0f);
 
         graphics.DrawImage(absorbFrame, -drawW / 2, -drawH / 2, drawW, drawH);
-
         graphics.Restore(state);
     }
 
-    Pen ringPen(Color(180, 190, 70, 255), 4);
-    int pulse = (t / 2) % 18;
-    graphics.DrawEllipse(&ringPen, cx - 42 - pulse, cy - 42 - pulse, 84 + pulse * 2, 84 + pulse * 2);
+    int pulse = (t / 2) % 22;
+    SolidBrush coreGlow(Color(75, 135, 30, 230));
+    graphics.FillEllipse(&coreGlow, cx - 34 - pulse / 2, cy - 34 - pulse / 2, 68 + pulse, 68 + pulse);
+
+    Pen ringPen(Color(210, 205, 90, 255), (REAL)4);
+    graphics.DrawEllipse(&ringPen, cx - 46 - pulse, cy - 46 - pulse, 92 + pulse * 2, 92 + pulse * 2);
 }
 void DrawBossProjectiles(Graphics& graphics)
 {
@@ -3180,8 +3212,6 @@ void DrawBossProjectiles(Graphics& graphics)
             img = g_bossPatternBlueBallFrame; // 파란 공: 이동속도 감소
         else if (g_bossProjectiles[i].type == 5 || g_bossProjectiles[i].type == 6 || g_bossProjectiles[i].type == 9 || g_bossProjectiles[i].type == 10)
             img = g_bossPatternRedBallFrame;  // 빨간 공: 지속피해
-        else if (g_bossProjectiles[i].type == 14)
-            img = g_bossBerserkEnergyBallFrame;
         else if (g_bossProjectiles[i].type == 12)
             img = g_bossHalfFloorWarnFrame;   // 바닥 절반 경고
         else if (g_bossProjectiles[i].type == 13)
