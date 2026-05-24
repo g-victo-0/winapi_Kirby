@@ -1566,6 +1566,19 @@ void InitBossObjects()
 
 void SpawnBossProjectile(int type, int x, int y, int w, int h, float vx, float vy)
 {
+    if (g_bossBerserkMode && !g_bossBerserkHealActive)
+    {
+        int activeCount = 0;
+        for (int i = 0; i < BOSS_PROJECTILE_MAX; i++)
+        {
+            if (g_bossProjectiles[i].active)
+                activeCount++;
+        }
+
+        if (activeCount >= 28)
+            return;
+    }
+
     for (int i = 0; i < BOSS_PROJECTILE_MAX; i++)
     {
         if (!g_bossProjectiles[i].active)
@@ -2224,18 +2237,18 @@ void UpdateBossObjects()
             g_bossBerserkDropTick = 0;
             g_boss.y = targetY;
             g_boss.vx = (float)(2 * g_boss.dir);
-            g_bossRainAttackCooldown = 12;
-            g_bossRainBombCooldown = 18;
-            g_bossSideBallCooldown = 20;
-            g_bossSpreadShotCooldown = 35;
-            g_bossGroundWaveCooldown = 42;
-            g_bossRainBurstCooldown = 48;
-            g_bossAimedShotCooldown = 30;
-            g_bossWallRainCooldown = 55;
-            g_bossZigzagCooldown = 34;
-            g_bossBounceCooldown = 44;
-            g_boss.topBombCooldown = 70;
-            g_boss.fastDashCooldown = 55;
+            g_bossRainAttackCooldown = 28;
+            g_bossRainBombCooldown = 42;
+            g_bossSideBallCooldown = 50;
+            g_bossSpreadShotCooldown = 95;
+            g_bossGroundWaveCooldown = 115;
+            g_bossRainBurstCooldown = 125;
+            g_bossAimedShotCooldown = 80;
+            g_bossWallRainCooldown = 170;
+            g_bossZigzagCooldown = 90;
+            g_bossBounceCooldown = 115;
+            g_boss.topBombCooldown = 110;
+            g_boss.fastDashCooldown = 85;
             StartCameraShake(5, 10);
         }
 
@@ -2321,14 +2334,14 @@ void UpdateBossObjects()
     if (g_bossRainAttackCooldown <= 0)
     {
         SpawnBossRainAttack();
-        g_bossRainAttackCooldown = bossBerserk ? RandomRange(10, 18) : RandomRange(35, 60); // 숫자가 클수록 하늘 공격 간격 증가
+        g_bossRainAttackCooldown = bossBerserk ? RandomRange(28, 44) : RandomRange(35, 60); // 숫자가 클수록 하늘 공격 간격 증가
     }
 
     g_bossRainBombCooldown--;
     if (g_bossRainBombCooldown <= 0)
     {
         SpawnBossRainBomb();
-        g_bossRainBombCooldown = bossBerserk ? RandomRange(14, 24) : RandomRange(55, 85); // 숫자가 클수록 폭탄 낙하 간격 증가
+        g_bossRainBombCooldown = bossBerserk ? RandomRange(38, 58) : RandomRange(55, 85); // 숫자가 클수록 폭탄 낙하 간격 증가
     }
 
     // 2페이즈부터는 세로 낙하 공격 말고 가로로 지나가는 공도 추가
@@ -2338,7 +2351,7 @@ void UpdateBossObjects()
         if (g_bossSideBallCooldown <= 0)
         {
             SpawnBossSideBall();
-            g_bossSideBallCooldown = bossBerserk ? RandomRange(18, 28) : RandomRange(55, 85); // 숫자가 클수록 가로 공 간격 증가
+            g_bossSideBallCooldown = bossBerserk ? RandomRange(48, 72) : RandomRange(55, 85); // 숫자가 클수록 가로 공 간격 증가
         }
 
         g_bossRainBurstCooldown--;
@@ -2346,7 +2359,7 @@ void UpdateBossObjects()
         {
             SpawnBossRainBurst();
             g_boss.dangerTextTick = 28;
-            g_bossRainBurstCooldown = bossBerserk ? RandomRange(45, 70) : RandomRange(180, 260);
+            g_bossRainBurstCooldown = bossBerserk ? RandomRange(120, 170) : RandomRange(180, 260);
         }
     }
 
@@ -2355,7 +2368,7 @@ void UpdateBossObjects()
     {
         SpawnBossSpreadShot();
         g_boss.dangerTextTick = 22;
-        g_bossSpreadShotCooldown = bossBerserk ? RandomRange(35, 55) : (g_boss.phase2 ? RandomRange(130, 190) : RandomRange(180, 240));
+        g_bossSpreadShotCooldown = bossBerserk ? RandomRange(95, 135) : (g_boss.phase2 ? RandomRange(130, 190) : RandomRange(180, 240));
     }
 
     g_bossAimedShotCooldown--;
@@ -2363,7 +2376,7 @@ void UpdateBossObjects()
     {
         SpawnBossAimedShot();
         g_boss.dangerTextTick = 20;
-        g_bossAimedShotCooldown = bossBerserk ? RandomRange(28, 44) : (g_boss.phase2 ? RandomRange(95, 140) : RandomRange(150, 210));
+        g_bossAimedShotCooldown = bossBerserk ? RandomRange(75, 110) : (g_boss.phase2 ? RandomRange(95, 140) : RandomRange(150, 210));
     }
 
     g_bossZigzagCooldown--;
@@ -2371,7 +2384,7 @@ void UpdateBossObjects()
     {
         SpawnBossZigzagShot();
         g_boss.dangerTextTick = 20;
-        g_bossZigzagCooldown = bossBerserk ? RandomRange(30, 50) : (g_boss.phase2 ? RandomRange(110, 160) : RandomRange(180, 240));
+        g_bossZigzagCooldown = bossBerserk ? RandomRange(85, 125) : (g_boss.phase2 ? RandomRange(110, 160) : RandomRange(180, 240));
     }
 
     if (g_boss.phase2)
@@ -2381,7 +2394,7 @@ void UpdateBossObjects()
         {
             SpawnBossGroundWave();
             g_boss.dangerTextTick = 24;
-            g_bossGroundWaveCooldown = bossBerserk ? RandomRange(45, 70) : RandomRange(170, 240);
+            g_bossGroundWaveCooldown = bossBerserk ? RandomRange(115, 160) : RandomRange(170, 240);
         }
 
         g_bossWallRainCooldown--;
@@ -2389,7 +2402,7 @@ void UpdateBossObjects()
         {
             SpawnBossWallRain();
             g_boss.dangerTextTick = 26;
-            g_bossWallRainCooldown = bossBerserk ? RandomRange(55, 80) : RandomRange(200, 280);
+            g_bossWallRainCooldown = bossBerserk ? RandomRange(165, 230) : RandomRange(200, 280);
         }
 
         g_bossBounceCooldown--;
@@ -2397,7 +2410,7 @@ void UpdateBossObjects()
         {
             SpawnBossBounceBall();
             g_boss.dangerTextTick = 22;
-            g_bossBounceCooldown = bossBerserk ? RandomRange(40, 65) : RandomRange(160, 230);
+            g_bossBounceCooldown = bossBerserk ? RandomRange(110, 155) : RandomRange(160, 230);
         }
 
         // 106/107 바닥 절반 폭발 패턴은 어색해서 제거함.

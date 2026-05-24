@@ -725,23 +725,27 @@ struct DanceFrame
 // The base Y is fixed; yOffset is used only on jump/bounce frames and stays 0 on still poses.
 const DanceFrame g_danceSequence[] =
 {
-    // Simple looping clear dance. 1~12 frames keep the floor line stable and avoid jitter.
-    { 0, 8, false, 0, 0 },
-    { 1, 8, false, 0, 0 },
-    { 4, 7, false, 10, 0 },
-    { 5, 7, false, 18, -3 },
-    { 6, 7, false, 22, -5 },
-    { 7, 7, false, 18, -3 },
-    { 11, 8, false, 8, 0 },
-    { 10, 8, false, 0, 0 },
-    { 9, 6, false, 0, 0 },
-    { 10, 8, false, 0, 0 },
-    { 11, 8, true, -8, 0 },
-    { 7, 7, true, -18, -3 },
-    { 6, 7, true, -22, -5 },
-    { 5, 7, true, -18, -3 },
-    { 4, 7, true, -10, 0 },
-    { 1, 8, false, 0, 0 }
+    // Smooth side-to-side clear dance. X moves every beat so Kirby does not look frozen.
+    { 0, 6, false, 0, 0 },
+    { 1, 6, false, 6, 0 },
+    { 4, 6, false, 14, 0 },
+    { 5, 6, false, 22, -2 },
+    { 6, 6, false, 30, -4 },
+    { 7, 6, false, 38, -2 },
+    { 11, 7, false, 46, 0 },
+    { 10, 6, false, 36, 0 },
+    { 9, 5, false, 24, 0 },
+    { 10, 6, false, 12, 0 },
+    { 1, 6, false, 0, 0 },
+    { 11, 6, true, -10, 0 },
+    { 7, 6, true, -20, -2 },
+    { 6, 6, true, -30, -4 },
+    { 5, 6, true, -40, -2 },
+    { 4, 7, true, -48, 0 },
+    { 10, 6, true, -36, 0 },
+    { 9, 5, true, -24, 0 },
+    { 10, 6, true, -12, 0 },
+    { 1, 6, false, 0, 0 }
 };
 const int g_danceSequenceCount = sizeof(g_danceSequence) / sizeof(g_danceSequence[0]);
 
