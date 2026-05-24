@@ -880,8 +880,8 @@ int g_rescueEffectTick = 0;
 int g_rescueEffectX = 0;
 int g_rescueEffectY = 0;
 
-const int STAR_TRANSITION_CLOSE_TICK = 60;
-const int STAR_TRANSITION_OPEN_TICK = 60;
+const int STAR_TRANSITION_CLOSE_TICK = 20;
+const int STAR_TRANSITION_OPEN_TICK = 20;
 bool g_starTransitionActive = false;
 bool g_starTransitionMapChanged = false;
 int g_starTransitionTick = 0;
@@ -3100,7 +3100,6 @@ void DrawStarStageTransition(Graphics& graphics, int screenW, int screenH)
     float maxRadius = (float)(screenW > screenH ? screenW : screenH) * 0.95f;
     float outerRadius = maxRadius * (1.0f - progress);
     float innerRadius = outerRadius * 0.45f;
-
     SolidBrush outsideBrush(Color(230, 20, 15, 45));
     if (outerRadius <= 2.0f)
     {
