@@ -734,7 +734,7 @@ int balloonSpeed = 4;
 
 // SHIFT 달리기 상태
 bool isDash = false;
-int dashSpeed = 6;
+int dashSpeed = 8;
 int dashFrameIndex = 0;
 int dashFrameTick = 0;
 int dashFrameCount = 3;
@@ -2113,7 +2113,7 @@ void UpdateBossBerserkHeal()
     g_boss.y = BOSS_BERSERK_HEAL_Y;
     g_boss.vx = 0.0f;
     g_boss.vy = 0.0f;
-    g_boss.redFlashTick = 4;
+    g_boss.redFlashTick = 0;
 
     int targetHP = BOSS_MAX_HP * 30 / 100;
     int elapsed = 90 - g_bossBerserkHealTick;
@@ -3104,7 +3104,7 @@ void DrawBossHitRedFlash(Graphics& graphics)
     if (g_currentStage != 4 || !g_boss.active)
         return;
 
-    if (g_boss.redFlashTick <= 0)
+    if (g_boss.redFlashTick <= 0 || g_bossBerserkHealActive)
         return;
 
     int alpha = 80 + g_boss.redFlashTick * 22;
@@ -3120,7 +3120,7 @@ void DrawNightmareParticles(Graphics& graphics)
         return;
 
     // 간단한 보라색 입자. 리소스 없이도 보스맵 분위기를 살림
-    for (int i = 0; i < 26; i++)
+    for (int i = 0; i < 14; i++)
     {
         int x = (i * 73 + g_bossIntroTick * 3 + g_boss.hp) % BG_PART_W;
         int y = (i * 47 + g_bossIntroTick * 5 + g_boss.phase2 * 120) % 520;
@@ -3146,31 +3146,29 @@ void DrawBossBerserkHealEffect(Graphics& graphics)
     const double PI = 3.14159265358979323846;
 
     // 1/2 PNG swirl in from 360 degrees. This is only a heal effect, not an attack.
-    for (int i = 0; i < 28; i++)
+    for (int i = 0; i < 14; i++)
     {
         Image* absorbFrame = (((t / 5) + i) % 2 == 0) ? g_bossBerserkAbsorbFrame1 : g_bossBerserkAbsorbFrame2;
-        double angle = i * PI * 2.0 / 28.0 + t * 0.055;
-        float local = (float)((t * 3 + i * 17) % 100) / 100.0f;
-        float radius = 620.0f - local * 535.0f;
+        double angle = i * PI * 2.0 / 14.0 + t * 0.06;
+        float local = (float)((t * 3 + i * 23) % 100) / 100.0f;
+        float radius = 560.0f - local * 475.0f;
         float squashY = 0.64f;
 
-        int tailX = cx + (int)(cos(angle) * (radius + 120.0f));
-        int tailY = cy + (int)(sin(angle) * (radius + 120.0f) * squashY);
-        int midX = cx + (int)(cos(angle + 0.45) * (radius * 0.58f));
-        int midY = cy + (int)(sin(angle + 0.45) * (radius * 0.58f) * squashY);
+        int tailX = cx + (int)(cos(angle) * (radius + 105.0f));
+        int tailY = cy + (int)(sin(angle) * (radius + 105.0f) * squashY);
         int headX = cx + (int)(cos(angle) * radius);
         int headY = cy + (int)(sin(angle) * radius * squashY);
         int coreX = cx + (int)(cos(angle) * 38.0f);
         int coreY = cy + (int)(sin(angle) * 24.0f);
 
-        int alpha = 45 + (int)(local * 95.0f);
-        Pen trailPen(Color(alpha, 160, 45, 255), (REAL)(2 + (i % 3)));
-        graphics.DrawBezier(&trailPen, (REAL)tailX, (REAL)tailY, (REAL)midX, (REAL)midY, (REAL)headX, (REAL)headY, (REAL)coreX, (REAL)coreY);
+        int alpha = 55 + (int)(local * 80.0f);
+        Pen trailPen(Color(alpha, 160, 45, 255), (REAL)(2 + (i % 2)));
+        graphics.DrawLine(&trailPen, tailX, tailY, coreX, coreY);
 
         if (absorbFrame == NULL)
             continue;
 
-        int drawW = 150 - (int)(local * 28.0f) + (i % 3) * 10;
+        int drawW = 132 - (int)(local * 22.0f) + (i % 3) * 8;
         int drawH = drawW;
         int drawX = headX - drawW / 2;
         int drawY = headY - drawH / 2;
@@ -3186,12 +3184,12 @@ void DrawBossBerserkHealEffect(Graphics& graphics)
         graphics.Restore(state);
     }
 
-    int pulse = (t / 2) % 22;
-    SolidBrush coreGlow(Color(75, 135, 30, 230));
-    graphics.FillEllipse(&coreGlow, cx - 34 - pulse / 2, cy - 34 - pulse / 2, 68 + pulse, 68 + pulse);
+    int pulse = (t / 2) % 18;
+    SolidBrush coreGlow(Color(70, 135, 30, 230));
+    graphics.FillEllipse(&coreGlow, cx - 28 - pulse / 2, cy - 28 - pulse / 2, 56 + pulse, 56 + pulse);
 
-    Pen ringPen(Color(210, 205, 90, 255), (REAL)4);
-    graphics.DrawEllipse(&ringPen, cx - 46 - pulse, cy - 46 - pulse, 92 + pulse * 2, 92 + pulse * 2);
+    Pen ringPen(Color(180, 150, 45, 255), (REAL)3);
+    graphics.DrawEllipse(&ringPen, cx - 38 - pulse, cy - 38 - pulse, 76 + pulse * 2, 76 + pulse * 2);
 }
 void DrawBossProjectiles(Graphics& graphics)
 {
@@ -4917,8 +4915,8 @@ void DrawScreenEdgeEffects(Graphics& graphics, int screenW, int screenH)
     // Nightmare stages get a soft dark edge, separate from the stage 2 vision mask.
     if (g_currentStage == 2 || g_currentStage == 3 || g_currentStage == 4)
     {
-        DrawEdgeBox(graphics, screenW, screenH, 70, 0, 0, 0, 0, 9);
-        DrawEdgeBox(graphics, screenW, screenH, 48, 35, 0, 65, 8, 7);
+        DrawEdgeBox(graphics, screenW, screenH, 60, 0, 0, 0, 0, 5);
+        DrawEdgeBox(graphics, screenW, screenH, 40, 35, 0, 65, 10, 4);
     }
 
     if (g_currentStage == 4 && IsBossBerserk())
@@ -4928,9 +4926,9 @@ void DrawScreenEdgeEffects(Graphics& graphics, int screenW, int screenH)
             pulse = 32 - pulse;
 
         int alpha = 85 + pulse * 5;
-        DrawEdgeBox(graphics, screenW, screenH, 115, 0, 0, 0, 0, 11);
-        DrawEdgeBox(graphics, screenW, screenH, alpha, 150, 40, 255, 0, 8);
-        DrawEdgeBox(graphics, screenW, screenH, 70, 45, 0, 80, 18, 7);
+        DrawEdgeBox(graphics, screenW, screenH, 95, 0, 0, 0, 0, 5);
+        DrawEdgeBox(graphics, screenW, screenH, alpha, 150, 40, 255, 0, 4);
+        DrawEdgeBox(graphics, screenW, screenH, 55, 45, 0, 80, 20, 3);
     }
 
     if (!isGameOver && !g_retryActive && kirbyMaxHP > 0 && kirbyHP <= kirbyMaxHP / 5)
