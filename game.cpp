@@ -596,8 +596,9 @@ bool g_kirbyFallGameOver = false;
 
 const int KIRBY_MAX_LIVES = 7;
 const int RETRY_COUNTDOWN_TICKS = 250; // GAME_TIMER_MS 40ms 기준 10초
-const int PAUSE_MENU_COUNT = 3;
+const int PAUSE_MENU_COUNT = 4;
 const int CONTROL_GUIDE_TICK_MAX = 150; // GAME_TIMER_MS 40ms 기준 약 6초
+const int CONTROL_GUIDE_RESHOW_TICK = 125;
 int g_kirbyLives = KIRBY_MAX_LIVES;
 bool g_isPaused = false;
 int g_pauseMenuIndex = 0;
@@ -609,6 +610,7 @@ int g_retryRespawnY = 470;
 int g_lastSafeKirbyX = 55;
 int g_lastSafeKirbyY = 470;
 int g_controlGuideTick = CONTROL_GUIDE_TICK_MAX;
+bool g_controlGuideForced = false;
 int g_currentBgmMode = -1;
 
 bool g_playTimerStarted = false;
@@ -3226,6 +3228,8 @@ void UpdateScreenEffects()
 
     if (g_controlGuideTick > 0)
         g_controlGuideTick--;
+    else
+        g_controlGuideForced = false;
 
     if (g_rescueEffectTick > 0)
         g_rescueEffectTick--;
@@ -3432,14 +3436,15 @@ void DrawTransitionOverlay(Graphics& graphics, int screenW, int screenH)
     if (g_stageClearTick > 0)
     {
         int alpha = g_stageClearTick > 15 ? 245 : g_stageClearTick * 245 / 15;
-        DrawStageMessage(graphics, screenW, 210, L"STAGE CLEAR", alpha);
+        if (g_currentStage != 5)
+            DrawStageMessage(graphics, screenW, 170, L"STAGE CLEAR", alpha);
+    }
 
-        if (g_currentStage == 4 && g_clearTimeSaved)
-        {
-            wchar_t clearTimeText[64];
-            FormatClearTimeText(clearTimeText, g_clearTimeTick);
-            DrawStageMessage(graphics, screenW, 276, clearTimeText, alpha);
-        }
+    if (g_currentStage == 5 && g_clearTimeSaved)
+    {
+        wchar_t clearTimeText[64];
+        FormatClearTimeText(clearTimeText, g_clearTimeTick);
+        DrawStageMessage(graphics, screenW, 88, clearTimeText, 235);
     }
 }
 
@@ -4077,7 +4082,10 @@ void UpdateRetryCountdown(HWND hWnd)
 
 void DrawControlGuide(Graphics& graphics, int screenW)
 {
-    if (g_currentStage != 1 || g_controlGuideTick <= 0)
+    if (g_controlGuideTick <= 0)
+        return;
+
+    if (g_currentStage != 1 && !g_controlGuideForced)
         return;
 
     int boxW = 230;
@@ -4118,7 +4126,7 @@ void DrawPauseMenu(Graphics& graphics, int screenW, int screenH)
     graphics.FillRectangle(&darkBrush, 0, 0, screenW, screenH);
 
     int boxW = 360;
-    int boxH = 260;
+    int boxH = 310;
     int boxX = screenW / 2 - boxW / 2;
     int boxY = screenH / 2 - boxH / 2;
 
@@ -4138,10 +4146,10 @@ void DrawPauseMenu(Graphics& graphics, int screenW, int screenH)
     RectF titleRect((REAL)boxX, (REAL)(boxY + 22), (REAL)boxW, 48.0f);
     graphics.DrawString(L"PAUSE", -1, &titleFont, titleRect, &format, &titleBrush);
 
-    const wchar_t* items[PAUSE_MENU_COUNT] = { L"Resume", L"Restart Stage", L"Quit" };
+    const wchar_t* items[PAUSE_MENU_COUNT] = { L"Continue", L"Restart Stage", L"Exit Game", L"Controls 보기" };
     for (int i = 0; i < PAUSE_MENU_COUNT; i++)
     {
-        int y = boxY + 92 + i * 48;
+        int y = boxY + 88 + i * 48;
         if (i == g_pauseMenuIndex)
         {
             SolidBrush selBrush(Color(160, 255, 80, 110));
@@ -5246,9 +5254,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 {
                     RestartCurrentStage(hWnd);
                 }
-                else
+                else if (g_pauseMenuIndex == 2)
                 {
                     DestroyWindow(hWnd);
+                }
+                else if (g_pauseMenuIndex == 3)
+                {
+                    g_isPaused = false;
+                    g_controlGuideForced = true;
+                    g_controlGuideTick = CONTROL_GUIDE_RESHOW_TICK;
+                    PlayGameSound(SFX_PAUSE);
                 }
             }
 
