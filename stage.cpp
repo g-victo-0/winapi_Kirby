@@ -467,6 +467,7 @@ void ChangeStageNow(HWND hWnd, int targetStage)
         InitRescueObjects();
         InitMonsters();
         UpdateCamera(hWnd);
+        ResetStageGimmicks();
         StartStageTransitionEffect();
         return;
     }
@@ -484,6 +485,7 @@ void ChangeStageNow(HWND hWnd, int targetStage)
         InitRescueObjects();
         InitMonsters();
         UpdateCamera(hWnd);
+        ResetStageGimmicks();
         StartStageTransitionEffect();
         return;
     }
@@ -501,6 +503,7 @@ void ChangeStageNow(HWND hWnd, int targetStage)
         InitRescueObjects();
         InitMonsters();
         UpdateCamera(hWnd);
+        ResetStageGimmicks();
         StartStageTransitionEffect();
         return;
     }
@@ -520,6 +523,7 @@ void ChangeStageNow(HWND hWnd, int targetStage)
         InitRescueObjects();
         InitMonsters();
         UpdateCamera(hWnd);
+        ResetStageGimmicks();
         StartStageTransitionEffect();
         return;
     }

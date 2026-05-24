@@ -612,6 +612,31 @@ int g_playTimeTick = 0;
 int g_clearTimeTick = 0;
 bool g_clearTimeSaved = false;
 
+// Stage gimmick state
+const int WIND_DURATION = 50;      // about 2 seconds
+const int WIND_COOLDOWN = 125;     // about 5 seconds
+bool g_windActive = false;
+int g_windDir = 1;
+int g_windTick = 0;
+int g_windCooldownTick = WIND_COOLDOWN;
+
+const int FALLING_ROCK_MAX = 3;
+const int FALLING_ROCK_WARNING_TICK = 20;
+struct FallingRock
+{
+    bool active;
+    bool warning;
+    int x;
+    int y;
+    int targetY;
+    int w;
+    int h;
+    float vy;
+    int warningTick;
+};
+FallingRock g_fallingRocks[FALLING_ROCK_MAX];
+int g_fallingRockSpawnTick = 70;
+
 enum GameSoundId
 {
     SFX_JUMP = 0,
@@ -943,6 +968,10 @@ void RespawnKirbyAtRetryPoint(HWND hWnd);
 void UpdateRetryCountdown(HWND hWnd);
 void ResetStageProjectiles();
 void SyncStageBGM();
+void ResetStageGimmicks();
+void UpdateStageGimmicks(HWND hWnd);
+void DrawStageGimmicks(Graphics& graphics, int screenW, int screenH);
+void DrawDarkVisionOverlay(Graphics& graphics, int screenW, int screenH);
 
 // 보스 보상 문 변수는 아래쪽 보스전 코드에서 실제로 정의됨.
 // CheckDoorTouch가 그보다 위에 있어서 여기서는 미리 알려만 줌.
@@ -3603,6 +3632,302 @@ void ResetStageProjectiles()
     }
 }
 
+void ResetStageGimmicks()
+{
+    g_windActive = false;
+    g_windDir = 1;
+    g_windTick = 0;
+    g_windCooldownTick = WIND_COOLDOWN;
+
+    g_fallingRockSpawnTick = 70;
+    for (int i = 0; i < FALLING_ROCK_MAX; i++)
+    {
+        g_fallingRocks[i].active = false;
+        g_fallingRocks[i].warning = false;
+        g_fallingRocks[i].x = 0;
+        g_fallingRocks[i].y = 0;
+        g_fallingRocks[i].targetY = 0;
+        g_fallingRocks[i].w = 40;
+        g_fallingRocks[i].h = 40;
+        g_fallingRocks[i].vy = 0.0f;
+        g_fallingRocks[i].warningTick = 0;
+    }
+}
+
+void PushKirbyByWind()
+{
+    if (!g_windActive || g_currentStage != 1 || isGameOver || g_retryActive)
+        return;
+
+    int push = 1;
+    if (!isOnGround)
+        push = 2;
+    if (isSpace)
+        push = 3;
+
+    int nextX = kirbyX + g_windDir * push;
+    int currentWorldW = GetCurrentWorldW();
+
+    if (nextX < 0)
+        nextX = 0;
+    if (nextX + kirbyW > currentWorldW)
+        nextX = currentWorldW - kirbyW;
+
+    RECT nextRc = GetKirbyHitBox(nextX, kirbyY);
+    RECT hitBlock;
+    if (!HitSolidBlock(nextRc, &hitBlock))
+        kirbyX = nextX;
+}
+
+void UpdateStageWind()
+{
+    if (g_currentStage != 1)
+    {
+        g_windActive = false;
+        return;
+    }
+
+    if (g_windActive)
+    {
+        g_windTick--;
+        PushKirbyByWind();
+
+        if (g_windTick <= 0)
+        {
+            g_windActive = false;
+            g_windCooldownTick = WIND_COOLDOWN;
+        }
+
+        return;
+    }
+
+    if (g_windCooldownTick > 0)
+    {
+        g_windCooldownTick--;
+        return;
+    }
+
+    g_windActive = true;
+    g_windTick = WIND_DURATION;
+    g_windDir = (RandomRange(0, 1) == 0) ? -1 : 1;
+}
+
+int GetRockTargetY(int x, int w, int h)
+{
+    RECT testRc;
+    testRc.left = x;
+    testRc.top = 0;
+    testRc.right = x + w;
+    testRc.bottom = h;
+
+    int groundY = 545;
+    if (FindGroundUnderHitBox(testRc, &groundY))
+        return groundY;
+
+    return 545;
+}
+
+void SpawnFallingRock()
+{
+    if (g_currentStage != 3)
+        return;
+
+    for (int i = 0; i < FALLING_ROCK_MAX; i++)
+    {
+        if (g_fallingRocks[i].active)
+            continue;
+
+        int rockW = 42;
+        int rockH = 42;
+        int currentWorldW = GetCurrentWorldW();
+        int x = kirbyX + RandomRange(-160, 160);
+
+        if (RandomRange(0, 3) == 0)
+            x = cameraX + RandomRange(80, 850);
+
+        if (x < 20) x = 20;
+        if (x + rockW > currentWorldW - 20) x = currentWorldW - rockW - 20;
+
+        g_fallingRocks[i].active = true;
+        g_fallingRocks[i].warning = true;
+        g_fallingRocks[i].x = x;
+        g_fallingRocks[i].y = -70;
+        g_fallingRocks[i].targetY = GetRockTargetY(x, rockW, rockH);
+        g_fallingRocks[i].w = rockW;
+        g_fallingRocks[i].h = rockH;
+        g_fallingRocks[i].vy = (float)RandomRange(8, 12);
+        g_fallingRocks[i].warningTick = FALLING_ROCK_WARNING_TICK;
+        return;
+    }
+}
+
+void UpdateFallingRocks()
+{
+    if (g_currentStage != 3)
+    {
+        for (int i = 0; i < FALLING_ROCK_MAX; i++)
+            g_fallingRocks[i].active = false;
+        return;
+    }
+
+    g_fallingRockSpawnTick--;
+    if (g_fallingRockSpawnTick <= 0)
+    {
+        SpawnFallingRock();
+        g_fallingRockSpawnTick = RandomRange(50, 75);
+    }
+
+    RECT kirbyRc = GetKirbyBodyRect();
+
+    for (int i = 0; i < FALLING_ROCK_MAX; i++)
+    {
+        if (!g_fallingRocks[i].active)
+            continue;
+
+        if (g_fallingRocks[i].warning)
+        {
+            g_fallingRocks[i].warningTick--;
+            if (g_fallingRocks[i].warningTick <= 0)
+            {
+                g_fallingRocks[i].warning = false;
+                g_fallingRocks[i].y = -g_fallingRocks[i].h;
+            }
+            continue;
+        }
+
+        g_fallingRocks[i].y += (int)g_fallingRocks[i].vy;
+        g_fallingRocks[i].vy += 0.35f;
+
+        RECT rockRc;
+        rockRc.left = g_fallingRocks[i].x;
+        rockRc.top = g_fallingRocks[i].y;
+        rockRc.right = g_fallingRocks[i].x + g_fallingRocks[i].w;
+        rockRc.bottom = g_fallingRocks[i].y + g_fallingRocks[i].h;
+
+        if (!isKirbyHit && kirbyHitCooldownTick <= 0 && IsRectHit(kirbyRc, rockRc))
+        {
+            StartKirbyHitEffect();
+            g_fallingRocks[i].active = false;
+            continue;
+        }
+
+        RECT hitBlock;
+        if ((HitSolidBlock(rockRc, &hitBlock) && g_fallingRocks[i].vy >= 0.0f) ||
+            g_fallingRocks[i].y > WORLD_H + 80)
+        {
+            g_fallingRocks[i].active = false;
+        }
+    }
+}
+
+void UpdateStageGimmicks(HWND hWnd)
+{
+    (void)hWnd;
+    UpdateStageWind();
+    UpdateFallingRocks();
+}
+
+void DrawWindEffect(Graphics& graphics, int screenW, int screenH)
+{
+    if (g_currentStage != 1 || !g_windActive)
+        return;
+
+    Pen windPen(Color(150, 220, 245, 255), 2);
+    int move = (WIND_DURATION - g_windTick) * 18 * g_windDir;
+
+    for (int i = 0; i < 12; i++)
+    {
+        int baseX = i * 170 + move;
+        while (baseX < -220) baseX += screenW + 260;
+        while (baseX > screenW + 220) baseX -= screenW + 260;
+
+        int worldX = cameraX + baseX;
+        int y = 95 + (i % 5) * 34;
+        int len = 80 + (i % 3) * 22;
+
+        if (g_windDir > 0)
+            graphics.DrawLine(&windPen, worldX, y, worldX + len, y - 8);
+        else
+            graphics.DrawLine(&windPen, worldX + len, y - 8, worldX, y);
+    }
+
+    FontFamily fontFamily(L"Arial");
+    Font font(&fontFamily, 15, FontStyleBold, UnitPixel);
+    SolidBrush textBrush(Color(220, 235, 245, 255));
+    RectF rect((REAL)(cameraX + 28), 148.0f, 210.0f, 24.0f);
+    graphics.DrawString(g_windDir > 0 ? L"WIND  >>" : L"<<  WIND", -1, &font, rect, NULL, &textBrush);
+}
+
+void DrawFallingRocks(Graphics& graphics)
+{
+    if (g_currentStage != 3)
+        return;
+
+    for (int i = 0; i < FALLING_ROCK_MAX; i++)
+    {
+        if (!g_fallingRocks[i].active)
+            continue;
+
+        if (g_fallingRocks[i].warning)
+        {
+            int cx = g_fallingRocks[i].x + g_fallingRocks[i].w / 2;
+            int y = g_fallingRocks[i].targetY - 10;
+            int alpha = 120 + (g_fallingRocks[i].warningTick % 6) * 18;
+            SolidBrush warnBrush(Color(alpha, 255, 40, 80));
+            Pen warnPen(Color(220, 255, 210, 130), 2);
+            graphics.FillEllipse(&warnBrush, cx - 26, y - 8, 52, 16);
+            graphics.DrawEllipse(&warnPen, cx - 26, y - 8, 52, 16);
+            graphics.DrawLine(&warnPen, cx, y - 55, cx, y - 18);
+            graphics.DrawLine(&warnPen, cx - 10, y - 45, cx, y - 58);
+            graphics.DrawLine(&warnPen, cx + 10, y - 45, cx, y - 58);
+            continue;
+        }
+
+        int x = g_fallingRocks[i].x;
+        int y = g_fallingRocks[i].y;
+        int w = g_fallingRocks[i].w;
+        int h = g_fallingRocks[i].h;
+
+        SolidBrush rockBrush(Color(245, 95, 95, 110));
+        Pen rockPen(Color(230, 45, 45, 60), 2);
+        graphics.FillEllipse(&rockBrush, x, y, w, h);
+        graphics.DrawEllipse(&rockPen, x, y, w, h);
+
+        Pen crackPen(Color(170, 40, 40, 50), 1);
+        graphics.DrawLine(&crackPen, x + 12, y + 10, x + 22, y + 20);
+        graphics.DrawLine(&crackPen, x + 22, y + 20, x + 16, y + 31);
+        graphics.DrawLine(&crackPen, x + 28, y + 12, x + 32, y + 25);
+    }
+}
+
+void DrawStageGimmicks(Graphics& graphics, int screenW, int screenH)
+{
+    DrawWindEffect(graphics, screenW, screenH);
+    DrawFallingRocks(graphics);
+}
+
+void DrawDarkVisionOverlay(Graphics& graphics, int screenW, int screenH)
+{
+    if (g_currentStage != 2)
+        return;
+
+    int centerX = kirbyX - cameraX + kirbyW / 2;
+    int centerY = kirbyY + kirbyH / 2;
+    int radius = 205;
+
+    GraphicsPath viewPath;
+    viewPath.AddEllipse(centerX - radius, centerY - radius, radius * 2, radius * 2);
+
+    Region darkRegion(Rect(0, 0, screenW, screenH));
+    darkRegion.Exclude(&viewPath);
+
+    SolidBrush darkBrush(Color(180, 0, 0, 0));
+    graphics.FillRegion(&darkBrush, &darkRegion);
+
+    Pen softEdgePen(Color(95, 170, 140, 255), 3);
+    graphics.DrawEllipse(&softEdgePen, centerX - radius, centerY - radius, radius * 2, radius * 2);
+}
+
 void ResetKirbyPlayState(bool recoverHp)
 {
     StopMove();
@@ -3685,6 +4010,7 @@ void RestartCurrentStage(HWND hWnd)
     g_pauseMenuIndex = 0;
 
     ResetKirbyPlayState(true);
+    ResetStageGimmicks();
     SetKirbyStageStartPosition();
     cameraX = 0;
 
@@ -3749,6 +4075,7 @@ void RespawnKirbyAtRetryPoint(HWND hWnd)
         return;
 
     ResetKirbyPlayState(true);
+    ResetStageGimmicks();
 
     kirbyX = g_retryRespawnX;
     kirbyY = g_retryRespawnY;
@@ -4270,6 +4597,8 @@ void DrawScene(HDC hdc, HWND hWnd)
 
     graphics.TranslateTransform((REAL)(-cameraX + shakeX), (REAL)shakeY);
 
+    DrawStageGimmicks(graphics, rt.right, rt.bottom);
+
     for (int i = 0; i < MONSTER_COUNT; i++)
     {
         g_monsters[i].Draw(graphics);
@@ -4475,6 +4804,8 @@ void DrawScene(HDC hdc, HWND hWnd)
         }
     }
 
+    DrawDarkVisionOverlay(graphics, rt.right, rt.bottom);
+
     DrawHUD(graphics, rt.right, rt.bottom);
     DrawBossPhase2TransitionOverlay(graphics, rt.right, rt.bottom);
     DrawPauseMenu(graphics, rt.right, rt.bottom);
@@ -4509,6 +4840,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
         g_kirbyLives = KIRBY_MAX_LIVES;
         ResetPlayTimer();
         ResetStageAtmosphereEffects();
+        ResetStageGimmicks();
         g_lastSafeKirbyX = kirbyX;
         g_lastSafeKirbyY = kirbyY;
         InitMonsters();
@@ -4608,6 +4940,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
         {
             UpdatePlayTimer();
             UpdatePlayer(hWnd);
+            UpdateStageGimmicks(hWnd);
             UpdateStage(hWnd);
             SyncStageBGM();
             CheckCollision();
