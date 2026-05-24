@@ -725,27 +725,37 @@ struct DanceFrame
 // The base Y is fixed; yOffset is used only on jump/bounce frames and stays 0 on still poses.
 const DanceFrame g_danceSequence[] =
 {
-    // Smooth side-to-side clear dance. X moves every beat so Kirby does not look frozen.
-    { 0, 6, false, 0, 0 },
-    { 1, 6, false, 6, 0 },
-    { 4, 6, false, 14, 0 },
-    { 5, 6, false, 22, -2 },
-    { 6, 6, false, 30, -4 },
-    { 7, 6, false, 38, -2 },
-    { 11, 7, false, 46, 0 },
-    { 10, 6, false, 36, 0 },
-    { 9, 5, false, 24, 0 },
-    { 10, 6, false, 12, 0 },
-    { 1, 6, false, 0, 0 },
-    { 11, 6, true, -10, 0 },
-    { 7, 6, true, -20, -2 },
-    { 6, 6, true, -30, -4 },
-    { 5, 6, true, -40, -2 },
-    { 4, 7, true, -48, 0 },
-    { 10, 6, true, -36, 0 },
-    { 9, 5, true, -24, 0 },
-    { 10, 6, true, -12, 0 },
-    { 1, 6, false, 0, 0 }
+    // Clear dance: use nearby frame numbers in order so the motion does not feel like frames are missing.
+    { 0, 7, false, 0, 0 },
+    { 1, 7, false, 5, 0 },
+    { 2, 4, false, 10, 1 },
+    { 3, 4, false, 15, 1 },
+    { 4, 7, false, 20, 0 },
+    { 5, 7, false, 26, -2 },
+    { 6, 7, false, 32, -4 },
+    { 7, 7, false, 38, -2 },
+    { 8, 6, false, 44, 0 },
+    { 9, 5, false, 48, -1 },
+    { 10, 6, false, 42, 0 },
+    { 11, 8, false, 34, 0 },
+    { 10, 6, false, 26, 0 },
+    { 9, 5, false, 18, -1 },
+    { 8, 6, false, 10, 0 },
+    { 7, 7, true, 0, -2 },
+    { 6, 7, true, -8, -4 },
+    { 5, 7, true, -16, -2 },
+    { 4, 7, true, -24, 0 },
+    { 3, 4, true, -30, 1 },
+    { 2, 4, true, -36, 1 },
+    { 1, 7, true, -42, 0 },
+    { 0, 7, true, -48, 0 },
+    { 1, 7, true, -38, 0 },
+    { 4, 7, true, -28, 0 },
+    { 5, 7, true, -18, -2 },
+    { 6, 7, true, -8, -4 },
+    { 7, 7, false, 0, -2 },
+    { 10, 6, false, 0, 0 },
+    { 11, 8, false, 0, 0 }
 };
 const int g_danceSequenceCount = sizeof(g_danceSequence) / sizeof(g_danceSequence[0]);
 
@@ -847,17 +857,7 @@ void DrawDanceKirby(Graphics& graphics)
     int drawW = DANCE_DRAW_W;
     int drawH = DANCE_DRAW_H;
 
-    if (frame != NULL)
-    {
-        drawW = (int)frame->GetWidth() * 2;
-        drawH = (int)frame->GetHeight() * 2;
-
-        if (drawW < 44) drawW = 44;
-        if (drawH < 44) drawH = 44;
-        if (drawW > 70) drawW = 70;
-        if (drawH > 76) drawH = 76;
-    }
-
+    // Fixed draw box keeps the sprite size stable between differently sized PNG frames.
     int drawX = g_danceX - drawW / 2;
     int drawY = DANCE_FLOOR_Y - drawH + danceFrame->yOffset;
 
