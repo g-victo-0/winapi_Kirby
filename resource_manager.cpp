@@ -121,6 +121,7 @@ void LoadAllImages(HWND hWnd)
     // 여기 빠져 있으면 90/91 리소스를 넣어도 게임에서는 NULL이 돼서 파란 fallback 배경만 나옴.
     g_stage3BackgroundFront = LoadPNGFromResource(g_hInst, IDB_PNG90);
     g_stage3BackgroundBack = LoadPNGFromResource(g_hInst, IDB_PNG91);
+    g_stage3RockFrame = LoadPNGFromResource(g_hInst, IDB_PNG139);
 
     // 4스테이지 보스전 배경: 92번 프레임
     g_stage4Background = LoadPNGFromResource(g_hInst, IDB_PNG92);
@@ -450,6 +451,12 @@ void DeleteAllImages()
     {
         delete g_stage3BackgroundBack;
         g_stage3BackgroundBack = NULL;
+    }
+
+    if (g_stage3RockFrame != NULL)
+    {
+        delete g_stage3RockFrame;
+        g_stage3RockFrame = NULL;
     }
 
     if (g_stage4Background != NULL)

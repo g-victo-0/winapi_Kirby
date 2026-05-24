@@ -157,6 +157,9 @@ using namespace Gdiplus;
 #ifndef IDB_PNG138
 #define IDB_PNG138 138
 #endif
+#ifndef IDB_PNG139
+#define IDB_PNG139 139
+#endif
 
 
 HINSTANCE g_hInst;
@@ -291,6 +294,7 @@ Image* g_stage3BackgroundFront = NULL;
 Bitmap* g_stage3BackgroundFrontScaled = NULL;
 Image* g_stage3BackgroundBack = NULL;
 Bitmap* g_stage3BackgroundBackScaled = NULL;
+Image* g_stage3RockFrame = NULL;
 
 // 92번: 마지막 4스테이지 / 보스전 배경
 Image* g_stage4Background = NULL;
@@ -3823,39 +3827,7 @@ void UpdateFallingRocks()
 void UpdateStageGimmicks(HWND hWnd)
 {
     (void)hWnd;
-    UpdateStageWind();
     UpdateFallingRocks();
-}
-
-void DrawWindEffect(Graphics& graphics, int screenW, int screenH)
-{
-    if (g_currentStage != 1 || !g_windActive)
-        return;
-
-    Pen windPen(Color(150, 220, 245, 255), 2);
-    int move = (WIND_DURATION - g_windTick) * 18 * g_windDir;
-
-    for (int i = 0; i < 12; i++)
-    {
-        int baseX = i * 170 + move;
-        while (baseX < -220) baseX += screenW + 260;
-        while (baseX > screenW + 220) baseX -= screenW + 260;
-
-        int worldX = cameraX + baseX;
-        int y = 95 + (i % 5) * 34;
-        int len = 80 + (i % 3) * 22;
-
-        if (g_windDir > 0)
-            graphics.DrawLine(&windPen, worldX, y, worldX + len, y - 8);
-        else
-            graphics.DrawLine(&windPen, worldX + len, y - 8, worldX, y);
-    }
-
-    FontFamily fontFamily(L"Arial");
-    Font font(&fontFamily, 15, FontStyleBold, UnitPixel);
-    SolidBrush textBrush(Color(220, 235, 245, 255));
-    RectF rect((REAL)(cameraX + 28), 148.0f, 210.0f, 24.0f);
-    graphics.DrawString(g_windDir > 0 ? L"WIND  >>" : L"<<  WIND", -1, &font, rect, NULL, &textBrush);
 }
 
 void DrawFallingRocks(Graphics& graphics)
@@ -3865,44 +3837,30 @@ void DrawFallingRocks(Graphics& graphics)
 
     for (int i = 0; i < FALLING_ROCK_MAX; i++)
     {
-        if (!g_fallingRocks[i].active)
+        if (!g_fallingRocks[i].active || g_fallingRocks[i].warning)
             continue;
-
-        if (g_fallingRocks[i].warning)
-        {
-            int cx = g_fallingRocks[i].x + g_fallingRocks[i].w / 2;
-            int y = g_fallingRocks[i].targetY - 10;
-            int alpha = 120 + (g_fallingRocks[i].warningTick % 6) * 18;
-            SolidBrush warnBrush(Color(alpha, 255, 40, 80));
-            Pen warnPen(Color(220, 255, 210, 130), 2);
-            graphics.FillEllipse(&warnBrush, cx - 26, y - 8, 52, 16);
-            graphics.DrawEllipse(&warnPen, cx - 26, y - 8, 52, 16);
-            graphics.DrawLine(&warnPen, cx, y - 55, cx, y - 18);
-            graphics.DrawLine(&warnPen, cx - 10, y - 45, cx, y - 58);
-            graphics.DrawLine(&warnPen, cx + 10, y - 45, cx, y - 58);
-            continue;
-        }
 
         int x = g_fallingRocks[i].x;
         int y = g_fallingRocks[i].y;
         int w = g_fallingRocks[i].w;
         int h = g_fallingRocks[i].h;
 
-        SolidBrush rockBrush(Color(245, 95, 95, 110));
-        Pen rockPen(Color(230, 45, 45, 60), 2);
-        graphics.FillEllipse(&rockBrush, x, y, w, h);
-        graphics.DrawEllipse(&rockPen, x, y, w, h);
-
-        Pen crackPen(Color(170, 40, 40, 50), 1);
-        graphics.DrawLine(&crackPen, x + 12, y + 10, x + 22, y + 20);
-        graphics.DrawLine(&crackPen, x + 22, y + 20, x + 16, y + 31);
-        graphics.DrawLine(&crackPen, x + 28, y + 12, x + 32, y + 25);
+        if (g_stage3RockFrame != NULL)
+        {
+            DrawWorldImage(graphics, g_stage3RockFrame, x, y, w, h);
+        }
+        else
+        {
+            SolidBrush rockBrush(Color(245, 95, 95, 110));
+            Pen rockPen(Color(230, 45, 45, 60), 2);
+            graphics.FillEllipse(&rockBrush, x, y, w, h);
+            graphics.DrawEllipse(&rockPen, x, y, w, h);
+        }
     }
 }
 
 void DrawStageGimmicks(Graphics& graphics, int screenW, int screenH)
 {
-    DrawWindEffect(graphics, screenW, screenH);
     DrawFallingRocks(graphics);
 }
 
@@ -3921,11 +3879,8 @@ void DrawDarkVisionOverlay(Graphics& graphics, int screenW, int screenH)
     Region darkRegion(Rect(0, 0, screenW, screenH));
     darkRegion.Exclude(&viewPath);
 
-    SolidBrush darkBrush(Color(180, 0, 0, 0));
+    SolidBrush darkBrush(Color(255, 0, 0, 0));
     graphics.FillRegion(&darkBrush, &darkRegion);
-
-    Pen softEdgePen(Color(95, 170, 140, 255), 3);
-    graphics.DrawEllipse(&softEdgePen, centerX - radius, centerY - radius, radius * 2, radius * 2);
 }
 
 void ResetKirbyPlayState(bool recoverHp)
