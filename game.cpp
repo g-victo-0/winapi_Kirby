@@ -880,8 +880,8 @@ int g_rescueEffectTick = 0;
 int g_rescueEffectX = 0;
 int g_rescueEffectY = 0;
 
-const int STAR_TRANSITION_CLOSE_TICK = 28;
-const int STAR_TRANSITION_OPEN_TICK = 28;
+const int STAR_TRANSITION_CLOSE_TICK = 60;
+const int STAR_TRANSITION_OPEN_TICK = 60;
 bool g_starTransitionActive = false;
 bool g_starTransitionMapChanged = false;
 int g_starTransitionTick = 0;
