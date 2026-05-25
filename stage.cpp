@@ -128,7 +128,7 @@ void InitStage2RescueObjects()
 
     // 88번 달 있는 앞쪽 맵
     g_stage2Children[0].x = 105;
-    g_stage2Children[0].y = 370 - g_stage2Children[0].h + 7;
+    g_stage2Children[0].y = 225 - g_stage2Children[0].h + 7;
 
     g_stage2Children[1].x = 530;
     g_stage2Children[1].y = 342 - g_stage2Children[1].h + 7;
@@ -185,28 +185,28 @@ SolidBlock g_stage3SolidBlocks[] =
     { { 1182, 406, 2000, 650 }, L"S3_91_LEFT_BOTTOM_GROUND" },
     { { 1137, 476, 1190, 491 }, L"S3_91_MAIN_LEDGE_WOOD" },
     { { 1100, 406, 1187, 424 }, L"S3_91_MAIN_GROUNDWOOD" },
-    { { 1175, 406, 2000, 650 }, L"S3_91_CENTER_PILLAR" },
+    // { { 1175, 406, 2000, 650 }, L"S3_91_CENTER_PILLAR" } 필요 없어서 없앰,
 
-    { { 1852, 280, 1900, 402 }, L"S3_91_RIGHT_LEDGE" },
-    { { 1635, 425, 2000, 650 }, L"S3_91_RIGHT_GROUND" },
-    { { 1660, 280, 1723, 405 }, L"S3_91_RIGHT_OBSTACLE" },
-    { { 1660, 280, 1736, 348 }, L"S3_91_RIGHT_OBSTACLE_2" },
-    { { 1761, 280, 1900, 348 }, L"S3_91_RIGHT_WALL" },
-    { { 1805, 123, 1890, 146 }, L"S3_91_TOP_LEDGE" },
+     { { 1852, 280, 1900, 402 }, L"S3_91_RIGHT_LEDGE" },
+     { { 1635, 425, 2000, 650 }, L"S3_91_RIGHT_GROUND" },
+     { { 1660, 280, 1723, 405 }, L"S3_91_RIGHT_OBSTACLE" },
+     { { 1660, 280, 1736, 348 }, L"S3_91_RIGHT_OBSTACLE_2" },
+     { { 1761, 280, 1900, 348 }, L"S3_91_RIGHT_WALL" },
+     { { 1805, 123, 1890, 146 }, L"S3_91_TOP_LEDGE" },
 
-    // Restored from commit 9a72c7f: upper floors and right-end wall for stage 3.
-    { { 1890, 0, 1980, 405 }, L"S3_91_RIGHTEND_WALL" },
-    { { 995, 0, 1085, 490 }, L"S3_91_FLOOR1" },
-    { { 995, 0, 1115, 460 }, L"S3_91_FLOOR2" },
-    { { 1100, 310, 1130, 340 }, L"S3_91_FLOOR3" },
-    { { 1125, 230, 1265, 315 }, L"S3_91_FLOOR4" },
-    { { 1255, 200, 1295, 245 }, L"S3_91_FLOOR5" },
-    { { 1288, 190, 1530, 222 }, L"S3_91_FLOOR6" },
-    { { 1520, 170, 1545, 195 }, L"S3_91_FLOOR7" },
-    { { 1535, 135, 1730, 175 }, L"S3_91_FLOOR8" },
-    { { 1725, 45, 1745, 150 }, L"S3_91_FLOOR9" },
-    { { 1735, 0, 1773, 55 }, L"S3_91_FLOOR10" },
-    { { 1770, 0, 1910, 35 }, L"S3_91_FLOOR11" }
+     // Restored from commit 9a72c7f: upper floors and right-end wall for stage 3.
+     { { 1890, 0, 1980, 405 }, L"S3_91_RIGHTEND_WALL" },
+     { { 995, 0, 1085, 490 }, L"S3_91_FLOOR1" },
+     { { 995, 0, 1115, 460 }, L"S3_91_FLOOR2" },
+     { { 1100, 0, 1130, 340 }, L"S3_91_FLOOR3" },
+     { { 1125, 0, 1265, 315 }, L"S3_91_FLOOR4" },
+     { { 1255, 0, 1295, 245 }, L"S3_91_FLOOR5" },
+     { { 1288, 0, 1530, 222 }, L"S3_91_FLOOR6" },
+     { { 1520, 0, 1545, 195 }, L"S3_91_FLOOR7" },
+     { { 1535, 0, 1730, 175 }, L"S3_91_FLOOR8" },
+     { { 1725, 0, 1745, 150 }, L"S3_91_FLOOR9" },
+     { { 1735, 0, 1773, 55 }, L"S3_91_FLOOR10" },
+     { { 1770, 0, 1910, 35 }, L"S3_91_FLOOR11" }
 
 };
 
@@ -678,10 +678,11 @@ void InitMonsters()
     if (g_currentStage == 2)
     {
         // 2스테이지: 일반몹 2마리, 불몹 2마리, 폭탄몹 1마리
-        g_monsters[0].Init(95, 320, 10, 230, 1, 0);
-        g_monsters[1].Init(455, 235, 330, 580, -1, 0);
+
+        g_monsters[0].Init(20, 320, 10, 230, 1, 0);
+        g_monsters[1].Init(500, 235, 440, 675, -1, 0);
         g_monsters[2].Init(1450, 285, 1425, 1685, -1, 1);
-        g_monsters[3].Init(1815, 360, 1685, 1885, 1, 1);
+        g_monsters[3].Init(1690, 360, 1425, 1685, 1, 1);
         g_monsters[4].Init(1780, 145, 1690, 1880, 1, 2);
         return;
     }
@@ -689,9 +690,10 @@ void InitMonsters()
     if (g_currentStage == 3)
     {
         // 3스테이지: 날아다니는 폭탄 몬스터 3마리
-        g_monsters[0].Init(300, 255, 255, 640, 1, 2);
+
+        g_monsters[0].Init(50, 255, 0, 250, 1, 2);
         g_monsters[1].Init(820, 150, 790, 945, -1, 2);
-        g_monsters[2].Init(1320, 250, 1185, 1495, 1, 2);
+        g_monsters[2].Init(1320, 250, 1270, 1495, 1, 2);
         g_monsters[3].Init(1770, 150, 1635, 1900, -1, 2);
         g_monsters[3].active = false; // 요청대로 실제 배치는 3마리만 사용
         g_monsters[4].active = false;
