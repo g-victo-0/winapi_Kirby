@@ -518,6 +518,13 @@ void UpdateHPBarAnimation()
         if (kirbyDisplayHP < (float)kirbyHP)
             kirbyDisplayHP = (float)kirbyHP;
     }
+    else if (kirbyDisplayHP < (float)kirbyHP)
+    {
+        kirbyDisplayHP += HP_ANIM_SPEED;
+
+        if (kirbyDisplayHP > (float)kirbyHP)
+            kirbyDisplayHP = (float)kirbyHP;
+    }
 
     if (kirbyDisplayHP < 0.0f)
         kirbyDisplayHP = 0.0f;

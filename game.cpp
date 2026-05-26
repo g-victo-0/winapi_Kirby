@@ -4336,6 +4336,9 @@ void ApplyRecoveryItem(int type)
     kirbyHP += kirbyMaxHP * healPercent / 100;
     if (kirbyHP > kirbyMaxHP)
         kirbyHP = kirbyMaxHP;
+
+    if (kirbyDisplayHP < (float)kirbyHP)
+        kirbyDisplayHP = (float)kirbyHP;
 }
 
 void SpawnRandomBossRecoveryItem()
