@@ -169,6 +169,9 @@ using namespace Gdiplus;
 #ifndef IDB_PNG142
 #define IDB_PNG142 142
 #endif
+#ifndef IDB_PNG143
+#define IDB_PNG143 143
+#endif
 
 
 HINSTANCE g_hInst;
@@ -400,6 +403,9 @@ Image* g_fireCrouchFrame = NULL;
 
 // 54¹ø: ÆøÅº Ä¿ºñ ±âº» ÇÁ·¹ÀÓ
 Image* g_bombIdleFrame = NULL;
+
+// 143: bomb Kirby crouch frame
+Image* g_bombCrouchFrame = NULL;
 
 // 55~58¹ø: ÆøÅº Ä¿ºñ °È±â ÇÁ·¹ÀÓ
 Image* g_bombWalkFrames[4] = { NULL, NULL, NULL, NULL };
@@ -5360,8 +5366,8 @@ void DrawScene(HDC hdc, HWND hWnd)
 
         if (isFireKirby && g_fireCrouchFrame != NULL)
             crouchImage = g_fireCrouchFrame;
-        else if (isBombKirby && g_bombIdleFrame != NULL)
-            crouchImage = g_bombIdleFrame;
+        else if (isBombKirby && g_bombCrouchFrame != NULL)
+            crouchImage = g_bombCrouchFrame;
 
         if (crouchImage != NULL)
         {

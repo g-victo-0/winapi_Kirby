@@ -226,6 +226,7 @@ void LoadAllImages(HWND hWnd)
     g_fireCrouchFrame = LoadPNGFromResource(g_hInst, IDB_PNG53);
 
     g_bombIdleFrame = LoadPNGFromResource(g_hInst, IDB_PNG54);
+    g_bombCrouchFrame = LoadPNGFromResource(g_hInst, IDB_PNG143);
     g_bombWalkFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG55);
     g_bombWalkFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG56);
     g_bombWalkFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG57);
@@ -751,6 +752,12 @@ void DeleteAllImages()
     {
         delete g_bombIdleFrame;
         g_bombIdleFrame = NULL;
+    }
+
+    if (g_bombCrouchFrame != NULL)
+    {
+        delete g_bombCrouchFrame;
+        g_bombCrouchFrame = NULL;
     }
 
     for (int i = 0; i < BOMB_WALK_FRAME_COUNT; i++)
