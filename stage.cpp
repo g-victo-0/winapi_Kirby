@@ -212,10 +212,6 @@ SolidBlock g_stage3SolidBlocks[] =
 
 int g_stage3SolidBlockCount = sizeof(g_stage3SolidBlocks) / sizeof(g_stage3SolidBlocks[0]);
 
-// =========================
-// 5스테이지 임시 춤 확인 맵
-// 보스전 문을 열고 들어가면 여기로 넘어와서 춤만 확인함
-// =========================
 
 void InitStage3RescueObjects()
 {
@@ -230,22 +226,14 @@ void InitStage3RescueObjects()
     g_stage3Door.frameIndex = DOOR_FRAME_COUNT - 1;
     g_stage3Door.tick = 0;
 }
-
-// Stage 4 boss map data
-// This file is included by game.cpp. Do not add it to ClCompile separately.
-
 SolidBlock g_stage4SolidBlocks[] =
 {
-    // 4스테이지는 92번 배경 하나만 사용하는 보스전 맵이라 x = 0 ~ 1000까지만 사용
     { { 0, 545, 1000, 650 }, L"S4_BOSS_GROUND" },
     { { 0, 0, 12, 650 }, L"S4_LEFT_LIMIT" },
     { { 988, 0, 1000, 650 }, L"S4_RIGHT_LIMIT" }
 };
 
 int g_stage4SolidBlockCount = sizeof(g_stage4SolidBlocks) / sizeof(g_stage4SolidBlocks[0]);
-
-// Stage 5 clear map data
-// This file is included by game.cpp. Do not add it to ClCompile separately.
 
 SolidBlock g_stage5SolidBlocks[] =
 {
@@ -255,11 +243,6 @@ SolidBlock g_stage5SolidBlocks[] =
 };
 
 int g_stage5SolidBlockCount = sizeof(g_stage5SolidBlocks) / sizeof(g_stage5SolidBlocks[0]);
-
-// =========================
-// 4스테이지 충돌체: 92번 보스전 배경
-// 보스전용이라 바닥 하나만 길게 깔아둠
-// =========================
 
 SolidBlock* GetCurrentSolidBlocks(int* count)
 {
@@ -325,13 +308,8 @@ void InitRescueObjects()
         InitStage2RescueObjects();
     else if (g_currentStage == 3)
         InitStage3RescueObjects();
-    else if (g_currentStage == 4)
-    {
-        // 4스테이지는 보스전 배경만 먼저 사용. 문/학생 없음.
-    }
     else if (g_currentStage == 5)
     {
-        // 5스테이지는 춤 확인용 임시맵이라 문/학생 없음.
         ResetDanceStage();
     }
     else

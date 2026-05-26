@@ -61,7 +61,7 @@ void Monster::Draw(Graphics& graphics)
     }
 
     Image* frame = NULL;
-
+     
     if (monsterType == 1)
     {
         frame = g_fireMonsterFrame; // 불속성 몬스터 몸은 항상 PNG48
