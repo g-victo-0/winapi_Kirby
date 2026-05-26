@@ -172,6 +172,18 @@ using namespace Gdiplus;
 #ifndef IDB_PNG143
 #define IDB_PNG143 143
 #endif
+#ifndef IDB_PNG144
+#define IDB_PNG144 144
+#endif
+#ifndef IDB_PNG145
+#define IDB_PNG145 145
+#endif
+#ifndef IDB_PNG146
+#define IDB_PNG146 146
+#endif
+#ifndef IDB_PNG147
+#define IDB_PNG147 147
+#endif
 
 
 HINSTANCE g_hInst;
@@ -340,6 +352,7 @@ Image* g_bossChestOpenFrame = NULL;
 Image* g_bossBerserkAbsorbFrame1 = NULL;
 Image* g_bossBerserkAbsorbFrame2 = NULL;
 Image* g_bossBerserkEnergyBallFrame = NULL;
+Image* g_recoveryItemFrames[4] = { NULL, NULL, NULL, NULL };
 
 // 24번: 몬스터를 먹은 뒤 커진 커비 가만히 있는 프레임
 Image* g_powerIdleFrame = NULL;
@@ -667,6 +680,25 @@ struct FallingRock
 };
 FallingRock g_fallingRocks[FALLING_ROCK_MAX];
 int g_fallingRockSpawnTick = 25;
+
+const int RECOVERY_ITEM_MAX = 10;
+const int RECOVERY_ITEM_MEAT = 0;
+const int RECOVERY_ITEM_POTION = 1;
+const int RECOVERY_ITEM_BIG_POTION = 2;
+const int RECOVERY_ITEM_LIFE = 3;
+struct RecoveryItem
+{
+    bool active;
+    bool falling;
+    int type;
+    int x;
+    int y;
+    int w;
+    int h;
+    float vy;
+};
+RecoveryItem g_recoveryItems[RECOVERY_ITEM_MAX];
+int g_bossItemDropTick = 220;
 
 enum GameSoundId
 {
@@ -1005,6 +1037,9 @@ void SyncStageBGM();
 void ResetStageGimmicks();
 void UpdateStageGimmicks(HWND hWnd);
 void DrawStageGimmicks(Graphics& graphics, int screenW, int screenH);
+void ResetRecoveryItems();
+void UpdateRecoveryItems();
+void DrawRecoveryItems(Graphics& graphics);
 void DrawDarkVisionOverlay(Graphics& graphics, int screenW, int screenH);
 void StartCameraShake(int power, int duration);
 void UpdateCameraShake();
@@ -4227,6 +4262,164 @@ void PlayGameSound(int soundId)
     mciSendStringW(command, NULL, 0, NULL);
 }
 
+void ClearRecoveryItems()
+{
+    for (int i = 0; i < RECOVERY_ITEM_MAX; i++)
+    {
+        g_recoveryItems[i].active = false;
+        g_recoveryItems[i].falling = false;
+        g_recoveryItems[i].type = RECOVERY_ITEM_MEAT;
+        g_recoveryItems[i].x = 0;
+        g_recoveryItems[i].y = 0;
+        g_recoveryItems[i].w = 34;
+        g_recoveryItems[i].h = 34;
+        g_recoveryItems[i].vy = 0.0f;
+    }
+}
+
+void SpawnRecoveryItem(int type, int x, int y, bool falling)
+{
+    if (type < RECOVERY_ITEM_MEAT || type > RECOVERY_ITEM_LIFE)
+        return;
+
+    for (int i = 0; i < RECOVERY_ITEM_MAX; i++)
+    {
+        if (!g_recoveryItems[i].active)
+        {
+            g_recoveryItems[i].active = true;
+            g_recoveryItems[i].falling = falling;
+            g_recoveryItems[i].type = type;
+            g_recoveryItems[i].x = x;
+            g_recoveryItems[i].y = y;
+            g_recoveryItems[i].w = (type == RECOVERY_ITEM_LIFE) ? 42 : 34;
+            g_recoveryItems[i].h = (type == RECOVERY_ITEM_LIFE) ? 34 : 34;
+            g_recoveryItems[i].vy = falling ? 5.0f : 0.0f;
+            return;
+        }
+    }
+}
+
+void ResetRecoveryItems()
+{
+    ClearRecoveryItems();
+    g_bossItemDropTick = RandomRange(180, 260);
+
+    if (g_currentStage == 1)
+        SpawnRecoveryItem(RECOVERY_ITEM_MEAT, 420, 485, false);
+    else if (g_currentStage == 2)
+        SpawnRecoveryItem(RECOVERY_ITEM_POTION, 520, 355, false);
+    else if (g_currentStage == 3)
+        SpawnRecoveryItem(RECOVERY_ITEM_BIG_POTION, 640, 445, false);
+}
+
+int GetRecoveryItemHealPercent(int type)
+{
+    if (type == RECOVERY_ITEM_MEAT) return 20;
+    if (type == RECOVERY_ITEM_POTION) return 30;
+    if (type == RECOVERY_ITEM_BIG_POTION) return 50;
+    return 0;
+}
+
+void ApplyRecoveryItem(int type)
+{
+    if (type == RECOVERY_ITEM_LIFE)
+    {
+        if (g_kirbyLives < KIRBY_MAX_LIVES)
+            g_kirbyLives++;
+        return;
+    }
+
+    int healPercent = GetRecoveryItemHealPercent(type);
+    if (healPercent <= 0)
+        return;
+
+    kirbyHP += kirbyMaxHP * healPercent / 100;
+    if (kirbyHP > kirbyMaxHP)
+        kirbyHP = kirbyMaxHP;
+}
+
+void SpawnRandomBossRecoveryItem()
+{
+    int r = RandomRange(0, 99);
+    int type = RECOVERY_ITEM_MEAT;
+
+    if (r < 8)
+        type = RECOVERY_ITEM_LIFE;
+    else if (r < 28)
+        type = RECOVERY_ITEM_BIG_POTION;
+    else if (r < 62)
+        type = RECOVERY_ITEM_POTION;
+    else
+        type = RECOVERY_ITEM_MEAT;
+
+    int x = RandomRange(80, BG_PART_W - 120);
+    SpawnRecoveryItem(type, x, -45, true);
+}
+
+void UpdateRecoveryItems()
+{
+    if (isGameOver || g_retryActive || g_currentStage == 5)
+        return;
+
+    if (g_currentStage == 4 && g_boss.active && !g_bossDeadEffect)
+    {
+        g_bossItemDropTick--;
+        if (g_bossItemDropTick <= 0)
+        {
+            SpawnRandomBossRecoveryItem();
+            g_bossItemDropTick = RandomRange(220, 340);
+        }
+    }
+
+    RECT kirbyRc = GetKirbyBodyRect();
+
+    for (int i = 0; i < RECOVERY_ITEM_MAX; i++)
+    {
+        if (!g_recoveryItems[i].active)
+            continue;
+
+        if (g_recoveryItems[i].falling)
+        {
+            g_recoveryItems[i].y += (int)g_recoveryItems[i].vy;
+            if (g_recoveryItems[i].vy < 9.0f)
+                g_recoveryItems[i].vy += 0.18f;
+        }
+
+        RECT rc;
+        rc.left = g_recoveryItems[i].x;
+        rc.top = g_recoveryItems[i].y;
+        rc.right = g_recoveryItems[i].x + g_recoveryItems[i].w;
+        rc.bottom = g_recoveryItems[i].y + g_recoveryItems[i].h;
+
+        if (IsRectHit(kirbyRc, rc))
+        {
+            ApplyRecoveryItem(g_recoveryItems[i].type);
+            g_recoveryItems[i].active = false;
+            continue;
+        }
+
+        if (g_recoveryItems[i].y > WORLD_H + 80)
+            g_recoveryItems[i].active = false;
+    }
+}
+
+void DrawRecoveryItems(Graphics& graphics)
+{
+    for (int i = 0; i < RECOVERY_ITEM_MAX; i++)
+    {
+        if (!g_recoveryItems[i].active)
+            continue;
+
+        int type = g_recoveryItems[i].type;
+        if (type < RECOVERY_ITEM_MEAT || type > RECOVERY_ITEM_LIFE)
+            continue;
+
+        Image* frame = g_recoveryItemFrames[type];
+        if (frame != NULL)
+            DrawWorldImage(graphics, frame, g_recoveryItems[i].x, g_recoveryItems[i].y, g_recoveryItems[i].w, g_recoveryItems[i].h);
+    }
+}
+
 void ResetStageProjectiles()
 {
     isPowerProjectileActive = false;
@@ -4261,6 +4454,7 @@ void ResetStageGimmicks()
     g_windCooldownTick = WIND_COOLDOWN;
 
     g_fallingRockSpawnTick = 25;
+    ResetRecoveryItems();
     for (int i = 0; i < FALLING_ROCK_MAX; i++)
     {
         g_fallingRocks[i].active = false;
@@ -4445,6 +4639,7 @@ void UpdateStageGimmicks(HWND hWnd)
 {
     (void)hWnd;
     UpdateFallingRocks();
+    UpdateRecoveryItems();
 }
 
 void DrawFallingRocks(Graphics& graphics)
@@ -4479,6 +4674,7 @@ void DrawFallingRocks(Graphics& graphics)
 void DrawStageGimmicks(Graphics& graphics, int screenW, int screenH)
 {
     DrawFallingRocks(graphics);
+    DrawRecoveryItems(graphics);
 }
 
 void DrawDarkVisionOverlay(Graphics& graphics, int screenW, int screenH)
