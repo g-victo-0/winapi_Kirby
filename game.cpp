@@ -4305,11 +4305,11 @@ void ResetRecoveryItems()
     g_bossItemDropTick = RandomRange(180, 260);
 
     if (g_currentStage == 1)
-        SpawnRecoveryItem(RECOVERY_ITEM_MEAT, 420, 485, false);
+        SpawnRecoveryItem(RECOVERY_ITEM_MEAT, 1228, 184, false);
     else if (g_currentStage == 2)
-        SpawnRecoveryItem(RECOVERY_ITEM_POTION, 520, 355, false);
+        SpawnRecoveryItem(RECOVERY_ITEM_POTION, 1466, 277, false);
     else if (g_currentStage == 3)
-        SpawnRecoveryItem(RECOVERY_ITEM_BIG_POTION, 640, 445, false);
+        SpawnRecoveryItem(RECOVERY_ITEM_BIG_POTION, 681, 538, false);
 }
 
 int GetRecoveryItemHealPercent(int type)
@@ -4336,6 +4336,9 @@ void ApplyRecoveryItem(int type)
     kirbyHP += kirbyMaxHP * healPercent / 100;
     if (kirbyHP > kirbyMaxHP)
         kirbyHP = kirbyMaxHP;
+
+    if (kirbyDisplayHP < (float)kirbyHP)
+        kirbyDisplayHP = (float)kirbyHP;
 }
 
 void SpawnRandomBossRecoveryItem()
