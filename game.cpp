@@ -184,6 +184,84 @@ using namespace Gdiplus;
 #ifndef IDB_PNG147
 #define IDB_PNG147 147
 #endif
+#ifndef IDB_PNG148
+#define IDB_PNG148 148
+#endif
+#ifndef IDB_PNG149
+#define IDB_PNG149 149
+#endif
+#ifndef IDB_PNG150
+#define IDB_PNG150 150
+#endif
+#ifndef IDB_PNG151
+#define IDB_PNG151 151
+#endif
+#ifndef IDB_PNG152
+#define IDB_PNG152 152
+#endif
+#ifndef IDB_PNG153
+#define IDB_PNG153 153
+#endif
+#ifndef IDB_PNG154
+#define IDB_PNG154 154
+#endif
+#ifndef IDB_PNG155
+#define IDB_PNG155 155
+#endif
+#ifndef IDB_PNG156
+#define IDB_PNG156 156
+#endif
+#ifndef IDB_PNG157
+#define IDB_PNG157 157
+#endif
+#ifndef IDB_PNG158
+#define IDB_PNG158 158
+#endif
+#ifndef IDB_PNG159
+#define IDB_PNG159 159
+#endif
+#ifndef IDB_PNG160
+#define IDB_PNG160 160
+#endif
+#ifndef IDB_PNG161
+#define IDB_PNG161 161
+#endif
+#ifndef IDB_PNG162
+#define IDB_PNG162 162
+#endif
+#ifndef IDB_PNG163
+#define IDB_PNG163 163
+#endif
+#ifndef IDB_PNG164
+#define IDB_PNG164 164
+#endif
+#ifndef IDB_PNG165
+#define IDB_PNG165 165
+#endif
+#ifndef IDB_PNG166
+#define IDB_PNG166 166
+#endif
+#ifndef IDB_PNG167
+#define IDB_PNG167 167
+#endif
+#ifndef IDB_PNG168
+#define IDB_PNG168 168
+#endif
+#ifndef IDB_PNG169
+#define IDB_PNG169 169
+#endif
+#ifndef IDB_PNG170
+#define IDB_PNG170 170
+#endif
+#ifndef IDB_PNG171
+#define IDB_PNG171 171
+#endif
+#ifndef IDB_PNG172
+#define IDB_PNG172 172
+#endif
+#ifndef IDB_PNG173
+#define IDB_PNG173 173
+#endif
 
 
 HINSTANCE g_hInst;
@@ -444,6 +522,20 @@ Image* g_bombMonsterDeadFrame = NULL;
 // 68번: 폭탄 속성으로 변신하는 프레임
 Image* g_bombTransformFrame = NULL;
 
+// 148~164번: 망치 커비 프레임
+Image* g_hammerIdleFrame = NULL;
+Image* g_hammerWalkFrames[4] = { NULL, NULL, NULL, NULL };
+Image* g_hammerBalloonStartFrame = NULL;
+Image* g_hammerBalloonFrames[2] = { NULL, NULL };
+Image* g_hammerCrouchFrame = NULL;
+Image* g_hammerKirbyHitFrame = NULL;
+Image* g_hammerAttackFrames[7] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+
+// 165~173번: 망치 몬스터 프레임
+Image* g_hammerMonsterIdleFrame = NULL;
+Image* g_hammerMonsterWalkFrames[3] = { NULL, NULL, NULL };
+Image* g_hammerMonsterAttackFrames[4] = { NULL, NULL, NULL, NULL };
+Image* g_hammerMonsterDeadFrame = NULL;
 
 // 27~29번: SHIFT 달리기 바람 이펙트
 Image* g_dashWindFrames[3] = { NULL, NULL, NULL };
@@ -539,6 +631,21 @@ int g_bombKCooldownTick = 0;          // K 일반 폭탄 쿨타임
 int g_bombICooldownTick = 0;          // I 필살기 쿨타임
 const int BOMB_K_COOLDOWN_MAX = 5;    // GAME_TIMER_MS 40ms 기준 약 0.2초
 const int BOMB_I_COOLDOWN_MAX = 125;  // GAME_TIMER_MS 40ms 기준 약 5초
+
+// 망치 커비 상태. 3 = 망치 속성
+bool isHammerKirby = false;
+int hammerWalkFrameIndex = 0;
+const int HAMMER_WALK_FRAME_COUNT = 4;
+int hammerBalloonFrameIndex = 0;
+bool hammerBalloonStartFrameDone = false;
+bool isHammerAttack = false;
+int hammerAttackFrameIndex = 0;
+int hammerAttackTick = 0;
+const int HAMMER_ATTACK_FRAME_COUNT = 7;
+const int HAMMER_ATTACK_FRAME_DURATION = 2;
+bool hammerAttackHitDone = false;
+const int HAMMER_MONSTER_WALK_FRAME_COUNT = 3;
+const int HAMMER_MONSTER_ATTACK_FRAME_COUNT = 4;
 
 // 65번 폭탄 투사체와 68번 폭발
 const int BOMB_OBJECT_MAX = 12;
@@ -997,6 +1104,12 @@ RECT GetKirbyBodyRect();
 void StartBombKirbyTransform();
 void StartBombAttack();
 void UpdateBombAttack();
+void StartHammerKirbyTransform();
+void StartHammerAttack();
+void UpdateHammerAttack();
+RECT GetHammerAttackRect();
+bool IsHammerAttackDamageFrame();
+void CheckHammerAttackHitMonsters();
 void SpawnBombObject(int x, int y, float vx, float vy, bool fromEnemy);
 void UpdateBombObjects();
 void DrawBombObjects(Graphics& graphics);
@@ -1113,6 +1226,12 @@ void UpdateCamera(HWND hWnd)
 void StartBombKirbyTransform();
 void StartBombAttack();
 void UpdateBombAttack();
+void StartHammerKirbyTransform();
+void StartHammerAttack();
+void UpdateHammerAttack();
+RECT GetHammerAttackRect();
+bool IsHammerAttackDamageFrame();
+void CheckHammerAttackHitMonsters();
 void SpawnBombObject(int x, int y, float vx, float vy, bool fromEnemy);
 void UpdateBombObjects();
 void DrawBombObjects(Graphics& graphics);
@@ -1981,6 +2100,17 @@ void CheckKirbyAttacksHitBoss()
         if (IsRectHit(breathRc, bossRc))
         {
             DamageBoss(14);
+            return;
+        }
+    }
+
+    if (isHammerAttack && !hammerAttackHitDone && IsHammerAttackDamageFrame())
+    {
+        RECT hammerRc = GetHammerAttackRect();
+        if (IsRectHit(hammerRc, bossRc))
+        {
+            hammerAttackHitDone = true;
+            DamageBoss(30);
             return;
         }
     }
@@ -4430,6 +4560,10 @@ void ResetStageProjectiles()
     isFireBreath = false;
     isFireAttackPose = false;
     isBombAttack = false;
+    isHammerAttack = false;
+    hammerAttackFrameIndex = 0;
+    hammerAttackTick = 0;
+    hammerAttackHitDone = false;
     g_bombSpecialAttackMode = false;
     bombAttackFrameIndex = 0;
     bombAttackTick = 0;
@@ -4721,6 +4855,8 @@ void ResetKirbyPlayState(bool recoverHp)
     fireBalloonStartFrameDone = false;
     bombBalloonFrameIndex = 0;
     bombBalloonStartFrameDone = false;
+    hammerBalloonFrameIndex = 0;
+    hammerBalloonStartFrameDone = false;
     kirbyVY = 0.0f;
     isOnGround = false;
 
@@ -5044,6 +5180,7 @@ void UpdatePlayer(HWND hWnd)
     UpdatePowerAttack();
     UpdatePowerDigest();
     UpdateFireKirbyStates();
+    UpdateHammerAttack();
     UpdateKirbyHitEffect();
     UpdateKirbyStatusEffects();
     UpdateHPBarAnimation();
@@ -5085,6 +5222,7 @@ void CheckCollision()
 {
     CheckPowerProjectileHitMonsters();
     CheckFireAttacksHitMonsters();
+    CheckHammerAttackHitMonsters();
     CheckKirbyAttacksHitBoss();
 }
 
@@ -5474,7 +5612,9 @@ void DrawScene(HDC hdc, HWND hWnd)
     {
         Image* hitFrame = g_kirbyHitFrame;
 
-        if ((isBombKirby || isBombTransform) && g_bombKirbyHitFrame != NULL)
+        if (isHammerKirby && g_hammerKirbyHitFrame != NULL)
+            hitFrame = g_hammerKirbyHitFrame;
+        else if ((isBombKirby || isBombTransform) && g_bombKirbyHitFrame != NULL)
             hitFrame = g_bombKirbyHitFrame;
         else if ((isFireKirby || isFireTransform) && g_fireKirbyHitFrame != NULL)
             hitFrame = g_fireKirbyHitFrame;
@@ -5507,13 +5647,21 @@ void DrawScene(HDC hdc, HWND hWnd)
     {
         DrawKirbyImage(graphics, g_bombAttackFrames[bombAttackFrameIndex]);
     }
+    else if (isHammerAttack && g_hammerAttackFrames[hammerAttackFrameIndex] != NULL)
+    {
+        DrawKirbyImage(graphics, g_hammerAttackFrames[hammerAttackFrameIndex]);
+    }
     else if (isPowerAttack && g_powerAttackFrame != NULL)
     {
         DrawKirbyImage(graphics, g_powerAttackFrame);
     }
     else if (isSpaceRelease)
     {
-        if (isBombKirby && g_bombBalloonStartFrame != NULL)
+        if (isHammerKirby && g_hammerBalloonStartFrame != NULL)
+        {
+            DrawKirbyImage(graphics, g_hammerBalloonStartFrame);
+        }
+        else if (isBombKirby && g_bombBalloonStartFrame != NULL)
         {
             DrawKirbyImage(graphics, g_bombBalloonStartFrame);
         }
@@ -5554,6 +5702,17 @@ void DrawScene(HDC hdc, HWND hWnd)
                 DrawKirbyImage(graphics, g_bombBalloonFrames[bombBalloonFrameIndex]);
             }
         }
+        else if (isHammerKirby)
+        {
+            if (!hammerBalloonStartFrameDone && g_hammerBalloonStartFrame != NULL)
+            {
+                DrawKirbyImage(graphics, g_hammerBalloonStartFrame);
+            }
+            else if (g_hammerBalloonFrames[hammerBalloonFrameIndex] != NULL)
+            {
+                DrawKirbyImage(graphics, g_hammerBalloonFrames[hammerBalloonFrameIndex]);
+            }
+        }
         else if (g_spaceFrames[spaceFrameIndex] != NULL)
         {
             DrawKirbyImage(graphics, g_spaceFrames[spaceFrameIndex]);
@@ -5567,6 +5726,8 @@ void DrawScene(HDC hdc, HWND hWnd)
             crouchImage = g_fireCrouchFrame;
         else if (isBombKirby && g_bombCrouchFrame != NULL)
             crouchImage = g_bombCrouchFrame;
+        else if (isHammerKirby && g_hammerCrouchFrame != NULL)
+            crouchImage = g_hammerCrouchFrame;
 
         if (crouchImage != NULL)
         {
@@ -5617,6 +5778,14 @@ void DrawScene(HDC hdc, HWND hWnd)
     else if (isBombKirby && g_bombIdleFrame != NULL)
     {
         DrawKirbyImage(graphics, g_bombIdleFrame);
+    }
+    else if (isHammerKirby && IsKirbyWalkMoving() && g_hammerWalkFrames[hammerWalkFrameIndex] != NULL)
+    {
+        DrawKirbyImage(graphics, g_hammerWalkFrames[hammerWalkFrameIndex]);
+    }
+    else if (isHammerKirby && g_hammerIdleFrame != NULL)
+    {
+        DrawKirbyImage(graphics, g_hammerIdleFrame);
     }
     else if (IsKirbyWalkMoving() && g_walkFrames[walkFrameIndex] != NULL)
     {
@@ -5743,6 +5912,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                         fireBalloonStartFrameDone = false;
                         bombBalloonFrameIndex = 0;
                         bombBalloonStartFrameDone = false;
+                        hammerBalloonFrameIndex = 0;
+                        hammerBalloonStartFrameDone = false;
                         UpdateCamera(hWnd);
                         StartStageTransitionEffect();
                         StartPlayTimer();
@@ -5846,6 +6017,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                         bombWalkFrameIndex = 0;
                     }
                 }
+                else if (isHammerKirby)
+                {
+                    hammerWalkFrameIndex++;
+
+                    if (hammerWalkFrameIndex >= HAMMER_WALK_FRAME_COUNT)
+                    {
+                        hammerWalkFrameIndex = 0;
+                    }
+                }
                 else
                 {
                     walkFrameIndex++;
@@ -5862,6 +6042,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 powerWalkFrameIndex = 0;
                 fireWalkFrameIndex = 0;
                 bombWalkFrameIndex = 0;
+                hammerWalkFrameIndex = 0;
             }
 
             // 메인 타이머에서만 다시 그려서 중복 페인트를 줄임
@@ -5900,6 +6081,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                             bombBalloonFrameIndex = 0;
                     }
                 }
+                else if (isHammerKirby)
+                {
+                    if (!hammerBalloonStartFrameDone)
+                    {
+                        hammerBalloonFrameIndex = 0;
+                        hammerBalloonStartFrameDone = true;
+                    }
+                    else
+                    {
+                        hammerBalloonFrameIndex++;
+
+                        if (hammerBalloonFrameIndex >= 2)
+                            hammerBalloonFrameIndex = 0;
+                    }
+                }
                 else
                 {
                     if (!spaceStartFrameDone)
@@ -5932,6 +6128,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 fireBalloonStartFrameDone = false;
                 bombBalloonFrameIndex = 0;
                 bombBalloonStartFrameDone = false;
+                hammerBalloonFrameIndex = 0;
+                hammerBalloonStartFrameDone = false;
             }
 
             // 메인 타이머에서만 다시 그려서 중복 페인트를 줄임
@@ -6066,6 +6264,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 fireBalloonStartFrameDone = false;
                 bombBalloonFrameIndex = 0;
                 bombBalloonStartFrameDone = false;
+                hammerBalloonFrameIndex = 0;
+                hammerBalloonStartFrameDone = false;
                 InvalidateRect(hWnd, NULL, FALSE);
             }
             else if (wParam == VK_ESCAPE)
@@ -6277,6 +6477,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 fireBalloonStartFrameDone = false;
                 bombBalloonFrameIndex = 0;
                 bombBalloonStartFrameDone = false;
+                hammerBalloonFrameIndex = 0;
+                hammerBalloonStartFrameDone = false;
                 moveUp = false;
                 moveDown = false;
                 break;
@@ -6300,6 +6502,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                     fireBalloonStartFrameDone = false;
                     bombBalloonFrameIndex = 0;
                     bombBalloonStartFrameDone = false;
+                    hammerBalloonFrameIndex = 0;
+                    hammerBalloonStartFrameDone = false;
                 }
 
                 isSpace = true;
@@ -6330,7 +6534,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             break;
 
         case 'K':
-            if (isBombKirby)
+            if (isHammerKirby)
+            {
+                StartHammerAttack();
+            }
+            else if (isBombKirby)
             {
                 StartBombAttack();
             }
@@ -6468,6 +6676,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 fireBalloonStartFrameDone = false;
                 bombBalloonFrameIndex = 0;
                 bombBalloonStartFrameDone = false;
+                hammerBalloonFrameIndex = 0;
+                hammerBalloonStartFrameDone = false;
                 moveUp = false;
                 moveDown = false;
                 break;
@@ -6477,7 +6687,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             break;
 
         case 'K':
-            if (!isPowerKirby && !isFireKirby && !isBombKirby)
+            if (!isPowerKirby && !isFireKirby && !isBombKirby && !isHammerKirby)
             {
                 isAbsorb = false;
                 absorbFrameIndex = 0;

@@ -667,13 +667,12 @@ void InitMonsters()
 
     if (g_currentStage == 3)
     {
-        // 3스테이지: 날아다니는 폭탄 몬스터 3마리
+        // 3스테이지: 폭탄 몬스터 3마리 + 실험용 망치 몬스터 1마리
 
         g_monsters[0].Init(50, 255, 0, 250, 1, 2);
         g_monsters[1].Init(820, 150, 790, 945, -1, 2);
         g_monsters[2].Init(1320, 250, 1270, 1495, 1, 2);
-        g_monsters[3].Init(1770, 150, 1635, 1900, -1, 2);
-        g_monsters[3].active = false; // 요청대로 실제 배치는 3마리만 사용
+        g_monsters[3].Init(930, 475, 892, 1015, -1, 3);
         g_monsters[4].active = false;
         return;
     }

@@ -22,6 +22,10 @@ void Monster::Draw(Graphics& graphics)
         {
             deadFrame = g_bombMonsterDeadFrame;
         }
+        else if (monsterType == 3 && g_hammerMonsterDeadFrame != NULL)
+        {
+            deadFrame = g_hammerMonsterDeadFrame;
+        }
 
         if (deadFrame == NULL)
             return;
@@ -60,6 +64,28 @@ void Monster::Draw(Graphics& graphics)
         return;
     }
 
+    if (monsterType == 3 && isAttack)
+    {
+        Image* attackFrame = g_hammerMonsterAttackFrames[hammerAttackFrameIndex];
+
+        if (attackFrame == NULL)
+            attackFrame = g_hammerMonsterIdleFrame;
+
+        if (attackFrame == NULL)
+            return;
+
+        if (dir == -1)
+        {
+            DrawImageFlipX(graphics, attackFrame, x, y, w, h);
+        }
+        else
+        {
+            DrawWorldImage(graphics, attackFrame, x, y, w, h);
+        }
+
+        return;
+    }
+
     Image* frame = NULL;
      
     if (monsterType == 1)
@@ -69,6 +95,14 @@ void Monster::Draw(Graphics& graphics)
     else if (monsterType == 2)
     {
         frame = g_bombMonsterFrame; // ÇÏ´Ã ÆøÅº ¸ó½ºÅÍ ¸öÀº PNG66
+    }
+    else if (monsterType == 3)
+    {
+        if (frameIndex >= 0 && frameIndex < HAMMER_MONSTER_WALK_FRAME_COUNT)
+            frame = g_hammerMonsterWalkFrames[frameIndex];
+
+        if (frame == NULL)
+            frame = g_hammerMonsterIdleFrame;
     }
     else
     {

@@ -28,7 +28,7 @@ public:
 
     bool active;
 
-    // 몬스터 속성 번호. 0 = 일반, 1 = 불 속성
+    // 몬스터 속성 번호. 0 = 일반, 1 = 불, 2 = 폭탄, 3 = 망치
     int monsterType;
 
     // 불 속성 몬스터 원거리 공격
@@ -37,6 +37,12 @@ public:
 
     // 폭탄 몬스터 투하 공격
     int bombDropCooldown;
+
+    // 망치 몬스터 근접 공격
+    int hammerAttackFrameIndex;
+    int hammerAttackFrameTick;
+    int hammerAttackCooldown;
+    bool hammerAttackHitDone;
 
     // 발사체에 맞아 죽는 연출 상태
     bool isDeadEffect;
@@ -74,6 +80,10 @@ public:
         rangedAttackCooldown = 90;
         rangedAttackFrameTick = 0;
         bombDropCooldown = 100;
+        hammerAttackFrameIndex = 0;
+        hammerAttackFrameTick = 0;
+        hammerAttackCooldown = 60;
+        hammerAttackHitDone = false;
         isDeadEffect = false;
         deadEffectTick = 0;
 
@@ -99,7 +109,7 @@ public:
         leftLimit = patrolLeft;
         rightLimit = patrolRight - w;
 
-        attackRange = 140;
+        attackRange = (type == 3) ? 90 : 140;
         isAttack = false;
 
         vy = 0.0f;
@@ -107,9 +117,14 @@ public:
 
         active = true;
         monsterType = type;
+        frameCount = (type == 3) ? HAMMER_MONSTER_WALK_FRAME_COUNT : 4;
         rangedAttackCooldown = 90;
         rangedAttackFrameTick = 0;
         bombDropCooldown = 100;
+        hammerAttackFrameIndex = 0;
+        hammerAttackFrameTick = 0;
+        hammerAttackCooldown = 60;
+        hammerAttackHitDone = false;
         isDeadEffect = false;
         deadEffectTick = 0;
 
@@ -124,6 +139,9 @@ public:
         active = false;
         isAttack = false;
         isJumpAttack = false;
+        hammerAttackFrameIndex = 0;
+        hammerAttackFrameTick = 0;
+        hammerAttackHitDone = false;
         vy = 0.0f;
 
         isDeadEffect = true;
@@ -227,6 +245,106 @@ public:
 
         SpawnBombObject(x + w / 2 - 17, y + h, 0.0f, 1.0f, true);
         bombDropCooldown = 100;
+    }
+
+    bool IsKirbyInHammerAttackRange()
+    {
+        if (monsterType != 3)
+            return false;
+
+        int kirbyCenterX = kirbyX + kirbyW / 2;
+        int kirbyCenterY = kirbyY + kirbyH / 2;
+        int monsterCenterX = x + w / 2;
+        int monsterCenterY = y + h / 2;
+
+        int dx = kirbyCenterX - monsterCenterX;
+        int dy = kirbyCenterY - monsterCenterY;
+
+        if (dx < 0) dx = -dx;
+        if (dy < 0) dy = -dy;
+
+        return dx <= 76 && dy <= 55;
+    }
+
+    RECT GetHammerMonsterAttackRect()
+    {
+        RECT rc;
+        int attackW = 58;
+        int attackH = 46;
+        int attackY = y + h / 2 - attackH / 2;
+
+        if (dir < 0)
+        {
+            rc.left = x - attackW + 18;
+            rc.right = x + 18;
+        }
+        else
+        {
+            rc.left = x + w - 18;
+            rc.right = rc.left + attackW;
+        }
+
+        rc.top = attackY;
+        rc.bottom = attackY + attackH;
+
+        return rc;
+    }
+
+    void StartHammerMonsterAttack()
+    {
+        int kirbyCenterX = kirbyX + kirbyW / 2;
+        int monsterCenterX = x + w / 2;
+
+        dir = (kirbyCenterX < monsterCenterX) ? -1 : 1;
+        isAttack = true;
+        hammerAttackFrameIndex = 0;
+        hammerAttackFrameTick = 0;
+        hammerAttackHitDone = false;
+        hammerAttackCooldown = 80;
+        isJumpAttack = false;
+    }
+
+    void UpdateHammerMonsterAttack()
+    {
+        if (monsterType != 3)
+            return;
+
+        if (hammerAttackCooldown > 0)
+            hammerAttackCooldown--;
+
+        if (!isAttack)
+        {
+            if (hammerAttackCooldown <= 0 && IsKirbyInHammerAttackRange())
+                StartHammerMonsterAttack();
+            return;
+        }
+
+        hammerAttackFrameTick++;
+
+        if (!hammerAttackHitDone && hammerAttackFrameIndex >= 1 && hammerAttackFrameIndex <= 2)
+        {
+            RECT attackRc = GetHammerMonsterAttackRect();
+            RECT kirbyRc = GetKirbyBodyRect();
+
+            if (IsRectHit(attackRc, kirbyRc) && !isKirbyHit && kirbyHitCooldownTick <= 0)
+            {
+                StartKirbyHitEffect();
+                hammerAttackHitDone = true;
+            }
+        }
+
+        if (hammerAttackFrameTick >= 5)
+        {
+            hammerAttackFrameTick = 0;
+            hammerAttackFrameIndex++;
+
+            if (hammerAttackFrameIndex >= HAMMER_MONSTER_ATTACK_FRAME_COUNT)
+            {
+                isAttack = false;
+                hammerAttackFrameIndex = 0;
+                hammerAttackHitDone = false;
+            }
+        }
     }
 
     bool HasSafeGroundBelowX(int testX)
@@ -563,6 +681,11 @@ public:
             isFireTransform = false;
             isBombKirby = false;
             isBombTransform = false;
+            isHammerKirby = false;
+            isHammerAttack = false;
+            hammerAttackFrameIndex = 0;
+            hammerAttackTick = 0;
+            hammerAttackHitDone = false;
             kirbyAbilityType = 0;
             isPowerKirby = true;
             SetKirbyPowerSizeKeepBottom();
@@ -608,6 +731,11 @@ public:
             TryRangedAttack();
         }
 
+        if (monsterType == 3)
+        {
+            UpdateHammerMonsterAttack();
+        }
+
         if (monsterType == 2)
         {
             // 빨아들이기 중이어도 모든 몬스터가 멈추면 안 됨.
@@ -629,7 +757,14 @@ public:
             // 빨아들이기 범위 안에 있는 몬스터만 흡수 처리.
             // 범위 밖 몬스터는 아래 일반 이동 코드로 계속 움직임.
             isJumpAttack = false;
+            isAttack = false;
             ApplyAbsorb();
+            ApplyGravity();
+            return;
+        }
+
+        if (monsterType == 3 && isAttack)
+        {
             ApplyGravity();
             return;
         }
@@ -640,7 +775,7 @@ public:
             return;
         }
 
-        if (monsterType != 1 && onGround && jumpAttackCooldown <= 0 && IsKirbyNearForJumpAttack())
+        if (monsterType != 1 && monsterType != 3 && onGround && jumpAttackCooldown <= 0 && IsKirbyNearForJumpAttack())
         {
             StartJumpAttack();
             return;
@@ -706,7 +841,17 @@ public:
             return;
         }
 
+        if (monsterType == 3 && isAttack)
+            return;
+
         frameIndex++;
+
+        if (monsterType == 3)
+        {
+            if (frameIndex >= HAMMER_MONSTER_WALK_FRAME_COUNT)
+                frameIndex = 0;
+            return;
+        }
 
         if (frameIndex >= frameCount)
         {

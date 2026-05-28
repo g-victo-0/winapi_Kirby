@@ -247,6 +247,34 @@ void LoadAllImages(HWND hWnd)
     g_bombMonsterDeadFrame = LoadPNGFromResource(g_hInst, IDB_PNG67);
     g_bombTransformFrame = LoadPNGFromResource(g_hInst, IDB_PNG68);
 
+    g_hammerIdleFrame = LoadPNGFromResource(g_hInst, IDB_PNG148);
+    g_hammerWalkFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG149);
+    g_hammerWalkFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG150);
+    g_hammerWalkFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG151);
+    g_hammerWalkFrames[3] = LoadPNGFromResource(g_hInst, IDB_PNG152);
+    g_hammerBalloonStartFrame = LoadPNGFromResource(g_hInst, IDB_PNG153);
+    g_hammerBalloonFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG154);
+    g_hammerBalloonFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG155);
+    g_hammerCrouchFrame = LoadPNGFromResource(g_hInst, IDB_PNG156);
+    g_hammerKirbyHitFrame = LoadPNGFromResource(g_hInst, IDB_PNG157);
+    g_hammerAttackFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG158);
+    g_hammerAttackFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG159);
+    g_hammerAttackFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG160);
+    g_hammerAttackFrames[3] = LoadPNGFromResource(g_hInst, IDB_PNG161);
+    g_hammerAttackFrames[4] = LoadPNGFromResource(g_hInst, IDB_PNG162);
+    g_hammerAttackFrames[5] = LoadPNGFromResource(g_hInst, IDB_PNG163);
+    g_hammerAttackFrames[6] = LoadPNGFromResource(g_hInst, IDB_PNG164);
+
+    g_hammerMonsterIdleFrame = LoadPNGFromResource(g_hInst, IDB_PNG165);
+    g_hammerMonsterWalkFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG166);
+    g_hammerMonsterWalkFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG167);
+    g_hammerMonsterWalkFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG168);
+    g_hammerMonsterAttackFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG169);
+    g_hammerMonsterAttackFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG170);
+    g_hammerMonsterAttackFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG171);
+    g_hammerMonsterAttackFrames[3] = LoadPNGFromResource(g_hInst, IDB_PNG172);
+    g_hammerMonsterDeadFrame = LoadPNGFromResource(g_hInst, IDB_PNG173);
+
     g_dashWindFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG27);
     g_dashWindFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG28);
     g_dashWindFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG29);
@@ -830,6 +858,86 @@ void DeleteAllImages()
         g_bombTransformFrame = NULL;
     }
 
+    if (g_hammerIdleFrame != NULL)
+    {
+        delete g_hammerIdleFrame;
+        g_hammerIdleFrame = NULL;
+    }
+
+    for (int i = 0; i < HAMMER_WALK_FRAME_COUNT; i++)
+    {
+        if (g_hammerWalkFrames[i] != NULL)
+        {
+            delete g_hammerWalkFrames[i];
+            g_hammerWalkFrames[i] = NULL;
+        }
+    }
+
+    if (g_hammerBalloonStartFrame != NULL)
+    {
+        delete g_hammerBalloonStartFrame;
+        g_hammerBalloonStartFrame = NULL;
+    }
+
+    for (int i = 0; i < 2; i++)
+    {
+        if (g_hammerBalloonFrames[i] != NULL)
+        {
+            delete g_hammerBalloonFrames[i];
+            g_hammerBalloonFrames[i] = NULL;
+        }
+    }
+
+    if (g_hammerCrouchFrame != NULL)
+    {
+        delete g_hammerCrouchFrame;
+        g_hammerCrouchFrame = NULL;
+    }
+
+    if (g_hammerKirbyHitFrame != NULL)
+    {
+        delete g_hammerKirbyHitFrame;
+        g_hammerKirbyHitFrame = NULL;
+    }
+
+    for (int i = 0; i < HAMMER_ATTACK_FRAME_COUNT; i++)
+    {
+        if (g_hammerAttackFrames[i] != NULL)
+        {
+            delete g_hammerAttackFrames[i];
+            g_hammerAttackFrames[i] = NULL;
+        }
+    }
+
+    if (g_hammerMonsterIdleFrame != NULL)
+    {
+        delete g_hammerMonsterIdleFrame;
+        g_hammerMonsterIdleFrame = NULL;
+    }
+
+    for (int i = 0; i < HAMMER_MONSTER_WALK_FRAME_COUNT; i++)
+    {
+        if (g_hammerMonsterWalkFrames[i] != NULL)
+        {
+            delete g_hammerMonsterWalkFrames[i];
+            g_hammerMonsterWalkFrames[i] = NULL;
+        }
+    }
+
+    for (int i = 0; i < HAMMER_MONSTER_ATTACK_FRAME_COUNT; i++)
+    {
+        if (g_hammerMonsterAttackFrames[i] != NULL)
+        {
+            delete g_hammerMonsterAttackFrames[i];
+            g_hammerMonsterAttackFrames[i] = NULL;
+        }
+    }
+
+    if (g_hammerMonsterDeadFrame != NULL)
+    {
+        delete g_hammerMonsterDeadFrame;
+        g_hammerMonsterDeadFrame = NULL;
+    }
 
     for (int i = 0; i < dashFrameCount; i++)
     {
