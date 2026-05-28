@@ -672,7 +672,7 @@ void InitMonsters()
         g_monsters[0].Init(50, 255, 0, 250, 1, 2);
         g_monsters[1].Init(820, 150, 790, 945, -1, 2);
         g_monsters[2].Init(1320, 250, 1270, 1495, 1, 2);
-        g_monsters[3].Init(930, 475, 892, 1015, -1, 3);
+        g_monsters[3].Init(930, 503, 892, 1015, -1, 3);
         g_monsters[4].active = false;
         return;
     }
