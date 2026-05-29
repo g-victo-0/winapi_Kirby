@@ -262,6 +262,42 @@ using namespace Gdiplus;
 #ifndef IDB_PNG173
 #define IDB_PNG173 173
 #endif
+#ifndef IDB_PNG174
+#define IDB_PNG174 174
+#endif
+#ifndef IDB_PNG175
+#define IDB_PNG175 175
+#endif
+#ifndef IDB_PNG176
+#define IDB_PNG176 176
+#endif
+#ifndef IDB_PNG177
+#define IDB_PNG177 177
+#endif
+#ifndef IDB_PNG178
+#define IDB_PNG178 178
+#endif
+#ifndef IDB_PNG179
+#define IDB_PNG179 179
+#endif
+#ifndef IDB_PNG180
+#define IDB_PNG180 180
+#endif
+#ifndef IDB_PNG181
+#define IDB_PNG181 181
+#endif
+#ifndef IDB_PNG182
+#define IDB_PNG182 182
+#endif
+#ifndef IDB_PNG183
+#define IDB_PNG183 183
+#endif
+#ifndef IDB_PNG184
+#define IDB_PNG184 184
+#endif
+#ifndef IDB_PNG185
+#define IDB_PNG185 185
+#endif
 
 
 HINSTANCE g_hInst;
@@ -531,6 +567,15 @@ Image* g_hammerCrouchFrame = NULL;
 Image* g_hammerKirbyHitFrame = NULL;
 Image* g_hammerAttackFrames[7] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
+// 174~185번: 스파크 커비 프레임
+Image* g_sparkIdleFrame = NULL;
+Image* g_sparkWalkFrames[3] = { NULL, NULL, NULL };
+Image* g_sparkBalloonStartFrame = NULL;
+Image* g_sparkBalloonFrames[2] = { NULL, NULL };
+Image* g_sparkCrouchFrame = NULL;
+Image* g_sparkKirbyHitFrame = NULL;
+Image* g_sparkAttackFrames[3] = { NULL, NULL, NULL };
+
 // 165~173번: 망치 몬스터 프레임
 Image* g_hammerMonsterIdleFrame = NULL;
 Image* g_hammerMonsterWalkFrames[3] = { NULL, NULL, NULL };
@@ -650,6 +695,21 @@ const int HAMMER_MONSTER_WALK_FRAME_COUNT = 3;
 const int HAMMER_MONSTER_ATTACK_FRAME_COUNT = 4;
 const int HAMMER_MONSTER_W = 48;
 const int HAMMER_MONSTER_H = 48;
+
+// 스파크 커비 상태. 4 = 스파크 속성
+bool isSparkKirby = false;
+int sparkWalkFrameIndex = 0;
+const int SPARK_WALK_FRAME_COUNT = 3;
+int sparkBalloonFrameIndex = 0;
+bool sparkBalloonStartFrameDone = false;
+bool isSparkAttack = false;
+int sparkAttackFrameIndex = 0;
+int sparkAttackTick = 0;
+const int SPARK_ATTACK_FRAME_COUNT = 3;
+const int SPARK_ATTACK_FRAME_DURATION = 5;
+bool sparkAttackHitDone = false;
+const int SPARK_ATTACK_DRAW_W = 82;
+const int SPARK_ATTACK_DRAW_H = 74;
 
 // 65번 폭탄 투사체와 68번 폭발
 const int BOMB_OBJECT_MAX = 12;
@@ -1114,6 +1174,12 @@ void UpdateHammerAttack();
 RECT GetHammerAttackRect();
 bool IsHammerAttackDamageFrame();
 void CheckHammerAttackHitMonsters();
+void StartSparkKirbyTransform();
+void StartSparkAttack();
+void UpdateSparkAttack();
+RECT GetSparkAttackRect();
+bool IsSparkAttackDamageFrame();
+void CheckSparkAttackHitMonsters();
 void SpawnBombObject(int x, int y, float vx, float vy, bool fromEnemy);
 void UpdateBombObjects();
 void DrawBombObjects(Graphics& graphics);
@@ -1236,6 +1302,12 @@ void UpdateHammerAttack();
 RECT GetHammerAttackRect();
 bool IsHammerAttackDamageFrame();
 void CheckHammerAttackHitMonsters();
+void StartSparkKirbyTransform();
+void StartSparkAttack();
+void UpdateSparkAttack();
+RECT GetSparkAttackRect();
+bool IsSparkAttackDamageFrame();
+void CheckSparkAttackHitMonsters();
 void SpawnBombObject(int x, int y, float vx, float vy, bool fromEnemy);
 void UpdateBombObjects();
 void DrawBombObjects(Graphics& graphics);
@@ -2115,6 +2187,17 @@ void CheckKirbyAttacksHitBoss()
         {
             hammerAttackHitDone = true;
             DamageBoss(30);
+            return;
+        }
+    }
+
+    if (isSparkAttack && !sparkAttackHitDone && IsSparkAttackDamageFrame())
+    {
+        RECT sparkRc = GetSparkAttackRect();
+        if (IsRectHit(sparkRc, bossRc))
+        {
+            sparkAttackHitDone = true;
+            DamageBoss(24);
             return;
         }
     }
@@ -4568,6 +4651,10 @@ void ResetStageProjectiles()
     hammerAttackFrameIndex = 0;
     hammerAttackTick = 0;
     hammerAttackHitDone = false;
+    isSparkAttack = false;
+    sparkAttackFrameIndex = 0;
+    sparkAttackTick = 0;
+    sparkAttackHitDone = false;
     g_bombSpecialAttackMode = false;
     bombAttackFrameIndex = 0;
     bombAttackTick = 0;
@@ -4830,6 +4917,8 @@ void DrawDarkVisionOverlay(Graphics& graphics, int screenW, int screenH)
     // Fire Kirby lights up the nightmare darkness more widely.
     if (isFireKirby || kirbyAbilityType == 1)
         radius = 205;
+    else if (isSparkKirby || kirbyAbilityType == 4)
+        radius = 185;
 
     GraphicsPath viewPath;
     viewPath.AddEllipse(centerX - radius, centerY - radius, radius * 2, radius * 2);
@@ -4861,6 +4950,8 @@ void ResetKirbyPlayState(bool recoverHp)
     bombBalloonStartFrameDone = false;
     hammerBalloonFrameIndex = 0;
     hammerBalloonStartFrameDone = false;
+    sparkBalloonFrameIndex = 0;
+    sparkBalloonStartFrameDone = false;
     kirbyVY = 0.0f;
     isOnGround = false;
 
@@ -5185,6 +5276,7 @@ void UpdatePlayer(HWND hWnd)
     UpdatePowerDigest();
     UpdateFireKirbyStates();
     UpdateHammerAttack();
+    UpdateSparkAttack();
     UpdateKirbyHitEffect();
     UpdateKirbyStatusEffects();
     UpdateHPBarAnimation();
@@ -5227,6 +5319,7 @@ void CheckCollision()
     CheckPowerProjectileHitMonsters();
     CheckFireAttacksHitMonsters();
     CheckHammerAttackHitMonsters();
+    CheckSparkAttackHitMonsters();
     CheckKirbyAttacksHitBoss();
 }
 
@@ -5616,7 +5709,9 @@ void DrawScene(HDC hdc, HWND hWnd)
     {
         Image* hitFrame = g_kirbyHitFrame;
 
-        if (isHammerKirby && g_hammerKirbyHitFrame != NULL)
+        if (isSparkKirby && g_sparkKirbyHitFrame != NULL)
+            hitFrame = g_sparkKirbyHitFrame;
+        else if (isHammerKirby && g_hammerKirbyHitFrame != NULL)
             hitFrame = g_hammerKirbyHitFrame;
         else if ((isBombKirby || isBombTransform) && g_bombKirbyHitFrame != NULL)
             hitFrame = g_bombKirbyHitFrame;
@@ -5651,6 +5746,26 @@ void DrawScene(HDC hdc, HWND hWnd)
     {
         DrawKirbyImage(graphics, g_bombAttackFrames[bombAttackFrameIndex]);
     }
+    else if (isSparkAttack && g_sparkAttackFrames[sparkAttackFrameIndex] != NULL)
+    {
+        Image* sparkAttackFrame = g_sparkAttackFrames[sparkAttackFrameIndex];
+        int sparkDrawW = kirbyW;
+        int sparkDrawH = kirbyH;
+
+        if (sparkAttackFrameIndex > 0)
+        {
+            sparkDrawW = SPARK_ATTACK_DRAW_W;
+            sparkDrawH = SPARK_ATTACK_DRAW_H;
+        }
+
+        int sparkDrawX = kirbyX + kirbyW / 2 - sparkDrawW / 2;
+        int sparkDrawY = kirbyY + kirbyH / 2 - sparkDrawH / 2;
+
+        if (kirbyFaceLeft)
+            DrawImageFlipX(graphics, sparkAttackFrame, sparkDrawX, sparkDrawY, sparkDrawW, sparkDrawH);
+        else
+            DrawWorldImage(graphics, sparkAttackFrame, sparkDrawX, sparkDrawY, sparkDrawW, sparkDrawH);
+    }
     else if (isHammerAttack && g_hammerAttackFrames[hammerAttackFrameIndex] != NULL)
     {
         DrawKirbyImage(graphics, g_hammerAttackFrames[hammerAttackFrameIndex]);
@@ -5661,7 +5776,11 @@ void DrawScene(HDC hdc, HWND hWnd)
     }
     else if (isSpaceRelease)
     {
-        if (isHammerKirby && g_hammerBalloonStartFrame != NULL)
+        if (isSparkKirby && g_sparkBalloonStartFrame != NULL)
+        {
+            DrawKirbyImage(graphics, g_sparkBalloonStartFrame);
+        }
+        else if (isHammerKirby && g_hammerBalloonStartFrame != NULL)
         {
             DrawKirbyImage(graphics, g_hammerBalloonStartFrame);
         }
@@ -5684,7 +5803,18 @@ void DrawScene(HDC hdc, HWND hWnd)
     }
     else if (isSpace)
     {
-        if (isFireKirby)
+        if (isSparkKirby)
+        {
+            if (!sparkBalloonStartFrameDone && g_sparkBalloonStartFrame != NULL)
+            {
+                DrawKirbyImage(graphics, g_sparkBalloonStartFrame);
+            }
+            else if (g_sparkBalloonFrames[sparkBalloonFrameIndex] != NULL)
+            {
+                DrawKirbyImage(graphics, g_sparkBalloonFrames[sparkBalloonFrameIndex]);
+            }
+        }
+        else if (isFireKirby)
         {
             if (!fireBalloonStartFrameDone && g_fireBalloonStartFrame != NULL)
             {
@@ -5726,7 +5856,9 @@ void DrawScene(HDC hdc, HWND hWnd)
     {
         Image* crouchImage = g_crouchFrame;
 
-        if (isFireKirby && g_fireCrouchFrame != NULL)
+        if (isSparkKirby && g_sparkCrouchFrame != NULL)
+            crouchImage = g_sparkCrouchFrame;
+        else if (isFireKirby && g_fireCrouchFrame != NULL)
             crouchImage = g_fireCrouchFrame;
         else if (isBombKirby && g_bombCrouchFrame != NULL)
             crouchImage = g_bombCrouchFrame;
@@ -5790,6 +5922,14 @@ void DrawScene(HDC hdc, HWND hWnd)
     else if (isHammerKirby && g_hammerIdleFrame != NULL)
     {
         DrawKirbyImage(graphics, g_hammerIdleFrame);
+    }
+    else if (isSparkKirby && IsKirbyWalkMoving() && g_sparkWalkFrames[sparkWalkFrameIndex] != NULL)
+    {
+        DrawKirbyImage(graphics, g_sparkWalkFrames[sparkWalkFrameIndex]);
+    }
+    else if (isSparkKirby && g_sparkIdleFrame != NULL)
+    {
+        DrawKirbyImage(graphics, g_sparkIdleFrame);
     }
     else if (IsKirbyWalkMoving() && g_walkFrames[walkFrameIndex] != NULL)
     {
@@ -5918,6 +6058,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                         bombBalloonStartFrameDone = false;
                         hammerBalloonFrameIndex = 0;
                         hammerBalloonStartFrameDone = false;
+                        sparkBalloonFrameIndex = 0;
+                        sparkBalloonStartFrameDone = false;
                         UpdateCamera(hWnd);
                         StartStageTransitionEffect();
                         StartPlayTimer();
@@ -6028,6 +6170,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                     if (hammerWalkFrameIndex >= HAMMER_WALK_FRAME_COUNT)
                     {
                         hammerWalkFrameIndex = 0;
+                sparkWalkFrameIndex = 0;
+                    }
+                }
+                else if (isSparkKirby)
+                {
+                    sparkWalkFrameIndex++;
+
+                    if (sparkWalkFrameIndex >= SPARK_WALK_FRAME_COUNT)
+                    {
+                        sparkWalkFrameIndex = 0;
                     }
                 }
                 else
@@ -6047,6 +6199,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 fireWalkFrameIndex = 0;
                 bombWalkFrameIndex = 0;
                 hammerWalkFrameIndex = 0;
+                sparkWalkFrameIndex = 0;
             }
 
             // 메인 타이머에서만 다시 그려서 중복 페인트를 줄임
@@ -6100,6 +6253,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                             hammerBalloonFrameIndex = 0;
                     }
                 }
+                else if (isSparkKirby)
+                {
+                    if (!sparkBalloonStartFrameDone)
+                    {
+                        sparkBalloonFrameIndex = 0;
+                        sparkBalloonStartFrameDone = true;
+                    }
+                    else
+                    {
+                        sparkBalloonFrameIndex++;
+
+                        if (sparkBalloonFrameIndex >= 2)
+                            sparkBalloonFrameIndex = 0;
+                    }
+                }
                 else
                 {
                     if (!spaceStartFrameDone)
@@ -6134,6 +6302,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 bombBalloonStartFrameDone = false;
                 hammerBalloonFrameIndex = 0;
                 hammerBalloonStartFrameDone = false;
+                sparkBalloonFrameIndex = 0;
+                sparkBalloonStartFrameDone = false;
             }
 
             // 메인 타이머에서만 다시 그려서 중복 페인트를 줄임
@@ -6270,6 +6440,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 bombBalloonStartFrameDone = false;
                 hammerBalloonFrameIndex = 0;
                 hammerBalloonStartFrameDone = false;
+                sparkBalloonFrameIndex = 0;
+                sparkBalloonStartFrameDone = false;
                 InvalidateRect(hWnd, NULL, FALSE);
             }
             else if (wParam == VK_ESCAPE)
@@ -6483,6 +6655,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 bombBalloonStartFrameDone = false;
                 hammerBalloonFrameIndex = 0;
                 hammerBalloonStartFrameDone = false;
+                sparkBalloonFrameIndex = 0;
+                sparkBalloonStartFrameDone = false;
                 moveUp = false;
                 moveDown = false;
                 break;
@@ -6508,6 +6682,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                     bombBalloonStartFrameDone = false;
                     hammerBalloonFrameIndex = 0;
                     hammerBalloonStartFrameDone = false;
+                    sparkBalloonFrameIndex = 0;
+                    sparkBalloonStartFrameDone = false;
                 }
 
                 isSpace = true;
@@ -6541,6 +6717,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             if (isHammerKirby)
             {
                 StartHammerAttack();
+            }
+            else if (isSparkKirby)
+            {
+                StartSparkAttack();
             }
             else if (isBombKirby)
             {
@@ -6604,6 +6784,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             {
                 // 폭탄 커비 I 필살기: 3배 크기 폭탄이 바닥을 튕기며 이동
                 StartBombSpecialAttack();
+            }
+            else if (isSparkKirby)
+            {
+                StartSparkAttack();
             }
             break;
 
@@ -6682,6 +6866,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 bombBalloonStartFrameDone = false;
                 hammerBalloonFrameIndex = 0;
                 hammerBalloonStartFrameDone = false;
+                sparkBalloonFrameIndex = 0;
+                sparkBalloonStartFrameDone = false;
                 moveUp = false;
                 moveDown = false;
                 break;
@@ -6691,7 +6877,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             break;
 
         case 'K':
-            if (!isPowerKirby && !isFireKirby && !isBombKirby && !isHammerKirby)
+            if (!isPowerKirby && !isFireKirby && !isBombKirby && !isHammerKirby && !isSparkKirby)
             {
                 isAbsorb = false;
                 absorbFrameIndex = 0;

@@ -673,7 +673,8 @@ void InitMonsters()
         g_monsters[1].Init(820, 150, 790, 945, -1, 2);
         g_monsters[2].Init(1320, 250, 1270, 1495, 1, 2);
         g_monsters[3].Init(930, 503, 892, 1015, -1, 3);
-        g_monsters[4].active = false;
+        // 스파크 커비 테스트/획득용 몬스터. 전용 몬스터 이미지가 없어서 일반 몬스터 외형을 사용함.
+        g_monsters[4].Init(1240, 374, 1182, 1380, 1, 4);
         return;
     }
 

@@ -264,6 +264,24 @@ void LoadAllImages(HWND hWnd)
     g_hammerAttackFrames[4] = LoadPNGFromResource(g_hInst, IDB_PNG162);
     g_hammerAttackFrames[5] = LoadPNGFromResource(g_hInst, IDB_PNG163);
     g_hammerAttackFrames[6] = LoadPNGFromResource(g_hInst, IDB_PNG164);
+    g_hammerInvincibleFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG189);
+    g_hammerInvincibleFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG190);
+
+    g_sparkIdleFrame = LoadPNGFromResource(g_hInst, IDB_PNG174);
+    g_sparkWalkFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG175);
+    g_sparkWalkFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG176);
+    g_sparkWalkFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG177);
+    g_sparkBalloonStartFrame = LoadPNGFromResource(g_hInst, IDB_PNG178);
+    g_sparkBalloonFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG179);
+    g_sparkBalloonFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG180);
+    g_sparkCrouchFrame = LoadPNGFromResource(g_hInst, IDB_PNG181);
+    g_sparkKirbyHitFrame = LoadPNGFromResource(g_hInst, IDB_PNG182);
+    g_sparkAttackFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG183);
+    g_sparkAttackFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG184);
+    g_sparkAttackFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG185);
+    g_sparkSpecialAttackFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG186);
+    g_sparkSpecialAttackFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG187);
+    g_sparkSpecialAttackFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG188);
 
     g_hammerMonsterIdleFrame = LoadPNGFromResource(g_hInst, IDB_PNG165);
     g_hammerMonsterWalkFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG166);
@@ -906,6 +924,75 @@ void DeleteAllImages()
         {
             delete g_hammerAttackFrames[i];
             g_hammerAttackFrames[i] = NULL;
+        }
+    }
+
+    for (int i = 0; i < 2; i++)
+    {
+        if (g_hammerInvincibleFrames[i] != NULL)
+        {
+            delete g_hammerInvincibleFrames[i];
+            g_hammerInvincibleFrames[i] = NULL;
+        }
+    }
+
+    if (g_sparkIdleFrame != NULL)
+    {
+        delete g_sparkIdleFrame;
+        g_sparkIdleFrame = NULL;
+    }
+
+    for (int i = 0; i < SPARK_WALK_FRAME_COUNT; i++)
+    {
+        if (g_sparkWalkFrames[i] != NULL)
+        {
+            delete g_sparkWalkFrames[i];
+            g_sparkWalkFrames[i] = NULL;
+        }
+    }
+
+    if (g_sparkBalloonStartFrame != NULL)
+    {
+        delete g_sparkBalloonStartFrame;
+        g_sparkBalloonStartFrame = NULL;
+    }
+
+    for (int i = 0; i < 2; i++)
+    {
+        if (g_sparkBalloonFrames[i] != NULL)
+        {
+            delete g_sparkBalloonFrames[i];
+            g_sparkBalloonFrames[i] = NULL;
+        }
+    }
+
+    if (g_sparkCrouchFrame != NULL)
+    {
+        delete g_sparkCrouchFrame;
+        g_sparkCrouchFrame = NULL;
+    }
+
+    if (g_sparkKirbyHitFrame != NULL)
+    {
+        delete g_sparkKirbyHitFrame;
+        g_sparkKirbyHitFrame = NULL;
+    }
+
+    for (int i = 0; i < SPARK_ATTACK_FRAME_COUNT; i++)
+    {
+        if (g_sparkAttackFrames[i] != NULL)
+        {
+            delete g_sparkAttackFrames[i];
+            g_sparkAttackFrames[i] = NULL;
+        }
+    }
+
+    for (int i = 0; i < SPARK_SPECIAL_ATTACK_FRAME_COUNT; i++)
+    {
+        if (g_sparkSpecialAttackFrames[i] != NULL)
+        {
+            delete g_sparkSpecialAttackFrames[i];
+            g_sparkSpecialAttackFrames[i] = NULL;
         }
     }
 

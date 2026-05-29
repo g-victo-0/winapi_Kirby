@@ -28,7 +28,7 @@ public:
 
     bool active;
 
-    // 몬스터 속성 번호. 0 = 일반, 1 = 불, 2 = 폭탄, 3 = 망치
+    // 몬스터 속성 번호. 0 = 일반, 1 = 불, 2 = 폭탄, 3 = 망치, 4 = 스파크
     int monsterType;
 
     // 불 속성 몬스터 원거리 공격
@@ -694,6 +694,15 @@ public:
             hammerAttackFrameIndex = 0;
             hammerAttackTick = 0;
             hammerAttackHitDone = false;
+            isSparkKirby = false;
+            isSparkAttack = false;
+            sparkAttackFrameIndex = 0;
+            sparkAttackTick = 0;
+            sparkAttackHitDone = false;
+            isSparkSpecialAttack = false;
+            sparkSpecialAttackFrameIndex = 0;
+            sparkSpecialAttackTick = 0;
+            sparkSpecialAttackHitDone = false;
             kirbyAbilityType = 0;
             isPowerKirby = true;
             SetKirbyPowerSizeKeepBottom();

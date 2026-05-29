@@ -116,6 +116,8 @@ void StopBalloonWithRelease()
     bombBalloonStartFrameDone = false;
     hammerBalloonFrameIndex = 0;
     hammerBalloonStartFrameDone = false;
+    sparkBalloonFrameIndex = 0;
+    sparkBalloonStartFrameDone = false;
 
     kirbyVY = 0.0f;
     moveUp = false;
@@ -695,6 +697,8 @@ void ClearCurrentAbilityState()
     bombBalloonStartFrameDone = false;
     hammerBalloonFrameIndex = 0;
     hammerBalloonStartFrameDone = false;
+    sparkBalloonFrameIndex = 0;
+    sparkBalloonStartFrameDone = false;
 
     isHammerKirby = false;
     isHammerAttack = false;
@@ -702,6 +706,13 @@ void ClearCurrentAbilityState()
     hammerAttackFrameIndex = 0;
     hammerAttackTick = 0;
     hammerAttackHitDone = false;
+
+    isSparkKirby = false;
+    isSparkAttack = false;
+    sparkWalkFrameIndex = 0;
+    sparkAttackFrameIndex = 0;
+    sparkAttackTick = 0;
+    sparkAttackHitDone = false;
 
     isPowerKirby = false;
     isPowerAttack = false;
@@ -759,6 +770,8 @@ void RestoreAbilityFromStar()
     bombBalloonStartFrameDone = false;
     hammerBalloonFrameIndex = 0;
     hammerBalloonStartFrameDone = false;
+    sparkBalloonFrameIndex = 0;
+    sparkBalloonStartFrameDone = false;
 
     moveUp = false;
     moveDown = false;
@@ -777,6 +790,8 @@ void EjectAbilityStar()
         currentType = 2;
     else if (isHammerKirby)
         currentType = 3;
+    else if (isSparkKirby)
+        currentType = 4;
     else
         return;
 
@@ -991,6 +1006,10 @@ void UpdatePowerDigest()
         {
             StartHammerKirbyTransform();
         }
+        else if (digestResultType == 4)
+        {
+            StartSparkKirbyTransform();
+        }
         else
         {
             kirbyAbilityType = 0;
@@ -1000,6 +1019,8 @@ void UpdatePowerDigest()
             isBombTransform = false;
             isHammerKirby = false;
             isHammerAttack = false;
+            isSparkKirby = false;
+            isSparkAttack = false;
             absorbedMonsterType = 0;
             digestResultType = 0;
             SetKirbyNormalSizeKeepBottom();
@@ -1340,6 +1361,11 @@ void StartFireKirbyTransform()
     hammerAttackFrameIndex = 0;
     hammerAttackTick = 0;
     hammerAttackHitDone = false;
+    isSparkKirby = false;
+    isSparkAttack = false;
+    sparkAttackFrameIndex = 0;
+    sparkAttackTick = 0;
+    sparkAttackHitDone = false;
     isFireKirby = false;
     isFireTransform = true;
     fireTransformTick = 0;
@@ -1350,6 +1376,8 @@ void StartFireKirbyTransform()
     fireBalloonStartFrameDone = false;
     hammerBalloonFrameIndex = 0;
     hammerBalloonStartFrameDone = false;
+    sparkBalloonFrameIndex = 0;
+    sparkBalloonStartFrameDone = false;
     hammerWalkFrameIndex = 0;
 
     isPowerKirby = false;
@@ -1518,6 +1546,13 @@ void StartBombKirbyTransform()
     hammerAttackTick = 0;
     hammerAttackHitDone = false;
 
+    isSparkKirby = false;
+    isSparkAttack = false;
+    sparkWalkFrameIndex = 0;
+    sparkAttackFrameIndex = 0;
+    sparkAttackTick = 0;
+    sparkAttackHitDone = false;
+
     isPowerKirby = false;
     isPowerAttack = false;
     isPowerProjectileActive = false;
@@ -1531,6 +1566,8 @@ void StartBombKirbyTransform()
     bombBalloonStartFrameDone = false;
     hammerBalloonFrameIndex = 0;
     hammerBalloonStartFrameDone = false;
+    sparkBalloonFrameIndex = 0;
+    sparkBalloonStartFrameDone = false;
     isBombAttack = false;
     bombAttackFrameIndex = 0;
     bombAttackTick = 0;
@@ -1559,10 +1596,19 @@ void StartHammerKirbyTransform()
     bombAttackTick = 0;
     bombAttackBombSpawned = false;
 
+    isSparkKirby = false;
+    isSparkAttack = false;
+    sparkWalkFrameIndex = 0;
+    sparkAttackFrameIndex = 0;
+    sparkAttackTick = 0;
+    sparkAttackHitDone = false;
+
     isHammerKirby = true;
     hammerWalkFrameIndex = 0;
     hammerBalloonFrameIndex = 0;
     hammerBalloonStartFrameDone = false;
+    sparkBalloonFrameIndex = 0;
+    sparkBalloonStartFrameDone = false;
     isHammerAttack = false;
     hammerAttackFrameIndex = 0;
     hammerAttackTick = 0;
@@ -1678,6 +1724,146 @@ void UpdateHammerAttack()
             isHammerAttack = false;
             hammerAttackFrameIndex = 0;
             hammerAttackHitDone = false;
+        }
+    }
+}
+
+void StartSparkKirbyTransform()
+{
+    kirbyAbilityType = 4;
+
+    isFireKirby = false;
+    isFireTransform = false;
+    isFireAttackPose = false;
+    isFireBreath = false;
+    isFireBallActive = false;
+
+    isBombKirby = false;
+    isBombTransform = false;
+    isBombAttack = false;
+    bombAttackFrameIndex = 0;
+    bombAttackTick = 0;
+    bombAttackBombSpawned = false;
+
+    isHammerKirby = false;
+    isHammerAttack = false;
+    hammerWalkFrameIndex = 0;
+    hammerAttackFrameIndex = 0;
+    hammerAttackTick = 0;
+    hammerAttackHitDone = false;
+
+    isSparkKirby = true;
+    sparkWalkFrameIndex = 0;
+    sparkBalloonFrameIndex = 0;
+    sparkBalloonStartFrameDone = false;
+    isSparkAttack = false;
+    sparkAttackFrameIndex = 0;
+    sparkAttackTick = 0;
+    sparkAttackHitDone = false;
+
+    isPowerKirby = false;
+    isPowerAttack = false;
+    isPowerProjectileActive = false;
+    isAbsorb = false;
+    isSpace = false;
+    isSpaceRelease = false;
+    isCrouch = false;
+
+    absorbedMonsterType = 0;
+    digestResultType = 0;
+
+    SetKirbyNormalSizeKeepBottom();
+}
+
+void StartSparkAttack()
+{
+    if (!isSparkKirby)
+        return;
+
+    if (isSparkAttack)
+        return;
+
+    isSparkAttack = true;
+    sparkAttackFrameIndex = 0;
+    sparkAttackTick = 0;
+    sparkAttackHitDone = false;
+
+    isSpace = false;
+    isSpaceRelease = false;
+    isCrouch = false;
+    StopMove();
+}
+
+bool IsSparkAttackDamageFrame()
+{
+    return isSparkAttack && sparkAttackFrameIndex >= 1;
+}
+
+RECT GetSparkAttackRect()
+{
+    RECT rc;
+
+    int attackW = SPARK_ATTACK_DRAW_W - 8;
+    int attackH = SPARK_ATTACK_DRAW_H - 8;
+    int centerX = kirbyX + kirbyW / 2;
+    int centerY = kirbyY + kirbyH / 2;
+
+    rc.left = centerX - attackW / 2;
+    rc.right = rc.left + attackW;
+    rc.top = centerY - attackH / 2;
+    rc.bottom = rc.top + attackH;
+
+    return rc;
+}
+
+void CheckSparkAttackHitMonsters()
+{
+    if (!isSparkAttack || sparkAttackHitDone || !IsSparkAttackDamageFrame())
+        return;
+
+    RECT sparkRc = GetSparkAttackRect();
+    bool hitAny = false;
+
+    for (int i = 0; i < MONSTER_COUNT; i++)
+    {
+        if (!g_monsters[i].active)
+            continue;
+
+        RECT monsterRc;
+        monsterRc.left = g_monsters[i].x;
+        monsterRc.top = g_monsters[i].y;
+        monsterRc.right = g_monsters[i].x + g_monsters[i].w;
+        monsterRc.bottom = g_monsters[i].y + g_monsters[i].h;
+
+        if (IsRectHit(sparkRc, monsterRc))
+        {
+            AddGameScore(300);
+            g_monsters[i].StartDeadEffect();
+            hitAny = true;
+        }
+    }
+
+    if (hitAny)
+        sparkAttackHitDone = true;
+}
+
+void UpdateSparkAttack()
+{
+    if (!isSparkAttack)
+        return;
+
+    sparkAttackTick++;
+
+    if (sparkAttackTick >= SPARK_ATTACK_FRAME_DURATION)
+    {
+        sparkAttackTick = 0;
+        sparkAttackFrameIndex++;
+
+        if (sparkAttackFrameIndex >= SPARK_ATTACK_FRAME_COUNT)
+        {
+            isSparkAttack = false;
+            sparkAttackFrameIndex = 0;
+            sparkAttackHitDone = false;
         }
     }
 }

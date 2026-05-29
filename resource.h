@@ -177,12 +177,29 @@
 #define IDB_PNG171                      334
 #define IDB_PNG172                      335
 #define IDB_PNG173                      336
+#define IDB_PNG174                      337
+#define IDB_PNG175                      338
+#define IDB_PNG176                      339
+#define IDB_PNG177                      340
+#define IDB_PNG178                      341
+#define IDB_PNG179                      342
+#define IDB_PNG180                      343
+#define IDB_PNG181                      344
+#define IDB_PNG182                      345
+#define IDB_PNG183                      346
+#define IDB_PNG184                      347
+#define IDB_PNG185                      348
+#define IDB_PNG186                      349
+#define IDB_PNG187                      350
+#define IDB_PNG188                      351
+#define IDB_PNG189                      352
+#define IDB_PNG190                      353
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        337
+#define _APS_NEXT_RESOURCE_VALUE        354
 #define _APS_NEXT_COMMAND_VALUE         40002
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
