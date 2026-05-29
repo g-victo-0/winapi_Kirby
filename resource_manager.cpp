@@ -264,8 +264,6 @@ void LoadAllImages(HWND hWnd)
     g_hammerAttackFrames[4] = LoadPNGFromResource(g_hInst, IDB_PNG162);
     g_hammerAttackFrames[5] = LoadPNGFromResource(g_hInst, IDB_PNG163);
     g_hammerAttackFrames[6] = LoadPNGFromResource(g_hInst, IDB_PNG164);
-    g_hammerInvincibleFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG189);
-    g_hammerInvincibleFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG190);
 
     g_sparkIdleFrame = LoadPNGFromResource(g_hInst, IDB_PNG174);
     g_sparkWalkFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG175);
@@ -292,6 +290,18 @@ void LoadAllImages(HWND hWnd)
     g_hammerMonsterAttackFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG171);
     g_hammerMonsterAttackFrames[3] = LoadPNGFromResource(g_hInst, IDB_PNG172);
     g_hammerMonsterDeadFrame = LoadPNGFromResource(g_hInst, IDB_PNG173);
+
+    g_sparkMonsterIdleFrame = LoadPNGFromResource(g_hInst, IDB_PNG191);
+    g_sparkMonsterWalkFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG192);
+    g_sparkMonsterWalkFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG193);
+    g_sparkMonsterWalkFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG194);
+    g_sparkMonsterWalkFrames[3] = LoadPNGFromResource(g_hInst, IDB_PNG195);
+    g_sparkMonsterWalkFrames[4] = LoadPNGFromResource(g_hInst, IDB_PNG196);
+    g_sparkMonsterAttackFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG197);
+    g_sparkMonsterAttackFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG198);
+    g_sparkMonsterAttackFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG199);
+    g_sparkMonsterAttackFrames[3] = LoadPNGFromResource(g_hInst, IDB_PNG200);
+    g_sparkMonsterDeadFrame = LoadPNGFromResource(g_hInst, IDB_PNG201);
 
     g_dashWindFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG27);
     g_dashWindFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG28);
@@ -927,15 +937,6 @@ void DeleteAllImages()
         }
     }
 
-    for (int i = 0; i < 2; i++)
-    {
-        if (g_hammerInvincibleFrames[i] != NULL)
-        {
-            delete g_hammerInvincibleFrames[i];
-            g_hammerInvincibleFrames[i] = NULL;
-        }
-    }
-
     if (g_sparkIdleFrame != NULL)
     {
         delete g_sparkIdleFrame;
@@ -1024,6 +1025,36 @@ void DeleteAllImages()
     {
         delete g_hammerMonsterDeadFrame;
         g_hammerMonsterDeadFrame = NULL;
+    }
+
+    if (g_sparkMonsterIdleFrame != NULL)
+    {
+        delete g_sparkMonsterIdleFrame;
+        g_sparkMonsterIdleFrame = NULL;
+    }
+
+    for (int i = 0; i < SPARK_MONSTER_WALK_FRAME_COUNT; i++)
+    {
+        if (g_sparkMonsterWalkFrames[i] != NULL)
+        {
+            delete g_sparkMonsterWalkFrames[i];
+            g_sparkMonsterWalkFrames[i] = NULL;
+        }
+    }
+
+    for (int i = 0; i < SPARK_MONSTER_ATTACK_FRAME_COUNT; i++)
+    {
+        if (g_sparkMonsterAttackFrames[i] != NULL)
+        {
+            delete g_sparkMonsterAttackFrames[i];
+            g_sparkMonsterAttackFrames[i] = NULL;
+        }
+    }
+
+    if (g_sparkMonsterDeadFrame != NULL)
+    {
+        delete g_sparkMonsterDeadFrame;
+        g_sparkMonsterDeadFrame = NULL;
     }
 
     for (int i = 0; i < dashFrameCount; i++)

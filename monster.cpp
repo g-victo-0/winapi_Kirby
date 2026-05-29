@@ -1,7 +1,7 @@
 // Monster storage, drawing, and contact damage
 // Included by game.cpp to keep the existing global-state gameplay unchanged.
 
-const int MONSTER_COUNT = 5; // 2스테이지에서는 폭탄병까지 사용
+const int MONSTER_COUNT = 9; // 2스테이지 추가 몬스터 슬롯까지 사용
 Monster g_monsters[MONSTER_COUNT];
 void Monster::Draw(Graphics& graphics)
 {
@@ -25,6 +25,10 @@ void Monster::Draw(Graphics& graphics)
         else if (monsterType == 3 && g_hammerMonsterDeadFrame != NULL)
         {
             deadFrame = g_hammerMonsterDeadFrame;
+        }
+        else if (monsterType == 4 && g_sparkMonsterDeadFrame != NULL)
+        {
+            deadFrame = g_sparkMonsterDeadFrame;
         }
 
         if (deadFrame == NULL)
@@ -86,6 +90,28 @@ void Monster::Draw(Graphics& graphics)
         return;
     }
 
+    if (monsterType == 4 && isAttack)
+    {
+        Image* attackFrame = g_sparkMonsterAttackFrames[sparkAttackFrameIndex];
+
+        if (attackFrame == NULL)
+            attackFrame = g_sparkMonsterIdleFrame;
+
+        if (attackFrame == NULL)
+            return;
+
+        if (dir == -1)
+        {
+            DrawImageFlipX(graphics, attackFrame, x, y, w, h);
+        }
+        else
+        {
+            DrawWorldImage(graphics, attackFrame, x, y, w, h);
+        }
+
+        return;
+    }
+
     Image* frame = NULL;
      
     if (monsterType == 1)
@@ -103,6 +129,14 @@ void Monster::Draw(Graphics& graphics)
 
         if (frame == NULL)
             frame = g_hammerMonsterIdleFrame;
+    }
+    else if (monsterType == 4)
+    {
+        if (frameIndex >= 0 && frameIndex < SPARK_MONSTER_WALK_FRAME_COUNT)
+            frame = g_sparkMonsterWalkFrames[frameIndex];
+
+        if (frame == NULL)
+            frame = g_sparkMonsterIdleFrame;
     }
     else
     {

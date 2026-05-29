@@ -215,16 +215,26 @@ int g_stage3SolidBlockCount = sizeof(g_stage3SolidBlocks) / sizeof(g_stage3Solid
 
 void InitStage3RescueObjects()
 {
-    // 3스테이지 오른쪽 위쪽 발판에 문 배치
+    g_stage3Child.active = true;
+    g_stage3Child.rescued = false;
+    g_stage3Child.w = 47;
+    g_stage3Child.h = 59;
+    g_stage3Child.x = 1810;
+    g_stage3Child.y = 340;
+
+    // 학생 구출 + 몬스터 전멸 후 열리는 3스테이지 문
     g_stage3Door.active = true;
     g_stage3Door.opening = false;
-    g_stage3Door.opened = true;
+    g_stage3Door.opened = false;
     g_stage3Door.w = 81;
     g_stage3Door.h = 101;
     g_stage3Door.x = 1810;
     g_stage3Door.y = 126 - g_stage3Door.h + 7;
-    g_stage3Door.frameIndex = DOOR_FRAME_COUNT - 1;
+    g_stage3Door.frameIndex = 0;
     g_stage3Door.tick = 0;
+
+    g_stage3ChildTotal = 1;
+    g_stage3ChildRescued = 0;
 }
 SolidBlock g_stage4SolidBlocks[] =
 {
@@ -371,7 +381,37 @@ void CheckRescueChildTouch()
                 }
             }
         }
+        return;
     }
+
+    if (g_currentStage == 3)
+    {
+        if (!g_stage3Child.active || g_stage3Child.rescued)
+            return;
+
+        RECT childRc = GetChildRect(g_stage3Child);
+
+        if (IsRectHit(kirbyRc, childRc))
+        {
+            g_stage3Child.active = false;
+            g_stage3Child.rescued = true;
+            g_stage3ChildRescued++;
+            g_totalStudentsRescued++;
+            AddGameScore(1000);
+            StartRescueEffect(g_stage3Child.x + g_stage3Child.w / 2, g_stage3Child.y + g_stage3Child.h / 2);
+        }
+    }
+}
+
+bool AreStage3MonstersCleared()
+{
+    for (int i = 0; i < MONSTER_COUNT; i++)
+    {
+        if (g_monsters[i].active)
+            return false;
+    }
+
+    return true;
 }
 
 void UpdateDoorOpen(StageDoor* door)
@@ -430,6 +470,11 @@ void UpdateRescueObjects()
 
     if (g_currentStage == 3)
     {
+        if (g_stage3ChildRescued >= g_stage3ChildTotal && AreStage3MonstersCleared() && !g_stage3Door.opened)
+        {
+            g_stage3Door.opening = true;
+        }
+
         UpdateDoorOpen(&g_stage3Door);
     }
 }
@@ -630,6 +675,7 @@ void DrawRescueObjects(Graphics& graphics)
     if (g_currentStage == 3)
     {
         DrawDoorObject(graphics, g_stage3Door);
+        DrawChildObject(graphics, g_stage3Child, 83);
     }
 }
 
@@ -649,32 +695,36 @@ void InitMonsters()
         g_monsters[2].Init(1488, 379, 1378, 1666, 1);
         // 불속성 몬스터는 문 앞쪽 빨간 원으로 표시한 구간만 돌아다니게 제한
         g_monsters[3].Init(1805, 100, 1720, 1860, -1, 1);
-        g_monsters[4].active = false;
+        g_monsters[4].Init(1125, 470, 1025, 1305, -1, 1);
+        g_monsters[5].active = false;
         return;
     }
 
     if (g_currentStage == 2)
     {
-        // 2스테이지: 일반몹 2마리, 불몹 2마리, 폭탄몹 1마리
-
+        // 2스테이지: 일반몹 2마리, 불몹 2마리, 폭탄몹 2마리, 망치 1마리, 스파크 1마리
         g_monsters[0].Init(20, 320, 10, 230, 1, 0);
         g_monsters[1].Init(500, 235, 440, 675, -1, 0);
-        g_monsters[2].Init(1450, 285, 1425, 1685, -1, 1);
-        g_monsters[3].Init(1690, 360, 1425, 1685, 1, 1);
-        g_monsters[4].Init(1780, 145, 1690, 1880, 1, 2);
+        g_monsters[2].Init(790, 448, 695, 890, -1, 3);
+        g_monsters[3].Init(1450, 285, 1425, 1685, -1, 1);
+        g_monsters[4].Init(1690, 360, 1425, 1685, 1, 1);
+        g_monsters[5].Init(1780, 145, 1690, 1880, 1, 2);
+        g_monsters[6].Init(1080, 316, 1000, 1230, -1, 4);
+        g_monsters[7].Init(1840, 430, 1735, 1980, -1, 2);
+        g_monsters[8].active = false;
         return;
     }
 
     if (g_currentStage == 3)
     {
-        // 3스테이지: 폭탄 몬스터 3마리 + 실험용 망치 몬스터 1마리
-
+        // 3스테이지: 모든 몬스터를 없애고 학생을 구출해야 문이 열림
         g_monsters[0].Init(50, 255, 0, 250, 1, 2);
         g_monsters[1].Init(820, 150, 790, 945, -1, 2);
         g_monsters[2].Init(1320, 250, 1270, 1495, 1, 2);
         g_monsters[3].Init(930, 503, 892, 1015, -1, 3);
-        // 스파크 커비 테스트/획득용 몬스터. 전용 몬스터 이미지가 없어서 일반 몬스터 외형을 사용함.
-        g_monsters[4].Init(1240, 374, 1182, 1380, 1, 4);
+        g_monsters[4].Init(1240, 374, 1182, 1520, 1, 4);
+        g_monsters[5].Init(1820, 280, 1770, 1880, 1, 4);
+        g_monsters[6].active = false;
         return;
     }
 
@@ -691,7 +741,6 @@ void InitMonsters()
         return;
     }
 }
-
 struct DanceFrame
 {
     int frameIndex;

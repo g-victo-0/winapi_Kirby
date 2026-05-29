@@ -44,6 +44,12 @@ public:
     int hammerAttackCooldown;
     bool hammerAttackHitDone;
 
+    // 스파크 몬스터 근접 전기 공격
+    int sparkAttackFrameIndex;
+    int sparkAttackFrameTick;
+    int sparkAttackCooldown;
+    bool sparkAttackHitDone;
+
     // 발사체에 맞아 죽는 연출 상태
     bool isDeadEffect;
     int deadEffectTick;
@@ -84,6 +90,10 @@ public:
         hammerAttackFrameTick = 0;
         hammerAttackCooldown = 60;
         hammerAttackHitDone = false;
+        sparkAttackFrameIndex = 0;
+        sparkAttackFrameTick = 0;
+        sparkAttackCooldown = 75;
+        sparkAttackHitDone = false;
         isDeadEffect = false;
         deadEffectTick = 0;
 
@@ -102,6 +112,11 @@ public:
             w = HAMMER_MONSTER_W;
             h = HAMMER_MONSTER_H;
         }
+        else if (type == 4)
+        {
+            w = SPARK_MONSTER_W;
+            h = SPARK_MONSTER_H;
+        }
         else
         {
             w = 32;
@@ -117,7 +132,7 @@ public:
         leftLimit = patrolLeft;
         rightLimit = patrolRight - w;
 
-        attackRange = (type == 3) ? 90 : 140;
+        attackRange = (type == 3) ? 90 : ((type == 4) ? 115 : 140);
         isAttack = false;
 
         vy = 0.0f;
@@ -125,7 +140,7 @@ public:
 
         active = true;
         monsterType = type;
-        frameCount = (type == 3) ? HAMMER_MONSTER_WALK_FRAME_COUNT : 4;
+        frameCount = (type == 3) ? HAMMER_MONSTER_WALK_FRAME_COUNT : ((type == 4) ? SPARK_MONSTER_WALK_FRAME_COUNT : 4);
         rangedAttackCooldown = 90;
         rangedAttackFrameTick = 0;
         bombDropCooldown = 100;
@@ -133,6 +148,10 @@ public:
         hammerAttackFrameTick = 0;
         hammerAttackCooldown = 60;
         hammerAttackHitDone = false;
+        sparkAttackFrameIndex = 0;
+        sparkAttackFrameTick = 0;
+        sparkAttackCooldown = 75;
+        sparkAttackHitDone = false;
         isDeadEffect = false;
         deadEffectTick = 0;
 
@@ -150,6 +169,9 @@ public:
         hammerAttackFrameIndex = 0;
         hammerAttackFrameTick = 0;
         hammerAttackHitDone = false;
+        sparkAttackFrameIndex = 0;
+        sparkAttackFrameTick = 0;
+        sparkAttackHitDone = false;
         vy = 0.0f;
 
         isDeadEffect = true;
@@ -355,6 +377,105 @@ public:
         }
     }
 
+    bool IsKirbyInSparkAttackRange()
+    {
+        if (monsterType != 4)
+            return false;
+
+        int kirbyCenterX = kirbyX + kirbyW / 2;
+        int kirbyCenterY = kirbyY + kirbyH / 2;
+        int monsterCenterX = x + w / 2;
+        int monsterCenterY = y + h / 2;
+
+        int dx = kirbyCenterX - monsterCenterX;
+        int dy = kirbyCenterY - monsterCenterY;
+
+        if (dx < 0) dx = -dx;
+        if (dy < 0) dy = -dy;
+
+        return dx <= 115 && dy <= 65;
+    }
+
+    RECT GetSparkMonsterAttackRect()
+    {
+        RECT rc;
+        int attackW = 56;
+        int attackH = 42;
+        int attackY = y + h / 2 - attackH / 2;
+
+        if (dir < 0)
+        {
+            rc.left = x - attackW + 12;
+            rc.right = x + 12;
+        }
+        else
+        {
+            rc.left = x + w - 12;
+            rc.right = rc.left + attackW;
+        }
+
+        rc.top = attackY;
+        rc.bottom = attackY + attackH;
+
+        return rc;
+    }
+
+    void StartSparkMonsterAttack()
+    {
+        int kirbyCenterX = kirbyX + kirbyW / 2;
+        int monsterCenterX = x + w / 2;
+
+        dir = (kirbyCenterX < monsterCenterX) ? -1 : 1;
+        isAttack = true;
+        sparkAttackFrameIndex = 0;
+        sparkAttackFrameTick = 0;
+        sparkAttackHitDone = false;
+        sparkAttackCooldown = 80;
+        isJumpAttack = false;
+    }
+
+    void UpdateSparkMonsterAttack()
+    {
+        if (monsterType != 4)
+            return;
+
+        if (sparkAttackCooldown > 0)
+            sparkAttackCooldown--;
+
+        if (!isAttack)
+        {
+            if (sparkAttackCooldown <= 0 && IsKirbyInSparkAttackRange())
+                StartSparkMonsterAttack();
+            return;
+        }
+
+        sparkAttackFrameTick++;
+
+        if (!sparkAttackHitDone && sparkAttackFrameIndex >= 1 && sparkAttackFrameIndex <= 3)
+        {
+            RECT attackRc = GetSparkMonsterAttackRect();
+            RECT kirbyRc = GetKirbyBodyRect();
+
+            if (IsRectHit(attackRc, kirbyRc) && !isKirbyHit && kirbyHitCooldownTick <= 0)
+            {
+                StartKirbyHitEffect();
+                sparkAttackHitDone = true;
+            }
+        }
+
+        if (sparkAttackFrameTick >= 5)
+        {
+            sparkAttackFrameTick = 0;
+            sparkAttackFrameIndex++;
+
+            if (sparkAttackFrameIndex >= SPARK_MONSTER_ATTACK_FRAME_COUNT)
+            {
+                isAttack = false;
+                sparkAttackFrameIndex = 0;
+                sparkAttackHitDone = false;
+            }
+        }
+    }
     bool HasSafeGroundBelowX(int testX)
     {
         int blockCount = 0;
@@ -757,6 +878,11 @@ public:
             UpdateHammerMonsterAttack();
         }
 
+        if (monsterType == 4)
+        {
+            UpdateSparkMonsterAttack();
+        }
+
         if (monsterType == 2)
         {
             // 빨아들이기 중이어도 모든 몬스터가 멈추면 안 됨.
@@ -784,7 +910,7 @@ public:
             return;
         }
 
-        if (monsterType == 3 && isAttack)
+        if ((monsterType == 3 || monsterType == 4) && isAttack)
         {
             ApplyGravity();
             return;
@@ -796,7 +922,7 @@ public:
             return;
         }
 
-        if (monsterType != 1 && monsterType != 3 && onGround && jumpAttackCooldown <= 0 && IsKirbyNearForJumpAttack())
+        if (monsterType != 1 && monsterType != 3 && monsterType != 4 && onGround && jumpAttackCooldown <= 0 && IsKirbyNearForJumpAttack())
         {
             StartJumpAttack();
             return;
@@ -862,7 +988,7 @@ public:
             return;
         }
 
-        if (monsterType == 3 && isAttack)
+        if ((monsterType == 3 || monsterType == 4) && isAttack)
             return;
 
         frameIndex++;
@@ -870,6 +996,13 @@ public:
         if (monsterType == 3)
         {
             if (frameIndex >= HAMMER_MONSTER_WALK_FRAME_COUNT)
+                frameIndex = 0;
+            return;
+        }
+
+        if (monsterType == 4)
+        {
+            if (frameIndex >= SPARK_MONSTER_WALK_FRAME_COUNT)
                 frameIndex = 0;
             return;
         }

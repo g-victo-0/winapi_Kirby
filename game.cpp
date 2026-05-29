@@ -371,8 +371,11 @@ StageDoor g_stage2Door;
 int g_stage2ChildTotal = STAGE2_CHILD_COUNT;
 int g_stage2ChildRescued = 0;
 
-// 3스테이지 문 상태. 3스테이지는 구출 없이 문만 적당한 위치에 배치
+// 3스테이지 구출/문 상태
+RescueChild g_stage3Child;
 StageDoor g_stage3Door;
+int g_stage3ChildTotal = 1;
+int g_stage3ChildRescued = 0;
 
 int g_currentStage = 1;
 bool g_isChangingMap = false;
@@ -566,7 +569,6 @@ Image* g_hammerBalloonFrames[2] = { NULL, NULL };
 Image* g_hammerCrouchFrame = NULL;
 Image* g_hammerKirbyHitFrame = NULL;
 Image* g_hammerAttackFrames[7] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-Image* g_hammerInvincibleFrames[2] = { NULL, NULL };
 
 // 174~185번: 스파크 커비 프레임
 Image* g_sparkIdleFrame = NULL;
@@ -583,6 +585,12 @@ Image* g_hammerMonsterIdleFrame = NULL;
 Image* g_hammerMonsterWalkFrames[3] = { NULL, NULL, NULL };
 Image* g_hammerMonsterAttackFrames[4] = { NULL, NULL, NULL, NULL };
 Image* g_hammerMonsterDeadFrame = NULL;
+
+// 191~201번: 스파크 몬스터 프레임
+Image* g_sparkMonsterIdleFrame = NULL;
+Image* g_sparkMonsterWalkFrames[5] = { NULL, NULL, NULL, NULL, NULL };
+Image* g_sparkMonsterAttackFrames[4] = { NULL, NULL, NULL, NULL };
+Image* g_sparkMonsterDeadFrame = NULL;
 
 // 27~29번: SHIFT 달리기 바람 이펙트
 Image* g_dashWindFrames[3] = { NULL, NULL, NULL };
@@ -705,6 +713,10 @@ const int HAMMER_MONSTER_WALK_FRAME_COUNT = 3;
 const int HAMMER_MONSTER_ATTACK_FRAME_COUNT = 4;
 const int HAMMER_MONSTER_W = 48;
 const int HAMMER_MONSTER_H = 48;
+const int SPARK_MONSTER_WALK_FRAME_COUNT = 5;
+const int SPARK_MONSTER_ATTACK_FRAME_COUNT = 4;
+const int SPARK_MONSTER_W = 48;
+const int SPARK_MONSTER_H = 48;
 
 // 스파크 커비 상태. 4 = 스파크 속성
 bool isSparkKirby = false;
@@ -3762,6 +3774,13 @@ void GetRescueCount(int* rescued, int* total)
         return;
     }
 
+    if (g_currentStage == 3)
+    {
+        *rescued = g_stage3ChildRescued;
+        *total = g_stage3ChildTotal;
+        return;
+    }
+
     *rescued = 0;
     *total = 0;
 }
@@ -3934,7 +3953,7 @@ void AddGameScore(int score)
 
 int GetTotalStudentCount()
 {
-    return g_stage1ChildTotal + g_stage2ChildTotal;
+    return g_stage1ChildTotal + g_stage2ChildTotal + g_stage3ChildTotal;
 }
 
 bool IsFastClear();
@@ -4243,10 +4262,11 @@ void DrawGameHUD(Graphics& graphics)
     if (g_currentStage == 5)
         return;
 
+    int panelH = (g_currentStage == 3) ? 184 : 128;
     SolidBrush panelBrush(Color(150, 15, 20, 35));
     Pen panelPen(Color(220, 255, 235, 160), 2);
-    graphics.FillRectangle(&panelBrush, 12, 12, 382, 128);
-    graphics.DrawRectangle(&panelPen, 12, 12, 382, 128);
+    graphics.FillRectangle(&panelBrush, 12, 12, 382, panelH);
+    graphics.DrawRectangle(&panelPen, 12, 12, 382, panelH);
 
     FontFamily fontFamily(L"Arial");
     Font stageFont(&fontFamily, 18, FontStyleBold, UnitPixel);
@@ -4290,6 +4310,34 @@ void DrawGameHUD(Graphics& graphics)
     wsprintf(lifeText, L"LIFE  %d", g_kirbyLives);
     RectF lifeRect(28.0f, 116.0f, 110.0f, 20.0f);
     graphics.DrawString(lifeText, -1, &smallFont, lifeRect, NULL, &subBrush);
+
+    if (g_currentStage == 3)
+    {
+        int remainingMonsters = 0;
+        for (int i = 0; i < MONSTER_COUNT; i++)
+        {
+            if (g_monsters[i].active)
+                remainingMonsters++;
+        }
+
+        bool studentDone = g_stage3ChildRescued >= g_stage3ChildTotal;
+        bool monsterDone = remainingMonsters <= 0;
+
+        SolidBrush okBrush(Color(245, 125, 255, 150));
+        SolidBrush waitBrush(Color(245, 255, 210, 100));
+
+        RectF studentRect(28.0f, 140.0f, 340.0f, 20.0f);
+        graphics.DrawString(studentDone ? L"CLEAR  STUDENT OK" : L"CLEAR  STUDENT 0/1", -1, &smallFont, studentRect, NULL, studentDone ? &okBrush : &waitBrush);
+
+        wchar_t monsterText[64];
+        if (monsterDone)
+            wsprintf(monsterText, L"CLEAR  MONSTER OK");
+        else
+            wsprintf(monsterText, L"CLEAR  MONSTER LEFT %d", remainingMonsters);
+
+        RectF monsterRect(28.0f, 160.0f, 340.0f, 20.0f);
+        graphics.DrawString(monsterText, -1, &smallFont, monsterRect, NULL, monsterDone ? &okBrush : &waitBrush);
+    }
 
     if (g_debugMode)
     {
@@ -4566,11 +4614,11 @@ void ResetRecoveryItems()
     g_bossItemDropTick = RandomRange(180, 260);
 
     if (g_currentStage == 1)
-        SpawnRecoveryItem(RECOVERY_ITEM_MEAT, 1228, 184, false);
+        SpawnRecoveryItem(RECOVERY_ITEM_MEAT, 1228, 155, false);
     else if (g_currentStage == 2)
-        SpawnRecoveryItem(RECOVERY_ITEM_POTION, 1466, 277, false);
+        SpawnRecoveryItem(RECOVERY_ITEM_POTION, 1530, 255, false);
     else if (g_currentStage == 3)
-        SpawnRecoveryItem(RECOVERY_ITEM_BIG_POTION, 681, 538, false);
+        SpawnRecoveryItem(RECOVERY_ITEM_BIG_POTION, 1130, 518, false);
 }
 
 int GetRecoveryItemHealPercent(int type)
@@ -5802,10 +5850,6 @@ void DrawScene(HDC hdc, HWND hWnd)
     {
         DrawKirbyImage(graphics, g_bombAttackFrames[bombAttackFrameIndex]);
     }
-    else if (isHammerInvincibleSkill && g_hammerInvincibleFrames[hammerInvincibleFrameIndex] != NULL)
-    {
-        DrawKirbyImage(graphics, g_hammerInvincibleFrames[hammerInvincibleFrameIndex]);
-    }
     else if (isSparkSpecialAttack && g_sparkSpecialAttackFrames[sparkSpecialAttackFrameIndex] != NULL)
     {
         Image* sparkSpecialFrame = g_sparkSpecialAttackFrames[sparkSpecialAttackFrameIndex];
@@ -6019,7 +6063,7 @@ void DrawScene(HDC hdc, HWND hWnd)
 
     }
     DrawKirbyDamageFlash(graphics);
-    if (g_invincibleMode)
+    if (g_invincibleMode || isHammerInvincibleSkill)
     {
         Pen invPen(Color(220, 255, 255, 80), 3);
         graphics.DrawEllipse(&invPen, kirbyX - 5, kirbyY - 5, kirbyW + 10, kirbyH + 10);

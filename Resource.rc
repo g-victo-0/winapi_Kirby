@@ -420,9 +420,27 @@ IDB_PNG186              PNG                     "res\\스파크 공격i1.png"
 IDB_PNG187              PNG                     "res\\스파크 공격 i2.png"
 
 IDB_PNG188              PNG                     "res\\스파크 공격 i3.png"
-IDB_PNG189              PNG                     "res\\망치커비 i스킬1.png"
+IDB_PNG191              PNG                     "res\\스파크 몬스터 기본.png"
 
-IDB_PNG190              PNG                     "res\\망치커비 i스킬2.png"
+IDB_PNG192              PNG                     "res\\스파크 몬스터 걷기1.png"
+
+IDB_PNG193              PNG                     "res\\스파크 몬스터 걷기2.png"
+
+IDB_PNG194              PNG                     "res\\스파크 몬스터 걷기3.png"
+
+IDB_PNG195              PNG                     "res\\스파크 몬스터 걷기4.png"
+
+IDB_PNG196              PNG                     "res\\스파크 몬스터 걷기5.png"
+
+IDB_PNG197              PNG                     "res\\스파크 몬스터 공격1.png"
+
+IDB_PNG198              PNG                     "res\\스파크 몬스터 공격2.png"
+
+IDB_PNG199              PNG                     "res\\스파크 몬스터 공격3.png"
+
+IDB_PNG200              PNG                     "res\\스파크 몬스터 공격4.png"
+
+IDB_PNG201              PNG                     "res\\스파크 몬스터 피해받음.png"
 
 
 /////////////////////////////////////////////////////////////////////////////

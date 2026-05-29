@@ -1653,7 +1653,7 @@ void StartHammerAttack()
     if (!isHammerKirby)
         return;
 
-    if (isHammerAttack || isHammerInvincibleSkill)
+    if (isHammerAttack)
         return;
 
     isHammerAttack = true;
@@ -1753,7 +1753,7 @@ void StartHammerInvincibleSkill()
     if (!isHammerKirby)
         return;
 
-    if (isHammerInvincibleSkill || isHammerAttack)
+    if (isHammerInvincibleSkill)
         return;
 
     if (hammerInvincibleCooldownTick > 0)
@@ -1763,11 +1763,6 @@ void StartHammerInvincibleSkill()
     hammerInvincibleSkillTick = 0;
     hammerInvincibleFrameIndex = 0;
     hammerInvincibleFrameTick = 0;
-
-    isSpace = false;
-    isSpaceRelease = false;
-    isCrouch = false;
-    StopMove();
 }
 
 void UpdateHammerInvincibleSkill()
