@@ -194,6 +194,26 @@ void SetKirbyPowerSizeKeepBottom()
         kirbyY = WORLD_H - kirbyH;
 }
 
+void SetKirbyHammerSizeKeepBottom()
+{
+    int oldBottom = kirbyY + kirbyH;
+
+    kirbyW = HAMMER_KIRBY_W;
+    kirbyH = HAMMER_KIRBY_H;
+    kirbyY = oldBottom - kirbyH;
+
+    if (kirbyY < 0)
+        kirbyY = 0;
+
+    int currentWorldW = GetCurrentWorldW();
+
+    if (kirbyX + kirbyW > currentWorldW)
+        kirbyX = currentWorldW - kirbyW;
+
+    if (kirbyY + kirbyH > WORLD_H)
+        kirbyY = WORLD_H - kirbyH;
+}
+
 void UpdatePowerWait()
 {
     if (!isPowerKirby)
@@ -1559,7 +1579,7 @@ void StartHammerKirbyTransform()
     absorbedMonsterType = 0;
     digestResultType = 0;
 
-    SetKirbyNormalSizeKeepBottom();
+    SetKirbyHammerSizeKeepBottom();
 }
 
 void StartHammerAttack()
@@ -1589,18 +1609,18 @@ bool IsHammerAttackDamageFrame()
 RECT GetHammerAttackRect()
 {
     RECT rc;
-    int attackW = 62;
-    int attackH = 46;
-    int attackY = kirbyY + 1;
+    int attackW = 35;
+    int attackH = 36;
+    int attackY = kirbyY + 11;
 
     if (kirbyFaceLeft)
     {
-        rc.left = kirbyX - attackW + 14;
-        rc.right = kirbyX + 14;
+        rc.left = kirbyX - attackW + 10;
+        rc.right = kirbyX + 10;
     }
     else
     {
-        rc.left = kirbyX + kirbyW - 14;
+        rc.left = kirbyX + kirbyW - 10;
         rc.right = rc.left + attackW;
     }
 

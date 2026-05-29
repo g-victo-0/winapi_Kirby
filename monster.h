@@ -97,8 +97,16 @@ public:
     {
         x = startX;
         y = startY;
-        w = 32;
-        h = 32;
+        if (type == 3)
+        {
+            w = HAMMER_MONSTER_W;
+            h = HAMMER_MONSTER_H;
+        }
+        else
+        {
+            w = 32;
+            h = 32;
+        }
 
         speed = 2;
         dir = startDir;
@@ -269,18 +277,18 @@ public:
     RECT GetHammerMonsterAttackRect()
     {
         RECT rc;
-        int attackW = 58;
-        int attackH = 46;
+        int attackW = 46;
+        int attackH = 34;
         int attackY = y + h / 2 - attackH / 2;
 
         if (dir < 0)
         {
-            rc.left = x - attackW + 18;
-            rc.right = x + 18;
+            rc.left = x - attackW + 12;
+            rc.right = x + 12;
         }
         else
         {
-            rc.left = x + w - 18;
+            rc.left = x + w - 12;
             rc.right = rc.left + attackW;
         }
 

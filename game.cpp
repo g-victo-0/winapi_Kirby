@@ -552,6 +552,8 @@ const int NORMAL_KIRBY_W = 48;
 const int NORMAL_KIRBY_H = 48;
 const int POWER_KIRBY_W = 64;
 const int POWER_KIRBY_H = 64;
+const int HAMMER_KIRBY_W = 58;
+const int HAMMER_KIRBY_H = 58;
 
 // 몬스터를 먹은 뒤 커진 커비 상태
 bool isPowerKirby = false;
@@ -646,6 +648,8 @@ const int HAMMER_ATTACK_FRAME_DURATION = 2;
 bool hammerAttackHitDone = false;
 const int HAMMER_MONSTER_WALK_FRAME_COUNT = 3;
 const int HAMMER_MONSTER_ATTACK_FRAME_COUNT = 4;
+const int HAMMER_MONSTER_W = 48;
+const int HAMMER_MONSTER_H = 48;
 
 // 65번 폭탄 투사체와 68번 폭발
 const int BOMB_OBJECT_MAX = 12;
