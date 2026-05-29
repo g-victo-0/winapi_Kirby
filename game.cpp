@@ -566,6 +566,7 @@ Image* g_hammerBalloonFrames[2] = { NULL, NULL };
 Image* g_hammerCrouchFrame = NULL;
 Image* g_hammerKirbyHitFrame = NULL;
 Image* g_hammerAttackFrames[7] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+Image* g_hammerInvincibleFrames[2] = { NULL, NULL };
 
 // 174~185¹ø: ½ºÆÄÅ© Ä¿ºñ ÇÁ·¹ÀÓ
 Image* g_sparkIdleFrame = NULL;
@@ -575,6 +576,7 @@ Image* g_sparkBalloonFrames[2] = { NULL, NULL };
 Image* g_sparkCrouchFrame = NULL;
 Image* g_sparkKirbyHitFrame = NULL;
 Image* g_sparkAttackFrames[3] = { NULL, NULL, NULL };
+Image* g_sparkSpecialAttackFrames[3] = { NULL, NULL, NULL };
 
 // 165~173¹ø: ¸ÁÄ¡ ¸ó½ºÅÍ ÇÁ·¹ÀÓ
 Image* g_hammerMonsterIdleFrame = NULL;
@@ -691,6 +693,14 @@ int hammerAttackTick = 0;
 const int HAMMER_ATTACK_FRAME_COUNT = 7;
 const int HAMMER_ATTACK_FRAME_DURATION = 2;
 bool hammerAttackHitDone = false;
+bool isHammerInvincibleSkill = false;
+int hammerInvincibleSkillTick = 0;
+int hammerInvincibleFrameIndex = 0;
+int hammerInvincibleFrameTick = 0;
+int hammerInvincibleCooldownTick = 0;
+const int HAMMER_INVINCIBLE_DURATION_TICK = 50;
+const int HAMMER_INVINCIBLE_COOLDOWN_TICK = 250;
+const int HAMMER_INVINCIBLE_FRAME_DURATION = 6;
 const int HAMMER_MONSTER_WALK_FRAME_COUNT = 3;
 const int HAMMER_MONSTER_ATTACK_FRAME_COUNT = 4;
 const int HAMMER_MONSTER_W = 48;
@@ -710,6 +720,15 @@ const int SPARK_ATTACK_FRAME_DURATION = 5;
 bool sparkAttackHitDone = false;
 const int SPARK_ATTACK_DRAW_W = 82;
 const int SPARK_ATTACK_DRAW_H = 74;
+bool isSparkSpecialAttack = false;
+int sparkSpecialAttackFrameIndex = 0;
+int sparkSpecialAttackTick = 0;
+bool sparkSpecialAttackHitDone = false;
+const int SPARK_SPECIAL_ATTACK_FRAME_COUNT = 3;
+const int SPARK_SPECIAL_ATTACK_FRAME_DURATION = 6;
+const int SPARK_SPECIAL_ATTACK_DRAW_H = 48;
+const int SPARK_SPECIAL_ATTACK_RANGE_W = 92;
+const int SPARK_SPECIAL_ATTACK_RANGE_H = 34;
 
 // 65¹ø ÆøÅº Åõ»çÃ¼¿Í 68¹ø Æø¹ß
 const int BOMB_OBJECT_MAX = 12;
@@ -1174,12 +1193,19 @@ void UpdateHammerAttack();
 RECT GetHammerAttackRect();
 bool IsHammerAttackDamageFrame();
 void CheckHammerAttackHitMonsters();
+void StartHammerInvincibleSkill();
+void UpdateHammerInvincibleSkill();
 void StartSparkKirbyTransform();
 void StartSparkAttack();
 void UpdateSparkAttack();
 RECT GetSparkAttackRect();
 bool IsSparkAttackDamageFrame();
 void CheckSparkAttackHitMonsters();
+void StartSparkSpecialAttack();
+void UpdateSparkSpecialAttack();
+RECT GetSparkSpecialAttackRect();
+bool IsSparkSpecialAttackDamageFrame();
+void CheckSparkSpecialAttackHitMonsters();
 void SpawnBombObject(int x, int y, float vx, float vy, bool fromEnemy);
 void UpdateBombObjects();
 void DrawBombObjects(Graphics& graphics);
@@ -1302,12 +1328,19 @@ void UpdateHammerAttack();
 RECT GetHammerAttackRect();
 bool IsHammerAttackDamageFrame();
 void CheckHammerAttackHitMonsters();
+void StartHammerInvincibleSkill();
+void UpdateHammerInvincibleSkill();
 void StartSparkKirbyTransform();
 void StartSparkAttack();
 void UpdateSparkAttack();
 RECT GetSparkAttackRect();
 bool IsSparkAttackDamageFrame();
 void CheckSparkAttackHitMonsters();
+void StartSparkSpecialAttack();
+void UpdateSparkSpecialAttack();
+RECT GetSparkSpecialAttackRect();
+bool IsSparkSpecialAttackDamageFrame();
+void CheckSparkSpecialAttackHitMonsters();
 void SpawnBombObject(int x, int y, float vx, float vy, bool fromEnemy);
 void UpdateBombObjects();
 void DrawBombObjects(Graphics& graphics);
@@ -2197,6 +2230,17 @@ void CheckKirbyAttacksHitBoss()
         if (IsRectHit(sparkRc, bossRc))
         {
             sparkAttackHitDone = true;
+            DamageBoss(24);
+            return;
+        }
+    }
+
+    if (isSparkSpecialAttack && !sparkSpecialAttackHitDone && IsSparkSpecialAttackDamageFrame())
+    {
+        RECT sparkRc = GetSparkSpecialAttackRect();
+        if (IsRectHit(sparkRc, bossRc))
+        {
+            sparkSpecialAttackHitDone = true;
             DamageBoss(24);
             return;
         }
@@ -4651,10 +4695,19 @@ void ResetStageProjectiles()
     hammerAttackFrameIndex = 0;
     hammerAttackTick = 0;
     hammerAttackHitDone = false;
+    isHammerInvincibleSkill = false;
+    hammerInvincibleSkillTick = 0;
+    hammerInvincibleFrameIndex = 0;
+    hammerInvincibleFrameTick = 0;
+    hammerInvincibleCooldownTick = 0;
     isSparkAttack = false;
     sparkAttackFrameIndex = 0;
     sparkAttackTick = 0;
     sparkAttackHitDone = false;
+    isSparkSpecialAttack = false;
+    sparkSpecialAttackFrameIndex = 0;
+    sparkSpecialAttackTick = 0;
+    sparkSpecialAttackHitDone = false;
     g_bombSpecialAttackMode = false;
     bombAttackFrameIndex = 0;
     bombAttackTick = 0;
@@ -5276,7 +5329,9 @@ void UpdatePlayer(HWND hWnd)
     UpdatePowerDigest();
     UpdateFireKirbyStates();
     UpdateHammerAttack();
+    UpdateHammerInvincibleSkill();
     UpdateSparkAttack();
+    UpdateSparkSpecialAttack();
     UpdateKirbyHitEffect();
     UpdateKirbyStatusEffects();
     UpdateHPBarAnimation();
@@ -5320,6 +5375,7 @@ void CheckCollision()
     CheckFireAttacksHitMonsters();
     CheckHammerAttackHitMonsters();
     CheckSparkAttackHitMonsters();
+    CheckSparkSpecialAttackHitMonsters();
     CheckKirbyAttacksHitBoss();
 }
 
@@ -5745,6 +5801,27 @@ void DrawScene(HDC hdc, HWND hWnd)
     else if (isBombAttack && g_bombAttackFrames[bombAttackFrameIndex] != NULL)
     {
         DrawKirbyImage(graphics, g_bombAttackFrames[bombAttackFrameIndex]);
+    }
+    else if (isHammerInvincibleSkill && g_hammerInvincibleFrames[hammerInvincibleFrameIndex] != NULL)
+    {
+        DrawKirbyImage(graphics, g_hammerInvincibleFrames[hammerInvincibleFrameIndex]);
+    }
+    else if (isSparkSpecialAttack && g_sparkSpecialAttackFrames[sparkSpecialAttackFrameIndex] != NULL)
+    {
+        Image* sparkSpecialFrame = g_sparkSpecialAttackFrames[sparkSpecialAttackFrameIndex];
+        int srcH = (int)sparkSpecialFrame->GetHeight();
+        if (srcH < 1)
+            srcH = 1;
+
+        int sparkDrawH = SPARK_SPECIAL_ATTACK_DRAW_H;
+        int sparkDrawW = (int)(sparkSpecialFrame->GetWidth() * sparkDrawH / srcH);
+        int sparkDrawX = kirbyFaceLeft ? kirbyX + kirbyW - sparkDrawW : kirbyX;
+        int sparkDrawY = kirbyY + kirbyH / 2 - sparkDrawH / 2;
+
+        if (kirbyFaceLeft)
+            DrawImageFlipX(graphics, sparkSpecialFrame, sparkDrawX, sparkDrawY, sparkDrawW, sparkDrawH);
+        else
+            DrawWorldImage(graphics, sparkSpecialFrame, sparkDrawX, sparkDrawY, sparkDrawW, sparkDrawH);
     }
     else if (isSparkAttack && g_sparkAttackFrames[sparkAttackFrameIndex] != NULL)
     {
@@ -6785,9 +6862,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 // ÆøÅº Ä¿ºñ I ÇÊ»ì±â: 3¹è Å©±â ÆøÅºÀÌ ¹Ù´ÚÀ» Æ¨±â¸ç ÀÌµ¿
                 StartBombSpecialAttack();
             }
+            else if (isHammerKirby)
+            {
+                StartHammerInvincibleSkill();
+            }
             else if (isSparkKirby)
             {
-                StartSparkAttack();
+                StartSparkSpecialAttack();
             }
             break;
 

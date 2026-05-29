@@ -694,6 +694,10 @@ public:
             hammerAttackFrameIndex = 0;
             hammerAttackTick = 0;
             hammerAttackHitDone = false;
+            isHammerInvincibleSkill = false;
+            hammerInvincibleSkillTick = 0;
+            hammerInvincibleFrameIndex = 0;
+            hammerInvincibleFrameTick = 0;
             isSparkKirby = false;
             isSparkAttack = false;
             sparkAttackFrameIndex = 0;

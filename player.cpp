@@ -443,7 +443,7 @@ bool IsInsideKirby(int mouseX, int mouseY)
 
 void StartKirbyHitEffect()
 {
-    if (g_invincibleMode)
+    if (g_invincibleMode || isHammerInvincibleSkill)
         return;
 
     if (kirbyHitCooldownTick > 0)
@@ -491,7 +491,7 @@ void UpdateKirbyHitEffect()
 
 void ApplyKirbyStatusDamage(int damage)
 {
-    if (g_invincibleMode)
+    if (g_invincibleMode || isHammerInvincibleSkill)
         return;
 
     if (isGameOver)
@@ -706,6 +706,10 @@ void ClearCurrentAbilityState()
     hammerAttackFrameIndex = 0;
     hammerAttackTick = 0;
     hammerAttackHitDone = false;
+    isHammerInvincibleSkill = false;
+    hammerInvincibleSkillTick = 0;
+    hammerInvincibleFrameIndex = 0;
+    hammerInvincibleFrameTick = 0;
 
     isSparkKirby = false;
     isSparkAttack = false;
@@ -713,6 +717,10 @@ void ClearCurrentAbilityState()
     sparkAttackFrameIndex = 0;
     sparkAttackTick = 0;
     sparkAttackHitDone = false;
+    isSparkSpecialAttack = false;
+    sparkSpecialAttackFrameIndex = 0;
+    sparkSpecialAttackTick = 0;
+    sparkSpecialAttackHitDone = false;
 
     isPowerKirby = false;
     isPowerAttack = false;
@@ -1545,6 +1553,10 @@ void StartBombKirbyTransform()
     hammerAttackFrameIndex = 0;
     hammerAttackTick = 0;
     hammerAttackHitDone = false;
+    isHammerInvincibleSkill = false;
+    hammerInvincibleSkillTick = 0;
+    hammerInvincibleFrameIndex = 0;
+    hammerInvincibleFrameTick = 0;
 
     isSparkKirby = false;
     isSparkAttack = false;
@@ -1552,6 +1564,10 @@ void StartBombKirbyTransform()
     sparkAttackFrameIndex = 0;
     sparkAttackTick = 0;
     sparkAttackHitDone = false;
+    isSparkSpecialAttack = false;
+    sparkSpecialAttackFrameIndex = 0;
+    sparkSpecialAttackTick = 0;
+    sparkSpecialAttackHitDone = false;
 
     isPowerKirby = false;
     isPowerAttack = false;
@@ -1613,6 +1629,10 @@ void StartHammerKirbyTransform()
     hammerAttackFrameIndex = 0;
     hammerAttackTick = 0;
     hammerAttackHitDone = false;
+    isHammerInvincibleSkill = false;
+    hammerInvincibleSkillTick = 0;
+    hammerInvincibleFrameIndex = 0;
+    hammerInvincibleFrameTick = 0;
 
     isPowerKirby = false;
     isPowerAttack = false;
@@ -1633,7 +1653,7 @@ void StartHammerAttack()
     if (!isHammerKirby)
         return;
 
-    if (isHammerAttack)
+    if (isHammerAttack || isHammerInvincibleSkill)
         return;
 
     isHammerAttack = true;
@@ -1728,6 +1748,59 @@ void UpdateHammerAttack()
     }
 }
 
+void StartHammerInvincibleSkill()
+{
+    if (!isHammerKirby)
+        return;
+
+    if (isHammerInvincibleSkill || isHammerAttack)
+        return;
+
+    if (hammerInvincibleCooldownTick > 0)
+        return;
+
+    isHammerInvincibleSkill = true;
+    hammerInvincibleSkillTick = 0;
+    hammerInvincibleFrameIndex = 0;
+    hammerInvincibleFrameTick = 0;
+
+    isSpace = false;
+    isSpaceRelease = false;
+    isCrouch = false;
+    StopMove();
+}
+
+void UpdateHammerInvincibleSkill()
+{
+    if (isHammerInvincibleSkill)
+    {
+        hammerInvincibleSkillTick++;
+        hammerInvincibleFrameTick++;
+
+        if (hammerInvincibleFrameTick >= HAMMER_INVINCIBLE_FRAME_DURATION)
+        {
+            hammerInvincibleFrameTick = 0;
+            hammerInvincibleFrameIndex++;
+
+            if (hammerInvincibleFrameIndex >= 2)
+                hammerInvincibleFrameIndex = 0;
+        }
+
+        if (hammerInvincibleSkillTick >= HAMMER_INVINCIBLE_DURATION_TICK)
+        {
+            isHammerInvincibleSkill = false;
+            hammerInvincibleSkillTick = 0;
+            hammerInvincibleFrameIndex = 0;
+            hammerInvincibleFrameTick = 0;
+            hammerInvincibleCooldownTick = HAMMER_INVINCIBLE_COOLDOWN_TICK;
+        }
+
+        return;
+    }
+
+    if (hammerInvincibleCooldownTick > 0)
+        hammerInvincibleCooldownTick--;
+}
 void StartSparkKirbyTransform()
 {
     kirbyAbilityType = 4;
@@ -1751,6 +1824,10 @@ void StartSparkKirbyTransform()
     hammerAttackFrameIndex = 0;
     hammerAttackTick = 0;
     hammerAttackHitDone = false;
+    isHammerInvincibleSkill = false;
+    hammerInvincibleSkillTick = 0;
+    hammerInvincibleFrameIndex = 0;
+    hammerInvincibleFrameTick = 0;
 
     isSparkKirby = true;
     sparkWalkFrameIndex = 0;
@@ -1760,6 +1837,10 @@ void StartSparkKirbyTransform()
     sparkAttackFrameIndex = 0;
     sparkAttackTick = 0;
     sparkAttackHitDone = false;
+    isSparkSpecialAttack = false;
+    sparkSpecialAttackFrameIndex = 0;
+    sparkSpecialAttackTick = 0;
+    sparkSpecialAttackHitDone = false;
 
     isPowerKirby = false;
     isPowerAttack = false;
@@ -1780,7 +1861,7 @@ void StartSparkAttack()
     if (!isSparkKirby)
         return;
 
-    if (isSparkAttack)
+    if (isSparkAttack || isSparkSpecialAttack)
         return;
 
     isSparkAttack = true;
@@ -1868,6 +1949,105 @@ void UpdateSparkAttack()
     }
 }
 
+void StartSparkSpecialAttack()
+{
+    if (!isSparkKirby)
+        return;
+
+    if (isSparkAttack || isSparkSpecialAttack)
+        return;
+
+    isSparkSpecialAttack = true;
+    sparkSpecialAttackFrameIndex = 0;
+    sparkSpecialAttackTick = 0;
+    sparkSpecialAttackHitDone = false;
+
+    isSpace = false;
+    isSpaceRelease = false;
+    isCrouch = false;
+    StopMove();
+}
+
+bool IsSparkSpecialAttackDamageFrame()
+{
+    return isSparkSpecialAttack && sparkSpecialAttackFrameIndex >= 1;
+}
+
+RECT GetSparkSpecialAttackRect()
+{
+    RECT rc;
+    int attackW = SPARK_SPECIAL_ATTACK_RANGE_W;
+    int attackH = SPARK_SPECIAL_ATTACK_RANGE_H;
+    int attackY = kirbyY + kirbyH / 2 - attackH / 2;
+
+    if (kirbyFaceLeft)
+    {
+        rc.right = kirbyX + 8;
+        rc.left = rc.right - attackW;
+    }
+    else
+    {
+        rc.left = kirbyX + kirbyW - 8;
+        rc.right = rc.left + attackW;
+    }
+
+    rc.top = attackY;
+    rc.bottom = attackY + attackH;
+
+    return rc;
+}
+
+void CheckSparkSpecialAttackHitMonsters()
+{
+    if (!isSparkSpecialAttack || sparkSpecialAttackHitDone || !IsSparkSpecialAttackDamageFrame())
+        return;
+
+    RECT sparkRc = GetSparkSpecialAttackRect();
+    bool hitAny = false;
+
+    for (int i = 0; i < MONSTER_COUNT; i++)
+    {
+        if (!g_monsters[i].active)
+            continue;
+
+        RECT monsterRc;
+        monsterRc.left = g_monsters[i].x;
+        monsterRc.top = g_monsters[i].y;
+        monsterRc.right = g_monsters[i].x + g_monsters[i].w;
+        monsterRc.bottom = g_monsters[i].y + g_monsters[i].h;
+
+        if (IsRectHit(sparkRc, monsterRc))
+        {
+            AddGameScore(300);
+            g_monsters[i].StartDeadEffect();
+            hitAny = true;
+        }
+    }
+
+    if (hitAny)
+        sparkSpecialAttackHitDone = true;
+}
+
+void UpdateSparkSpecialAttack()
+{
+    if (!isSparkSpecialAttack)
+        return;
+
+    sparkSpecialAttackTick++;
+
+    if (sparkSpecialAttackTick >= SPARK_SPECIAL_ATTACK_FRAME_DURATION)
+    {
+        sparkSpecialAttackTick = 0;
+        sparkSpecialAttackFrameIndex++;
+
+        if (sparkSpecialAttackFrameIndex >= SPARK_SPECIAL_ATTACK_FRAME_COUNT)
+        {
+            isSparkSpecialAttack = false;
+            sparkSpecialAttackFrameIndex = 0;
+            sparkSpecialAttackHitDone = false;
+        }
+    }
+}
 void SpawnBombExplosion(int x, int y)
 {
     for (int i = 0; i < BOMB_EXPLOSION_MAX; i++)
