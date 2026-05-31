@@ -237,6 +237,14 @@ void UpdateKirbyPosition(HWND hWnd)
     if (isGameOver)
         return;
 
+    if (isAbsorb && (isPowerKirby || isPowerDigest || isFireKirby || isBombKirby || isHammerKirby || isSparkKirby))
+    {
+        isAbsorb = false;
+        absorbFrameIndex = 0;
+        absorbFrontEffectIndex = 0;
+        absorbFrontEffectTick = 0;
+    }
+
     if (isAbsorb)
     {
         return;
