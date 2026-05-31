@@ -602,7 +602,7 @@ int g_windDir = 1;
 int g_windTick = 0;
 int g_windCooldownTick = WIND_COOLDOWN;
 
-const int FALLING_ROCK_MAX = 5;
+const int FALLING_ROCK_MAX = 3;
 const int FALLING_ROCK_WARNING_TICK = 10;
 struct FallingRock
 {
@@ -617,7 +617,7 @@ struct FallingRock
     int warningTick;
 };
 FallingRock g_fallingRocks[FALLING_ROCK_MAX];
-int g_fallingRockSpawnTick = 25;
+int g_fallingRockSpawnTick = 40;
 
 const int RECOVERY_ITEM_MAX = 10;
 const int RECOVERY_ITEM_MEAT = 0;
@@ -971,6 +971,7 @@ void UpdateBossObjects();
 void DrawBossObjects(Graphics& graphics);
 void StartBossBerserkHeal();
 void UpdateBossBerserkHeal();
+bool IsBossBerserk();
 void CheckKirbyAttacksHitBoss();
 void ResetBossProjectiles();
 void ResetDanceStage();
@@ -1155,7 +1156,7 @@ struct BossObject
 
 BossObject g_boss;
 
-const int BOSS_PROJECTILE_MAX = 56;
+const int BOSS_PROJECTILE_MAX = 40;
 struct BossProjectile
 {
     bool active;
@@ -1247,7 +1248,7 @@ int g_rewardDoorH = 116;
 int g_rewardDoorFrameIndex = 0;
 int g_rewardDoorFrameTick = 0;
 
-const int BOSS_WARNING_MAX = 24;
+const int BOSS_WARNING_MAX = 14;
 struct BossWarning
 {
     bool active;
@@ -1594,7 +1595,7 @@ void SpawnBossProjectile(int type, int x, int y, int w, int h, float vx, float v
                 activeCount++;
         }
 
-        if (activeCount >= 20)
+        if (activeCount >= 12)
             return;
     }
 
@@ -1726,12 +1727,13 @@ void SpawnBossSpreadShot()
     int dirToKirby = (kirbyX + kirbyW / 2 < g_boss.x + g_boss.w / 2) ? -1 : 1;
     float mainSpeed = g_boss.phase2 ? 9.0f : 6.0f;
     float subSpeed = g_boss.phase2 ? 6.5f : 4.2f;
+    bool bossBerserk = IsBossBerserk();
 
     SpawnBossProjectile(5, sx, sy, size, size, mainSpeed * dirToKirby, -3.0f);
     SpawnBossProjectile(5, sx, sy, size, size, mainSpeed * dirToKirby, 0.0f);
     SpawnBossProjectile(5, sx, sy, size, size, mainSpeed * dirToKirby, 3.0f);
 
-    if (g_boss.phase2)
+    if (g_boss.phase2 && !bossBerserk)
     {
         SpawnBossProjectile(5, sx, sy, size, size, subSpeed * dirToKirby, -5.0f);
         SpawnBossProjectile(5, sx, sy, size, size, subSpeed * dirToKirby, 5.0f);
@@ -1756,10 +1758,11 @@ void SpawnBossGroundWave()
 void SpawnBossRainBurst()
 {
     // 2페이즈 연속 낙하 패턴. 세로 경고 표시는 유지함.
-    for (int i = 0; i < 5; i++)
+    int burstCount = IsBossBerserk() ? 3 : 5;
+    for (int i = 0; i < burstCount; i++)
     {
         int x = RandomRange(35, BG_PART_W - 70);
-        int delay = 10 + i * 5;
+        int delay = 12 + i * 7;
         int type = (i % 2 == 0) ? 10 : 11;
         int w = 34;
         int h = 20;
@@ -1809,9 +1812,11 @@ void SpawnBossWallRain()
 {
     // 여러 줄이 떨어지지만 커비 근처 한 칸은 안전구역으로 남기는 패턴
     int gapCenter = kirbyX + kirbyW / 2;
-    int gapW = 145;
+    bool bossBerserk = IsBossBerserk();
+    int gapW = bossBerserk ? 190 : 145;
+    int step = bossBerserk ? 150 : 90;
 
-    for (int x = 45; x < BG_PART_W - 45; x += 90)
+    for (int x = 45; x < BG_PART_W - 45; x += step)
     {
         if (x > gapCenter - gapW / 2 && x < gapCenter + gapW / 2)
             continue;
@@ -2389,14 +2394,14 @@ void UpdateBossObjects()
     if (g_bossRainAttackCooldown <= 0)
     {
         SpawnBossRainAttack();
-        g_bossRainAttackCooldown = bossBerserk ? RandomRange(44, 68) : RandomRange(35, 60); // 숫자가 클수록 하늘 공격 간격 증가
+        g_bossRainAttackCooldown = bossBerserk ? RandomRange(70, 105) : RandomRange(35, 60); // 숫자가 클수록 하늘 공격 간격 증가
     }
 
     g_bossRainBombCooldown--;
     if (g_bossRainBombCooldown <= 0)
     {
         SpawnBossRainBomb();
-        g_bossRainBombCooldown = bossBerserk ? RandomRange(58, 86) : RandomRange(55, 85); // 숫자가 클수록 폭탄 낙하 간격 증가
+        g_bossRainBombCooldown = bossBerserk ? RandomRange(90, 135) : RandomRange(55, 85); // 숫자가 클수록 폭탄 낙하 간격 증가
     }
 
     // 2페이즈부터는 세로 낙하 공격 말고 가로로 지나가는 공도 추가
@@ -2406,7 +2411,7 @@ void UpdateBossObjects()
         if (g_bossSideBallCooldown <= 0)
         {
             SpawnBossSideBall();
-            g_bossSideBallCooldown = bossBerserk ? RandomRange(72, 105) : RandomRange(55, 85); // 숫자가 클수록 가로 공 간격 증가
+            g_bossSideBallCooldown = bossBerserk ? RandomRange(125, 180) : RandomRange(55, 85); // 숫자가 클수록 가로 공 간격 증가
         }
 
         g_bossRainBurstCooldown--;
@@ -2414,7 +2419,7 @@ void UpdateBossObjects()
         {
             SpawnBossRainBurst();
             g_boss.dangerTextTick = 28;
-            g_bossRainBurstCooldown = bossBerserk ? RandomRange(170, 230) : RandomRange(180, 260);
+            g_bossRainBurstCooldown = bossBerserk ? RandomRange(260, 360) : RandomRange(180, 260);
         }
     }
 
@@ -2423,7 +2428,7 @@ void UpdateBossObjects()
     {
         SpawnBossSpreadShot();
         g_boss.dangerTextTick = 22;
-        g_bossSpreadShotCooldown = bossBerserk ? RandomRange(135, 190) : (g_boss.phase2 ? RandomRange(130, 190) : RandomRange(180, 240));
+        g_bossSpreadShotCooldown = bossBerserk ? RandomRange(220, 310) : (g_boss.phase2 ? RandomRange(130, 190) : RandomRange(180, 240));
     }
 
     g_bossAimedShotCooldown--;
@@ -2431,7 +2436,7 @@ void UpdateBossObjects()
     {
         SpawnBossAimedShot();
         g_boss.dangerTextTick = 20;
-        g_bossAimedShotCooldown = bossBerserk ? RandomRange(110, 155) : (g_boss.phase2 ? RandomRange(95, 140) : RandomRange(150, 210));
+        g_bossAimedShotCooldown = bossBerserk ? RandomRange(170, 245) : (g_boss.phase2 ? RandomRange(95, 140) : RandomRange(150, 210));
     }
 
     g_bossZigzagCooldown--;
@@ -2439,7 +2444,7 @@ void UpdateBossObjects()
     {
         SpawnBossZigzagShot();
         g_boss.dangerTextTick = 20;
-        g_bossZigzagCooldown = bossBerserk ? RandomRange(125, 175) : (g_boss.phase2 ? RandomRange(110, 160) : RandomRange(180, 240));
+        g_bossZigzagCooldown = bossBerserk ? RandomRange(190, 275) : (g_boss.phase2 ? RandomRange(110, 160) : RandomRange(180, 240));
     }
 
     if (g_boss.phase2)
@@ -2449,7 +2454,7 @@ void UpdateBossObjects()
         {
             SpawnBossGroundWave();
             g_boss.dangerTextTick = 24;
-            g_bossGroundWaveCooldown = bossBerserk ? RandomRange(160, 220) : RandomRange(170, 240);
+            g_bossGroundWaveCooldown = bossBerserk ? RandomRange(250, 350) : RandomRange(170, 240);
         }
 
         g_bossWallRainCooldown--;
@@ -2457,7 +2462,7 @@ void UpdateBossObjects()
         {
             SpawnBossWallRain();
             g_boss.dangerTextTick = 26;
-            g_bossWallRainCooldown = bossBerserk ? RandomRange(230, 310) : RandomRange(200, 280);
+            g_bossWallRainCooldown = bossBerserk ? RandomRange(360, 500) : RandomRange(200, 280);
         }
 
         g_bossBounceCooldown--;
@@ -2465,7 +2470,7 @@ void UpdateBossObjects()
         {
             SpawnBossBounceBall();
             g_boss.dangerTextTick = 22;
-            g_bossBounceCooldown = bossBerserk ? RandomRange(155, 215) : RandomRange(160, 230);
+            g_bossBounceCooldown = bossBerserk ? RandomRange(250, 350) : RandomRange(160, 230);
         }
 
         // 106/107 바닥 절반 폭발 패턴은 어색해서 제거함.
@@ -2496,7 +2501,7 @@ void UpdateBossObjects()
         if (g_boss.actionTick <= 0)
         {
             g_boss.state = BOSS_STATE_IDLE;
-            g_boss.missileCooldown = bossBerserk ? 70 : (g_boss.phase2 ? 100 : 140);
+            g_boss.missileCooldown = bossBerserk ? 115 : (g_boss.phase2 ? 100 : 140);
         }
 
         CheckBossBodyHitKirby();
@@ -2535,7 +2540,7 @@ void UpdateBossObjects()
             g_boss.state = BOSS_STATE_IDLE;
             g_boss.vx = (float)(2 * g_boss.dir);
             g_boss.vy = 0.0f;
-            g_boss.dashCooldown = bossBerserk ? 105 : (g_boss.phase2 ? 150 : 210);
+            g_boss.dashCooldown = bossBerserk ? 150 : (g_boss.phase2 ? 150 : 210);
             return;
         }
 
@@ -2582,7 +2587,7 @@ void UpdateBossObjects()
         {
             g_boss.y = groundY;
             g_boss.state = BOSS_STATE_IDLE;
-            g_boss.topBombCooldown = bossBerserk ? RandomRange(110, 155) : RandomRange(190, 260);
+            g_boss.topBombCooldown = bossBerserk ? RandomRange(180, 260) : RandomRange(190, 260);
         }
 
         CheckBossBodyHitKirby();
@@ -2617,7 +2622,7 @@ void UpdateBossObjects()
         {
             g_boss.state = BOSS_STATE_IDLE;
             g_boss.vx = (float)(2 * g_boss.dir);
-            g_boss.fastDashCooldown = bossBerserk ? RandomRange(85, 125) : RandomRange(120, 190);
+            g_boss.fastDashCooldown = bossBerserk ? RandomRange(145, 210) : RandomRange(120, 190);
         }
 
         return;
@@ -2643,7 +2648,8 @@ void UpdateBossObjects()
             g_boss.dir = -1;
         }
 
-        if (g_boss.actionTick % 12 == 0)
+        int topBombInterval = bossBerserk ? 20 : 12;
+        if (g_boss.actionTick % topBombInterval == 0)
         {
             SpawnBossMouthBomb();
             if (g_bossTopBombShakeCount < 2)
@@ -3210,10 +3216,10 @@ void DrawBossBerserkHealEffect(Graphics& graphics)
     const double PI = 3.14159265358979323846;
 
     // 1/2 PNG swirl in from 360 degrees. This is only a heal effect, not an attack.
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 3; i++)
     {
         Image* absorbFrame = (((t / 5) + i) % 2 == 0) ? g_bossBerserkAbsorbFrame1 : g_bossBerserkAbsorbFrame2;
-        double angle = i * PI * 2.0 / 5.0 + t * 0.05;
+        double angle = i * PI * 2.0 / 3.0 + t * 0.045;
         float local = (float)((t * 3 + i * 31) % 100) / 100.0f;
         float radius = 500.0f - local * 420.0f;
         float squashY = 0.64f;
@@ -4664,7 +4670,7 @@ void UpdateFallingRocks()
     if (g_fallingRockSpawnTick <= 0)
     {
         SpawnFallingRock();
-        g_fallingRockSpawnTick = RandomRange(18, 32);
+        g_fallingRockSpawnTick = RandomRange(38, 58);
     }
 
     RECT kirbyRc = GetKirbyBodyRect();
@@ -5228,18 +5234,18 @@ void DrawScreenEdgeEffects(Graphics& graphics, int screenW, int screenH)
             pulse = 32 - pulse;
 
         int alpha = 85 + pulse * 5;
-        DrawEdgeBox(graphics, screenW, screenH, 95, 0, 0, 0, 0, 5);
-        DrawEdgeBox(graphics, screenW, screenH, alpha, 150, 40, 255, 0, 4);
-        DrawEdgeBox(graphics, screenW, screenH, 55, 45, 0, 80, 20, 3);
+        DrawEdgeBox(graphics, screenW, screenH, 80, 0, 0, 0, 0, 3);
+        DrawEdgeBox(graphics, screenW, screenH, alpha, 150, 40, 255, 0, 2);
+        DrawEdgeBox(graphics, screenW, screenH, 45, 45, 0, 80, 24, 2);
 
         // Every 10 seconds in berserk mode, the purple fog creeps farther into the map.
         int fogLevel = g_bossBerserkFogTick / 600;
-        if (fogLevel > 5)
-            fogLevel = 5;
+        if (fogLevel > 4)
+            fogLevel = 4;
 
         int fogAlpha = 35 + fogLevel * 12;
         int fogInset = 42 - fogLevel * 7;
-        int fogLayers = 3 + fogLevel;
+        int fogLayers = 2 + fogLevel;
         if (fogInset < 4)
             fogInset = 4;
 
