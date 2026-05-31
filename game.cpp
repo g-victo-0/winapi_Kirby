@@ -4256,6 +4256,10 @@ void PlayFileBGM(const wchar_t* fileName)
 void SyncStageBGM()
 {
     int nextMode = GetStageBgmMode();
+
+    if (g_starTransitionActive && nextMode == 2)
+        return; // clear music starts after the star transition, when the dance screen is visible
+
     if (g_currentBgmMode == nextMode)
         return;
 
