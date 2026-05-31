@@ -891,10 +891,16 @@ void DrawDanceKirby(Graphics& graphics)
     int drawY = DANCE_FLOOR_Y - drawH + danceFrame->yOffset;
 
     if (danceFrame->flipX)
-    {
         DrawImageFlipX(graphics, frame, drawX, drawY, drawW, drawH);
-        return;
-    }
+    else
+        DrawWorldImage(graphics, frame, drawX, drawY, drawW, drawH);
 
-    DrawWorldImage(graphics, frame, drawX, drawY, drawW, drawH);
+    if (g_danceFinished && g_clearTrophyFrame != NULL)
+    {
+        const int trophyW = 42;
+        const int trophyH = 34;
+        int trophyX = g_danceX - trophyW / 2;
+        int trophyY = drawY - 10;
+        DrawWorldImage(graphics, g_clearTrophyFrame, trophyX, trophyY, trophyW, trophyH);
+    }
 }

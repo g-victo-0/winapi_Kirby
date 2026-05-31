@@ -183,6 +183,7 @@ void LoadAllImages(HWND hWnd)
     g_danceFrames[20] = LoadPNGFromResource(g_hInst, IDB_PNG135);
     g_danceFrames[21] = LoadPNGFromResource(g_hInst, IDB_PNG136);
     g_danceFrames[22] = LoadPNGFromResource(g_hInst, IDB_PNG137);
+    g_clearTrophyFrame = LoadPNGFromResource(g_hInst, IDB_PNG202);
 
     g_backgroundScaled = CreateScaledBitmap(g_background, BG_PART_W, BG_PART_H);
     g_background2Scaled = CreateScaledBitmap(g_background2, BG_PART_W, BG_PART_H);
@@ -686,6 +687,12 @@ void DeleteAllImages()
             delete g_danceFrames[i];
             g_danceFrames[i] = NULL;
         }
+    }
+
+    if (g_clearTrophyFrame != NULL)
+    {
+        delete g_clearTrophyFrame;
+        g_clearTrophyFrame = NULL;
     }
 
     if (g_powerIdleFrame != NULL)

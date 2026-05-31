@@ -42,6 +42,7 @@ const int DANCE_LEFT_X = 445;
 const int DANCE_END_TICK = 332;
 
 Image* g_danceFrames[DANCE_FRAME_COUNT] = { NULL };
+Image* g_clearTrophyFrame = NULL;
 int g_danceFrameIndex = 0;
 int g_danceFrameTick = 0;
 int g_danceTick = 0;

@@ -205,6 +205,7 @@
 #define IDB_PNG199                      362
 #define IDB_PNG200                      363
 #define IDB_PNG201                      364
+#define IDB_PNG202                      367
 #define IDR_WAVE_BOSS                   365
 #define IDR_WAVE_CLEAR                  366
 
@@ -212,7 +213,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        367
+#define _APS_NEXT_RESOURCE_VALUE        368
 #define _APS_NEXT_COMMAND_VALUE         40002
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
