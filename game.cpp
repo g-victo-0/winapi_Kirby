@@ -5555,14 +5555,15 @@ void DrawScene(HDC hdc, HWND hWnd)
     DrawEnemyFireBalls(graphics);
     DrawBossObjects(graphics);
 
-    bool hideKirbyBlink = isKirbyHit && g_currentStage != 5 && ((kirbyHitTick / 3) % 2 == 1);
+    bool isKirbyAttackMotion = isFireAttackPose || isBombAttack || isSparkSpecialAttack || isSparkAttack || isHammerAttack || isPowerAttack;
+    bool hideKirbyBlink = isKirbyHit && !isKirbyAttackMotion && g_currentStage != 5 && ((kirbyHitTick / 3) % 2 == 1);
     if (!hideKirbyBlink)
     {
     if (g_currentStage == 5)
     {
         DrawDanceKirby(graphics);
     }
-    else if (isKirbyHit)
+    else if (isKirbyHit && !isKirbyAttackMotion)
     {
         Image* hitFrame = g_kirbyHitFrame;
 
