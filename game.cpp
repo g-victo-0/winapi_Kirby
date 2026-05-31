@@ -6432,7 +6432,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             return 0;
         }
 
-        if (isAbsorb && wParam != 'K')
+        if (isAbsorb && wParam != 'K' && !isPowerKirby && !isPowerDigest && !isFireKirby && !isBombKirby && !isHammerKirby && !isSparkKirby)
         {
             return 0;
         }
@@ -6664,7 +6664,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             return 0;
         }
 
-        if (isAbsorb && wParam != 'K')
+        if (isAbsorb && wParam != 'K' && !isPowerKirby && !isPowerDigest && !isFireKirby && !isBombKirby && !isHammerKirby && !isSparkKirby)
         {
             return 0;
         }
