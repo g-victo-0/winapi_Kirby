@@ -449,6 +449,8 @@ IDB_PNG201              PNG                     "res\\스파크 몬스터 피해받음.png
 //
 
 IDR_WAVE1               WAVE                    "res\\녹음7.wav"
+IDR_WAVE_BOSS           WAVE                    "sound\\kirby_final_boss_nightmare.wav"
+IDR_WAVE_CLEAR          WAVE                    "sound\\kirby_stage_clear_theme.wav"
 
 #endif    // 한국어(대한민국) resources
 /////////////////////////////////////////////////////////////////////////////

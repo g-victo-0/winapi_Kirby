@@ -4223,10 +4223,16 @@ void StopFileBGM()
     mciSendStringW(L"close bgm_music", NULL, 0, NULL);
 }
 
-void PlayDefaultStageBGM()
+void PlayResourceBGM(int resourceId)
 {
     StopFileBGM();
-    PlaySound(MAKEINTRESOURCE(IDR_WAVE1), g_hInst, SND_RESOURCE | SND_ASYNC | SND_LOOP);
+    PlaySound(NULL, NULL, 0);
+    PlaySound(MAKEINTRESOURCE(resourceId), g_hInst, SND_RESOURCE | SND_ASYNC | SND_LOOP);
+}
+
+void PlayDefaultStageBGM()
+{
+    PlayResourceBGM(IDR_WAVE1);
 }
 
 void PlayFileBGM(const wchar_t* fileName)
@@ -4256,9 +4262,9 @@ void SyncStageBGM()
     g_currentBgmMode = nextMode;
 
     if (nextMode == 1)
-        PlayFileBGM(L"kirby_final_boss_nightmare.wav");
+        PlayResourceBGM(IDR_WAVE_BOSS);
     else if (nextMode == 2)
-        PlayFileBGM(L"kirby_stage_clear_theme.wav");
+        PlayResourceBGM(IDR_WAVE_CLEAR);
     else
         PlayDefaultStageBGM();
 }
