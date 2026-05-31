@@ -843,14 +843,24 @@ void UpdateDanceStage()
 
     StopMove();
 
-    g_danceTick++;
-
     int totalTicks = GetDanceSequenceTotalTicks();
     if (totalTicks <= 0)
         return;
 
-    if (g_danceTick >= totalTicks)
-        g_danceTick = 0;
+    if (g_danceFinished) // Ending dance stops on the last pose after one full sequence.
+    {
+        g_danceTick = totalTicks - 1;
+        ApplyDanceFrameState();
+        return;
+    }
+
+    g_danceTick++;
+
+    if (g_danceTick >= totalTicks) // Do not loop the clear dance; hold the final frame.
+    {
+        g_danceTick = totalTicks - 1;
+        g_danceFinished = true;
+    }
 
     ApplyDanceFrameState();
 }
