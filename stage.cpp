@@ -899,8 +899,8 @@ void DrawDanceKirby(Graphics& graphics)
     {
         const int trophyW = 42;
         const int trophyH = 34;
-        int trophyX = g_danceX - trophyW / 2;
-        int trophyY = drawY - 10;
+        int trophyX = g_danceX - trophyW/2;
+        int trophyY = drawY - 50;
         DrawWorldImage(graphics, g_clearTrophyFrame, trophyX, trophyY, trophyW, trophyH);
     }
 }
