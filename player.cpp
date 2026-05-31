@@ -1961,7 +1961,7 @@ void UpdateSparkAttack()
 void SpawnSparkLightning()
 {
     int currentWorldW = GetCurrentWorldW();
-    int targetCenterX = kirbyX + kirbyW / 2 + (kirbyFaceLeft ? -78 : 78);
+    int targetCenterX = kirbyX + kirbyW / 2 + (kirbyFaceLeft ? -200 : 200);
     int lightningW = SPARK_LIGHTNING_DRAW_W;
     int lightningH = SPARK_LIGHTNING_DRAW_H;
     int lightningX = targetCenterX - lightningW / 2;
