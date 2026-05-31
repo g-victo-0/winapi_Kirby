@@ -535,14 +535,14 @@ void UpdateKirbyStatusEffects()
 void UpdateHPBarAnimation()
 {
     // 실제 체력 kirbyHP까지 보이는 체력 kirbyDisplayHP를 조금씩 줄임
-    if (kirbyDisplayHP > (float)kirbyHP)
+    if (kirbyDisplayHP > (float)kirbyHP) // Damage: visible HP bar goes down slowly.
     {
         kirbyDisplayHP -= HP_ANIM_SPEED;
 
         if (kirbyDisplayHP < (float)kirbyHP)
             kirbyDisplayHP = (float)kirbyHP;
     }
-    else if (kirbyDisplayHP < (float)kirbyHP)
+    else if (kirbyDisplayHP < (float)kirbyHP) // Healing: visible HP bar goes up slowly.
     {
         kirbyDisplayHP += HP_ANIM_SPEED;
 
