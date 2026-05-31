@@ -721,6 +721,8 @@ void ClearCurrentAbilityState()
     sparkSpecialAttackFrameIndex = 0;
     sparkSpecialAttackTick = 0;
     sparkSpecialAttackHitDone = false;
+    for (int i = 0; i < SPARK_LIGHTNING_MAX; i++)
+        g_sparkLightnings[i].active = false;
 
     isPowerKirby = false;
     isPowerAttack = false;
@@ -1568,6 +1570,8 @@ void StartBombKirbyTransform()
     sparkSpecialAttackFrameIndex = 0;
     sparkSpecialAttackTick = 0;
     sparkSpecialAttackHitDone = false;
+    for (int i = 0; i < SPARK_LIGHTNING_MAX; i++)
+        g_sparkLightnings[i].active = false;
 
     isPowerKirby = false;
     isPowerAttack = false;
@@ -1836,6 +1840,8 @@ void StartSparkKirbyTransform()
     sparkSpecialAttackFrameIndex = 0;
     sparkSpecialAttackTick = 0;
     sparkSpecialAttackHitDone = false;
+    for (int i = 0; i < SPARK_LIGHTNING_MAX; i++)
+        g_sparkLightnings[i].active = false;
 
     isPowerKirby = false;
     isPowerAttack = false;
@@ -1944,6 +1950,91 @@ void UpdateSparkAttack()
     }
 }
 
+void SpawnSparkLightning()
+{
+    int currentWorldW = GetCurrentWorldW();
+    int targetCenterX = kirbyX + kirbyW / 2 + (kirbyFaceLeft ? -78 : 78);
+    int lightningW = SPARK_LIGHTNING_DRAW_W;
+    int lightningH = SPARK_LIGHTNING_DRAW_H;
+    int lightningX = targetCenterX - lightningW / 2;
+
+    if (lightningX < 0)
+        lightningX = 0;
+
+    if (lightningX + lightningW > currentWorldW)
+        lightningX = currentWorldW - lightningW;
+
+    for (int i = 0; i < SPARK_LIGHTNING_MAX; i++)
+    {
+        if (g_sparkLightnings[i].active)
+            continue;
+
+        g_sparkLightnings[i].active = true;
+        g_sparkLightnings[i].x = lightningX;
+        g_sparkLightnings[i].y = -lightningH;
+        g_sparkLightnings[i].w = lightningW;
+        g_sparkLightnings[i].h = lightningH;
+        g_sparkLightnings[i].vy = SPARK_LIGHTNING_START_VY;
+        return;
+    }
+}
+
+RECT GetSparkLightningHitRect(int index)
+{
+    RECT rc;
+
+    if (index < 0 || index >= SPARK_LIGHTNING_MAX || !g_sparkLightnings[index].active)
+    {
+        rc.left = 0;
+        rc.top = 0;
+        rc.right = 0;
+        rc.bottom = 0;
+        return rc;
+    }
+
+    rc.left = g_sparkLightnings[index].x + 12;
+    rc.top = g_sparkLightnings[index].y + 6;
+    rc.right = g_sparkLightnings[index].x + g_sparkLightnings[index].w - 12;
+    rc.bottom = g_sparkLightnings[index].y + g_sparkLightnings[index].h - 4;
+
+    return rc;
+}
+
+void UpdateSparkLightnings()
+{
+    for (int i = 0; i < SPARK_LIGHTNING_MAX; i++)
+    {
+        if (!g_sparkLightnings[i].active)
+            continue;
+
+        g_sparkLightnings[i].y += (int)g_sparkLightnings[i].vy;
+        g_sparkLightnings[i].vy += SPARK_LIGHTNING_GRAVITY;
+
+        if (g_sparkLightnings[i].y > WORLD_H + 80)
+            g_sparkLightnings[i].active = false;
+    }
+}
+
+void DrawSparkLightning(Graphics& graphics)
+{
+    if (g_sparkLightningFrame == NULL)
+        return;
+
+    for (int i = 0; i < SPARK_LIGHTNING_MAX; i++)
+    {
+        if (!g_sparkLightnings[i].active)
+            continue;
+
+        DrawWorldImage(
+            graphics,
+            g_sparkLightningFrame,
+            g_sparkLightnings[i].x,
+            g_sparkLightnings[i].y,
+            g_sparkLightnings[i].w,
+            g_sparkLightnings[i].h
+        );
+    }
+}
 void StartSparkSpecialAttack()
 {
     if (!isSparkKirby)
@@ -1956,6 +2047,7 @@ void StartSparkSpecialAttack()
     sparkSpecialAttackFrameIndex = 0;
     sparkSpecialAttackTick = 0;
     sparkSpecialAttackHitDone = false;
+    SpawnSparkLightning();
 
     isSpace = false;
     isSpaceRelease = false;
@@ -1965,7 +2057,7 @@ void StartSparkSpecialAttack()
 
 bool IsSparkSpecialAttackDamageFrame()
 {
-    return isSparkSpecialAttack && sparkSpecialAttackFrameIndex >= 1;
+    return false;
 }
 
 RECT GetSparkSpecialAttackRect()
@@ -1994,37 +2086,55 @@ RECT GetSparkSpecialAttackRect()
 
 void CheckSparkSpecialAttackHitMonsters()
 {
-    if (!isSparkSpecialAttack || sparkSpecialAttackHitDone || !IsSparkSpecialAttackDamageFrame())
-        return;
-
-    RECT sparkRc = GetSparkSpecialAttackRect();
-    bool hitAny = false;
-
-    for (int i = 0; i < MONSTER_COUNT; i++)
+    for (int i = 0; i < SPARK_LIGHTNING_MAX; i++)
     {
-        if (!g_monsters[i].active)
+        if (!g_sparkLightnings[i].active)
             continue;
 
-        RECT monsterRc;
-        monsterRc.left = g_monsters[i].x;
-        monsterRc.top = g_monsters[i].y;
-        monsterRc.right = g_monsters[i].x + g_monsters[i].w;
-        monsterRc.bottom = g_monsters[i].y + g_monsters[i].h;
+        RECT sparkRc = GetSparkLightningHitRect(i);
+        bool hitAny = false;
 
-        if (IsRectHit(sparkRc, monsterRc))
+        for (int j = 0; j < MONSTER_COUNT; j++)
         {
-            AddGameScore(300);
-            g_monsters[i].StartDeadEffect();
-            hitAny = true;
-        }
-    }
+            if (!g_monsters[j].active)
+                continue;
 
-    if (hitAny)
-        sparkSpecialAttackHitDone = true;
+            RECT monsterRc;
+            monsterRc.left = g_monsters[j].x;
+            monsterRc.top = g_monsters[j].y;
+            monsterRc.right = g_monsters[j].x + g_monsters[j].w;
+            monsterRc.bottom = g_monsters[j].y + g_monsters[j].h;
+
+            if (IsRectHit(sparkRc, monsterRc))
+            {
+                AddGameScore(300);
+                g_monsters[j].StartDeadEffect();
+                hitAny = true;
+            }
+        }
+
+        if (hitAny)
+        {
+            g_sparkLightnings[i].active = false;
+            continue;
+        }
+
+        RECT lightningRc;
+        lightningRc.left = g_sparkLightnings[i].x;
+        lightningRc.top = g_sparkLightnings[i].y;
+        lightningRc.right = g_sparkLightnings[i].x + g_sparkLightnings[i].w;
+        lightningRc.bottom = g_sparkLightnings[i].y + g_sparkLightnings[i].h;
+
+        RECT hitBlock;
+        if (HitSolidBlock(lightningRc, &hitBlock) && g_sparkLightnings[i].vy >= 0.0f)
+            g_sparkLightnings[i].active = false;
+    }
 }
 
 void UpdateSparkSpecialAttack()
 {
+    UpdateSparkLightnings();
+
     if (!isSparkSpecialAttack)
         return;
 
@@ -2033,14 +2143,9 @@ void UpdateSparkSpecialAttack()
     if (sparkSpecialAttackTick >= SPARK_SPECIAL_ATTACK_FRAME_DURATION)
     {
         sparkSpecialAttackTick = 0;
-        sparkSpecialAttackFrameIndex++;
-
-        if (sparkSpecialAttackFrameIndex >= SPARK_SPECIAL_ATTACK_FRAME_COUNT)
-        {
-            isSparkSpecialAttack = false;
-            sparkSpecialAttackFrameIndex = 0;
-            sparkSpecialAttackHitDone = false;
-        }
+        isSparkSpecialAttack = false;
+        sparkSpecialAttackFrameIndex = 0;
+        sparkSpecialAttackHitDone = false;
     }
 }
 void SpawnBombExplosion(int x, int y)

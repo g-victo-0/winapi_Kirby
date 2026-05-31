@@ -220,7 +220,7 @@ void InitStage3RescueObjects()
     g_stage3Child.w = 47;
     g_stage3Child.h = 59;
     g_stage3Child.x = 1810;
-    g_stage3Child.y = 340;
+    g_stage3Child.y = 360;
 
     // 학생 구출 + 몬스터 전멸 후 열리는 3스테이지 문
     g_stage3Door.active = true;

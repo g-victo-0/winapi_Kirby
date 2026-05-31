@@ -379,9 +379,11 @@ IDB_PNG165              PNG                     "res\\망치 몬스터 기본.png"
 
 IDB_PNG166              PNG                     "res\\망치 몬스터 걷기 1.png"
 
-IDB_PNG167              PNG                     "res\\망치 몬스터 걷기 2.png"
+IDB_PNG167              PNG                     "res\\망치 몬스터 걷기 2수정.png"
 
 IDB_PNG168              PNG                     "res\\망치 몬스터 걷기 3.png"
+
+IDB_PNG189              PNG                     "res\\망치 몬스터 걷기4.png"
 
 IDB_PNG169              PNG                     "res\\망치 몬스터 공격 1.png"
 
@@ -415,9 +417,9 @@ IDB_PNG183              PNG                     "res\\스파크 커비 공격1.png"
 IDB_PNG184              PNG                     "res\\스파크 커비 공격2.png"
 
 IDB_PNG185              PNG                     "res\\스파크 커비 공격3.png"
-IDB_PNG186              PNG                     "res\\스파크 공격i1.png"
+IDB_PNG186              PNG                     "res\\스파크 커비 공격 모션.png"
 
-IDB_PNG187              PNG                     "res\\스파크 공격 i2.png"
+IDB_PNG187              PNG                     "res\\스파크 커비의 번개.png"
 
 IDB_PNG188              PNG                     "res\\스파크 공격 i3.png"
 IDB_PNG191              PNG                     "res\\스파크 몬스터 기본.png"

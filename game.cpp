@@ -297,11 +297,12 @@ Image* g_sparkBalloonFrames[2] = { NULL, NULL };
 Image* g_sparkCrouchFrame = NULL;
 Image* g_sparkKirbyHitFrame = NULL;
 Image* g_sparkAttackFrames[3] = { NULL, NULL, NULL };
-Image* g_sparkSpecialAttackFrames[3] = { NULL, NULL, NULL };
+Image* g_sparkSpecialAttackFrames[1] = { NULL };
+Image* g_sparkLightningFrame = NULL;
 
-// 165~173번: 망치 몬스터 프레임
+// 165~173, 189번: 망치 몬스터 프레임
 Image* g_hammerMonsterIdleFrame = NULL;
-Image* g_hammerMonsterWalkFrames[3] = { NULL, NULL, NULL };
+Image* g_hammerMonsterWalkFrames[4] = { NULL, NULL, NULL, NULL };
 Image* g_hammerMonsterAttackFrames[4] = { NULL, NULL, NULL, NULL };
 Image* g_hammerMonsterDeadFrame = NULL;
 
@@ -428,7 +429,7 @@ int hammerInvincibleCooldownTick = 0;
 const int HAMMER_INVINCIBLE_DURATION_TICK = 50;
 const int HAMMER_INVINCIBLE_COOLDOWN_TICK = 250;
 const int HAMMER_INVINCIBLE_FRAME_DURATION = 6;
-const int HAMMER_MONSTER_WALK_FRAME_COUNT = 3;
+const int HAMMER_MONSTER_WALK_FRAME_COUNT = 4;
 const int HAMMER_MONSTER_ATTACK_FRAME_COUNT = 4;
 const int HAMMER_MONSTER_W = 48;
 const int HAMMER_MONSTER_H = 48;
@@ -455,11 +456,26 @@ bool isSparkSpecialAttack = false;
 int sparkSpecialAttackFrameIndex = 0;
 int sparkSpecialAttackTick = 0;
 bool sparkSpecialAttackHitDone = false;
-const int SPARK_SPECIAL_ATTACK_FRAME_COUNT = 3;
-const int SPARK_SPECIAL_ATTACK_FRAME_DURATION = 6;
-const int SPARK_SPECIAL_ATTACK_DRAW_H = 48;
+const int SPARK_SPECIAL_ATTACK_FRAME_COUNT = 1;
+const int SPARK_SPECIAL_ATTACK_FRAME_DURATION = 5;
+const int SPARK_SPECIAL_ATTACK_DRAW_H = 52;
 const int SPARK_SPECIAL_ATTACK_RANGE_W = 92;
 const int SPARK_SPECIAL_ATTACK_RANGE_H = 34;
+const int SPARK_LIGHTNING_MAX = 4;
+const int SPARK_LIGHTNING_DRAW_W = 64;
+const int SPARK_LIGHTNING_DRAW_H = 64;
+const float SPARK_LIGHTNING_START_VY = 10.0f;
+const float SPARK_LIGHTNING_GRAVITY = 0.35f;
+struct SparkLightningObject
+{
+    bool active;
+    int x;
+    int y;
+    int w;
+    int h;
+    float vy;
+};
+SparkLightningObject g_sparkLightnings[SPARK_LIGHTNING_MAX];
 
 // 65번 폭탄 투사체와 68번 폭발
 const int BOMB_OBJECT_MAX = 12;
@@ -1966,12 +1982,15 @@ void CheckKirbyAttacksHitBoss()
         }
     }
 
-    if (isSparkSpecialAttack && !sparkSpecialAttackHitDone && IsSparkSpecialAttackDamageFrame())
+    for (int i = 0; i < SPARK_LIGHTNING_MAX; i++)
     {
-        RECT sparkRc = GetSparkSpecialAttackRect();
+        if (!g_sparkLightnings[i].active)
+            continue;
+
+        RECT sparkRc = GetSparkLightningHitRect(i);
         if (IsRectHit(sparkRc, bossRc))
         {
-            sparkSpecialAttackHitDone = true;
+            g_sparkLightnings[i].active = false;
             DamageBoss(24);
             return;
         }
@@ -4480,6 +4499,8 @@ void ResetStageProjectiles()
     sparkSpecialAttackFrameIndex = 0;
     sparkSpecialAttackTick = 0;
     sparkSpecialAttackHitDone = false;
+    for (int i = 0; i < SPARK_LIGHTNING_MAX; i++)
+        g_sparkLightnings[i].active = false;
     g_bombSpecialAttackMode = false;
     bombAttackFrameIndex = 0;
     bombAttackTick = 0;
@@ -5521,6 +5542,7 @@ void DrawScene(HDC hdc, HWND hWnd)
     DrawPowerProjectile(graphics);
     DrawAbilityStar(graphics);
     DrawFireBall(graphics);
+    DrawSparkLightning(graphics);
     DrawBombObjects(graphics);
     DrawBombExplosions(graphics);
     DrawEnemyFireBalls(graphics);
@@ -5574,22 +5596,9 @@ void DrawScene(HDC hdc, HWND hWnd)
     {
         DrawKirbyImage(graphics, g_bombAttackFrames[bombAttackFrameIndex]);
     }
-    else if (isSparkSpecialAttack && g_sparkSpecialAttackFrames[sparkSpecialAttackFrameIndex] != NULL)
+    else if (isSparkSpecialAttack && g_sparkSpecialAttackFrames[0] != NULL)
     {
-        Image* sparkSpecialFrame = g_sparkSpecialAttackFrames[sparkSpecialAttackFrameIndex];
-        int srcH = (int)sparkSpecialFrame->GetHeight();
-        if (srcH < 1)
-            srcH = 1;
-
-        int sparkDrawH = SPARK_SPECIAL_ATTACK_DRAW_H;
-        int sparkDrawW = (int)(sparkSpecialFrame->GetWidth() * sparkDrawH / srcH);
-        int sparkDrawX = kirbyFaceLeft ? kirbyX + kirbyW - sparkDrawW : kirbyX;
-        int sparkDrawY = kirbyY + kirbyH / 2 - sparkDrawH / 2;
-
-        if (kirbyFaceLeft)
-            DrawImageFlipX(graphics, sparkSpecialFrame, sparkDrawX, sparkDrawY, sparkDrawW, sparkDrawH);
-        else
-            DrawWorldImage(graphics, sparkSpecialFrame, sparkDrawX, sparkDrawY, sparkDrawW, sparkDrawH);
+        DrawKirbyImage(graphics, g_sparkSpecialAttackFrames[0]);
     }
     else if (isSparkAttack && g_sparkAttackFrames[sparkAttackFrameIndex] != NULL)
     {
