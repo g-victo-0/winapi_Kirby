@@ -767,8 +767,8 @@ public:
         if (dy < 0)
             dy = -dy;
 
-        const int EAT_DISTANCE_X = 10;
-        const int EAT_DISTANCE_Y = 18;
+        const int EAT_DISTANCE_X = 14;
+        const int EAT_DISTANCE_Y = 34; // Absorb fix: allow eating even when Y is slightly off.
 
         if (dx <= EAT_DISTANCE_X && dy <= EAT_DISTANCE_Y)
         {
@@ -797,6 +797,15 @@ public:
         {
             x -= ABSORB_PULL_SPEED;
         }
+
+        int kirbyCenterY = kirbyY + kirbyH / 2;
+        int monsterCenterY = y + h / 2;
+        int pullY = kirbyCenterY - monsterCenterY;
+
+        if (pullY > 3) // Absorb fix: pull the monster vertically toward Kirby's mouth area.
+            y += 3;
+        else if (pullY < -3)
+            y -= 3;
 
         if (IsReachedKirby())
         {

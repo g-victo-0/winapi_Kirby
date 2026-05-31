@@ -3126,7 +3126,6 @@ void DrawBossPhase2TransitionOverlay(Graphics& graphics, int screenW, int screen
     {
         FontFamily fontFamily(L"Arial");
         Font dangerFont(&fontFamily, 42, FontStyleBold, UnitPixel);
-        Font smallFont(&fontFamily, 18, FontStyleBold, UnitPixel);
         StringFormat format;
         format.SetAlignment(StringAlignmentCenter);
         format.SetLineAlignment(StringAlignmentCenter);
@@ -3140,11 +3139,8 @@ void DrawBossPhase2TransitionOverlay(Graphics& graphics, int screenW, int screen
         }
 
         SolidBrush dangerBrush(Color(textAlpha, 255, 40, 70));
-        SolidBrush smallBrush(Color(textAlpha, 255, 230, 230));
-        RectF dangerRect(0.0f, 150.0f, (REAL)screenW, 52.0f);
-        RectF smallRect(0.0f, 200.0f, (REAL)screenW, 30.0f);
+        RectF dangerRect(0.0f, 165.0f, (REAL)screenW, 58.0f);
         graphics.DrawString(L"DANGER", -1, &dangerFont, dangerRect, &format, &dangerBrush);
-        graphics.DrawString(L"NIGHTMARE PHASE 2", -1, &smallFont, smallRect, &format, &smallBrush);
     }
 }
 void DrawBossHitRedFlash(Graphics& graphics)
