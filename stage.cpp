@@ -27,7 +27,7 @@ SolidBlock g_solidBlocks[] =
     { { 1000, 545, 1666, 618 }, L"MAP2_LEFT_GROUND" },
 
     // 가운데 아래 바위 기둥
-    { { 1617, 453, 1777, 618 }, L"MAP2_SMALL_ROCK" },
+    { { 1575, 453, 1777, 618 }, L"MAP2_SMALL_ROCK" },
 
     // 오른쪽 큰 절벽/벽
     { { 1700, 135, 2000, 618 }, L"MAP2_BIG_CLIFF" },
@@ -98,10 +98,10 @@ SolidBlock g_stage2SolidBlocks[] =
     { { 995, 358, 1230, 650 }, L"S2_BACK_LEFT_GROUND" },
 
 
-    { { 1000, 537, 2000, 650 }, L"S2_BACK_SMALL_PILLAR" },
+    { { 1000, 537, 1710, 650 }, L"S2_BACK_SMALL_PILLAR" },
     { { 1703, 529, 1771, 650 }, L"S2_BACK_LEFT_LOW" },
     { { 1810,529, 1880, 650 }, L"S2_BACK_CENTER_BUILDING" },
-
+    { { 1910,546, 2000, 650 }, L"S2_StudentGround" },
     { { 1730, 330, 2000, 391 }, L"S2_BACK_RIGHT_LOW" },
 
     //발판
@@ -168,12 +168,12 @@ SolidBlock g_stage3SolidBlocks[] =
 
     // PNG90 첫 번째 구간: x = 0 ~ 999
     { { 0, 585, 265, 650 }, L"S3_90_LEFT_BOTTOM_GROUND" },
-    { { 410, 586, 464, 650 }, L"S3_90_LEFT_LEDGE" },
-    { { 498, 565, 553, 650 }, L"S3_90_CENTER_LONG_LEDGE" },
-    { { 644, 539, 702, 650 }, L"S3_90_CENTER_GROUND" },
-    { { 718, 539, 791, 650 }, L"S3_90_CENTER_PILLAR" },
-    { { 806, 539, 875, 650 }, L"S3_90_RIGHT_LEDGE" },
-    { { 892, 539, 1015, 650 }, L"S3_90_RIGHT_GROUND" },
+    { { 410, 586, 475, 650 }, L"S3_90_LEFT_LEDGE" },
+    { { 498, 565, 563, 650 }, L"S3_90_CENTER_LONG_LEDGE" },
+    { { 650, 539, 712, 650 }, L"S3_90_CENTER_GROUND" },
+    { { 735, 539, 800, 650 }, L"S3_90_CENTER_PILLAR" },
+    { { 825, 539, 895, 650 }, L"S3_90_RIGHT_LEDGE" },
+    { { 920, 539, 1015, 650 }, L"S3_90_RIGHT_GROUND" },
 
 
     // 화면 끝에 걸리는 정도만 막는 얇은 벽
@@ -181,17 +181,17 @@ SolidBlock g_stage3SolidBlocks[] =
     { { 0, 0, 12, 650 }, L"S3_90_LEFT_LIMIT" },
 
     // PNG91 second area: x = 1000 ~ 1999
-    { { 1000, 536, 2000, 650 }, L"S3_90_TOP_LEDGE" },
+    { { 1000, 539, 2000, 650 }, L"S3_90_TOP_LEDGE" },
     { { 1182, 406, 2000, 650 }, L"S3_91_LEFT_BOTTOM_GROUND" },
     { { 1137, 476, 1190, 491 }, L"S3_91_MAIN_LEDGE_WOOD" },
     { { 1100, 406, 1187, 424 }, L"S3_91_MAIN_GROUNDWOOD" },
     // { { 1175, 406, 2000, 650 }, L"S3_91_CENTER_PILLAR" } 필요 없어서 없앰,
 
-     { { 1852, 280, 1900, 402 }, L"S3_91_RIGHT_LEDGE" },
+     { { 1852, 285, 1900, 402 }, L"S3_91_RIGHT_LEDGE" },
      { { 1635, 425, 2000, 650 }, L"S3_91_RIGHT_GROUND" },
-     { { 1660, 280, 1723, 405 }, L"S3_91_RIGHT_OBSTACLE" },
-     { { 1660, 280, 1736, 348 }, L"S3_91_RIGHT_OBSTACLE_2" },
-     { { 1761, 280, 1900, 348 }, L"S3_91_RIGHT_WALL" },
+     { { 1660, 285, 1723, 405 }, L"S3_91_RIGHT_OBSTACLE" },
+     { { 1660, 285, 1736, 348 }, L"S3_91_RIGHT_OBSTACLE_2" },
+     { { 1761, 285, 1900, 348 }, L"S3_91_RIGHT_WALL" },
      { { 1805, 123, 1890, 146 }, L"S3_91_TOP_LEDGE" },
 
      // Restored from commit 9a72c7f: upper floors and right-end wall for stage 3.
