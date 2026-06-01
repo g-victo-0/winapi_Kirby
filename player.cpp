@@ -97,6 +97,8 @@ void UpdateSpaceRelease()
 
 void StopBalloonWithRelease()
 {
+    bool wasSpace = isSpace;
+
     if (isSpace)
     {
         isSpaceRelease = true;
@@ -105,6 +107,9 @@ void StopBalloonWithRelease()
 
     isSpace = false;
     balloonTick = 0;
+
+    if (wasSpace)
+        balloonCooldownTick = BALLOON_COOLDOWN_TICK;
 
     spaceFrameIndex = 0;
     spaceStartFrameDone = false;
@@ -126,6 +131,9 @@ void StopBalloonWithRelease()
 
 void UpdateBalloonLimit()
 {
+    if (balloonCooldownTick > 0)
+        balloonCooldownTick--;
+
     if (!isSpace)
     {
         balloonTick = 0;

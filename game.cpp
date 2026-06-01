@@ -729,10 +729,12 @@ bool isSpace = false;
 bool isAbsorb = false;
 bool isCrouch = false;
 
-// 풍선 상태는 최대 2초까지만 유지
+// 풍선 상태는 최대 1.5초까지만 유지
 int balloonTick = 0;
-const int BALLOON_DURATION_TICK = 125; // 16ms 타이머 기준 약 2초
-bool spaceKeyHeld = false; // SPACE를 계속 누르고 있어도 2초 뒤 자동 재시작되지 않게 막음
+const int BALLOON_DURATION_TICK = 38; // GAME_TIMER_MS 40ms 기준 약 1.5초
+const int BALLOON_COOLDOWN_TICK = 50; // GAME_TIMER_MS 40ms 기준 약 2초
+int balloonCooldownTick = 0;
+bool spaceKeyHeld = false; // SPACE를 계속 누르고 있어도 제한 뒤 자동 재시작되지 않게 막음
 
 // 앉기 프레임 위치 조정
 int crouchDrawOffsetY = 4;
@@ -3550,6 +3552,7 @@ void StartStarStageTransition(HWND hWnd, int targetStage)
     isSpaceRelease = false;
     isCrouch = false;
     balloonTick = 0;
+    balloonCooldownTick = 0;
     spaceKeyHeld = false;
     ResetStageProjectiles();
 }
@@ -4794,6 +4797,7 @@ void ResetKirbyPlayState(bool recoverHp)
     isSpaceRelease = false;
     isCrouch = false;
     balloonTick = 0;
+    balloonCooldownTick = 0;
     spaceKeyHeld = false;
     spaceFrameIndex = 0;
     spaceStartFrameDone = false;
@@ -4898,6 +4902,7 @@ void StartRetrySequence()
     isAbsorb = false;
     isCrouch = false;
     balloonTick = 0;
+    balloonCooldownTick = 0;
     spaceKeyHeld = false;
     kirbyVY = 0.0f;
 
@@ -4992,7 +4997,7 @@ void DrawControlGuide(Graphics& graphics, int screenW)
         return;
 
     int boxW = 230;
-    int boxH = 172;
+    int boxH = 194;
     int boxX = screenW - boxW - 16;
     int boxY = 14;
 
@@ -5012,12 +5017,13 @@ void DrawControlGuide(Graphics& graphics, int screenW)
     SolidBrush lineBrush(Color(alpha + 80 > 255 ? 255 : alpha + 80, 230, 235, 255));
 
     graphics.DrawString(L"CONTROL", -1, &titleFont, PointF((REAL)(boxX + 14), (REAL)(boxY + 10)), &titleBrush);
-    graphics.DrawString(L"\x2190 \x2192  이동", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 36)), &lineBrush);
+    graphics.DrawString(L"A / D  이동", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 36)), &lineBrush);
     graphics.DrawString(L"Space  풍선 날기", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 58)), &lineBrush);
     graphics.DrawString(L"K  공격", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 80)), &lineBrush);
     graphics.DrawString(L"I  특별 공격", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 102)), &lineBrush);
     graphics.DrawString(L"O  변신 해제", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 124)), &lineBrush);
-    graphics.DrawString(L"ESC  일시정지", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 146)), &lineBrush);
+    graphics.DrawString(L"U  상호작용", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 146)), &lineBrush);
+    graphics.DrawString(L"ESC  일시정지", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 168)), &lineBrush);
 }
 
 void DrawPauseMenu(Graphics& graphics, int screenW, int screenH)
@@ -5911,6 +5917,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                         isSpace = false;
                         isSpaceRelease = false;
                         balloonTick = 0;
+                        balloonCooldownTick = 0;
                         spaceKeyHeld = false;
                         spaceFrameIndex = 0;
                         spaceStartFrameDone = false;
@@ -6293,6 +6300,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 isSpace = false;
                 isSpaceRelease = false;
                 balloonTick = 0;
+                balloonCooldownTick = 0;
                 spaceKeyHeld = false;
                 spaceFrameIndex = 0;
                 spaceStartFrameDone = false;
@@ -6493,8 +6501,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             break;
 
         case VK_SPACE:
-            // SPACE를 계속 누르고 있는 중에 2초 제한으로 풍선이 풀렸다면,
-            // 키를 한 번 떼기 전까지 다시 풍선이 켜지지 않게 함
+            // SPACE를 계속 누르고 있는 중에 시간 제한으로 풍선이 풀렸다면,
+            // 키를 한 번 떼고 쿨타임이 끝나기 전까지 다시 풍선이 켜지지 않게 함
             if (spaceKeyHeld && !isSpace)
             {
                 break;
@@ -6508,6 +6516,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 isSpace = false;
                 isSpaceRelease = false;
                 balloonTick = 0;
+                balloonCooldownTick = 0;
                 spaceKeyHeld = false;
                 spaceFrameIndex = 0;
                 spaceStartFrameDone = false;
@@ -6529,6 +6538,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                 if (isOnGround && !isSpace)
                 {
                     StartJump();
+                    break;
+                }
+
+                if (balloonCooldownTick > 0)
+                {
                     break;
                 }
 
