@@ -51,6 +51,7 @@ struct StageKeyObject
     bool active;
     bool dropped;
     bool taken;
+    bool visible;
     int x;
     int y;
     int w;
@@ -66,6 +67,7 @@ void ResetStageKey(int monsterIndex)
     g_stageKey.active = false;
     g_stageKey.dropped = false;
     g_stageKey.taken = false;
+    g_stageKey.visible = false;
     g_stageKey.x = 0;
     g_stageKey.y = 0;
     g_stageKey.w = 28;
@@ -73,10 +75,23 @@ void ResetStageKey(int monsterIndex)
     g_stageKey.tick = 0;
     g_stageKeyMonsterIndex = monsterIndex;
 }
-
-bool IsNormalKeyStage()
+void InitHiddenStageKey(int x, int y, int w, int h)
 {
-    return g_currentStage >= 1 && g_currentStage <= 3;
+    g_stageKey.active = true;
+    g_stageKey.dropped = true;
+    g_stageKey.taken = false;
+    g_stageKey.visible = false;
+    g_stageKey.x = x;
+    g_stageKey.y = y;
+    g_stageKey.w = w;
+    g_stageKey.h = h;
+    g_stageKey.tick = 0;
+    g_stageKeyMonsterIndex = -1;
+}
+
+bool IsKeyStage()
+{
+    return g_currentStage == 1 || g_currentStage == 2;
 }
 
 StageDoor* GetCurrentStageDoorPointer()
@@ -116,7 +131,7 @@ bool IsKirbyNearStageDoor(StageDoor* door)
 
 void DropStageKeyFromMonster(int monsterIndex)
 {
-    if (!IsNormalKeyStage())
+    if (g_currentStage != 1)
         return;
 
     if (g_stageKeyMonsterIndex != monsterIndex)
@@ -130,6 +145,7 @@ void DropStageKeyFromMonster(int monsterIndex)
     g_stageKey.active = true;
     g_stageKey.dropped = true;
     g_stageKey.taken = false;
+    g_stageKey.visible = true;
     g_stageKey.x = monster->x + monster->w / 2 - g_stageKey.w / 2;
     g_stageKey.y = monster->y + monster->h - g_stageKey.h;
     g_stageKey.tick = 0;
@@ -137,7 +153,7 @@ void DropStageKeyFromMonster(int monsterIndex)
 
 void UpdateStageKeyObject()
 {
-    if (!IsNormalKeyStage())
+    if (!IsKeyStage())
         return;
 
     if (!g_stageKey.dropped && g_stageKeyMonsterIndex >= 0 && g_stageKeyMonsterIndex < MONSTER_COUNT)
@@ -438,12 +454,12 @@ void InitRescueObjects()
     if (g_currentStage == 2)
     {
         InitStage2RescueObjects();
-        ResetStageKey(6);
+        InitHiddenStageKey(1830, 300, 80, 100);
     }
     else if (g_currentStage == 3)
     {
         InitStage3RescueObjects();
-        ResetStageKey(5);
+        ResetStageKey(-1);
     }
     else if (g_currentStage == 4)
     {
@@ -587,6 +603,11 @@ void UpdateRescueObjects()
 
     if (g_currentStage == 3)
     {
+        if (g_stage3ChildRescued >= g_stage3ChildTotal && AreStage3MonstersCleared() && !g_stage3Door.opened && !g_stage3Door.opening)
+        {
+            g_stage3Door.opening = true;
+        }
+
         UpdateDoorOpen(&g_stage3Door);
     }
 }
@@ -684,7 +705,7 @@ void GoNextMap(HWND hWnd)
 
 void TryStageDoorInteraction()
 {
-    if (!IsNormalKeyStage())
+    if (!IsKeyStage())
         return;
 
     StageDoor* door = GetCurrentStageDoorPointer();
@@ -791,10 +812,13 @@ void DrawChildObject(Graphics& graphics, RescueChild child, int frameType)
 
 void DrawStageKeyObjects(Graphics& graphics)
 {
-    if (!IsNormalKeyStage())
+    if (!IsKeyStage())
         return;
 
     if (g_stageKey.taken)
+        return;
+
+    if (!g_stageKey.visible)
         return;
 
     int drawX = g_stageKey.x;
@@ -802,26 +826,11 @@ void DrawStageKeyObjects(Graphics& graphics)
     int drawW = g_stageKey.w;
     int drawH = g_stageKey.h;
 
-    if (!g_stageKey.dropped)
-    {
-        if (g_stageKeyMonsterIndex < 0 || g_stageKeyMonsterIndex >= MONSTER_COUNT)
-            return;
+    if (!g_stageKey.dropped || !g_stageKey.active)
+        return;
 
-        Monster* monster = &g_monsters[g_stageKeyMonsterIndex];
-        if (!monster->active)
-            return;
-
-        drawX = monster->x + monster->w / 2 - drawW / 2;
-        drawY = monster->y - drawH + 6;
-    }
-    else
-    {
-        if (!g_stageKey.active)
-            return;
-
-        if ((g_stageKey.tick / 8) % 2 == 1)
-            drawY -= 2;
-    }
+    if ((g_stageKey.tick / 8) % 2 == 1)
+        drawY -= 2;
 
     if (g_bossKeyFrame != NULL)
     {
