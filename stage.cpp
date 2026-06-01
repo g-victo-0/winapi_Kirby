@@ -44,6 +44,127 @@ SolidBlock g_solidBlocks[] =
 };
 
 int g_solidBlockCount = sizeof(g_solidBlocks) / sizeof(g_solidBlocks[0]);
+RECT GetDoorRect(StageDoor door);
+
+struct StageKeyObject
+{
+    bool active;
+    bool dropped;
+    bool taken;
+    int x;
+    int y;
+    int w;
+    int h;
+    int tick;
+};
+
+StageKeyObject g_stageKey;
+int g_stageKeyMonsterIndex = -1;
+
+void ResetStageKey(int monsterIndex)
+{
+    g_stageKey.active = false;
+    g_stageKey.dropped = false;
+    g_stageKey.taken = false;
+    g_stageKey.x = 0;
+    g_stageKey.y = 0;
+    g_stageKey.w = 28;
+    g_stageKey.h = 28;
+    g_stageKey.tick = 0;
+    g_stageKeyMonsterIndex = monsterIndex;
+}
+
+bool IsNormalKeyStage()
+{
+    return g_currentStage >= 1 && g_currentStage <= 3;
+}
+
+StageDoor* GetCurrentStageDoorPointer()
+{
+    if (g_currentStage == 1)
+        return &g_stage1Door;
+
+    if (g_currentStage == 2)
+        return &g_stage2Door;
+
+    if (g_currentStage == 3)
+        return &g_stage3Door;
+
+    return NULL;
+}
+
+RECT GetStageKeyRect()
+{
+    return MakeRectFromXYWH(g_stageKey.x, g_stageKey.y, g_stageKey.w, g_stageKey.h);
+}
+
+bool IsKirbyNearStageDoor(StageDoor* door)
+{
+    if (door == NULL)
+        return false;
+
+    RECT kirbyRc = GetKirbyBodyRect();
+    RECT doorRc = GetDoorRect(*door);
+
+    doorRc.left -= 24;
+    doorRc.right += 24;
+    doorRc.top -= 16;
+    doorRc.bottom += 16;
+
+    return IsRectHit(kirbyRc, doorRc);
+}
+
+void DropStageKeyFromMonster(int monsterIndex)
+{
+    if (!IsNormalKeyStage())
+        return;
+
+    if (g_stageKeyMonsterIndex != monsterIndex)
+        return;
+
+    if (g_stageKey.dropped || g_stageKey.taken)
+        return;
+
+    Monster* monster = &g_monsters[monsterIndex];
+
+    g_stageKey.active = true;
+    g_stageKey.dropped = true;
+    g_stageKey.taken = false;
+    g_stageKey.x = monster->x + monster->w / 2 - g_stageKey.w / 2;
+    g_stageKey.y = monster->y + monster->h - g_stageKey.h;
+    g_stageKey.tick = 0;
+}
+
+void UpdateStageKeyObject()
+{
+    if (!IsNormalKeyStage())
+        return;
+
+    if (!g_stageKey.dropped && g_stageKeyMonsterIndex >= 0 && g_stageKeyMonsterIndex < MONSTER_COUNT)
+    {
+        Monster* monster = &g_monsters[g_stageKeyMonsterIndex];
+
+        if (!monster->active || monster->isDeadEffect)
+        {
+            DropStageKeyFromMonster(g_stageKeyMonsterIndex);
+        }
+    }
+
+    if (!g_stageKey.active || g_stageKey.taken)
+        return;
+
+    g_stageKey.tick++;
+
+    RECT keyRc = GetStageKeyRect();
+    RECT kirbyRc = GetKirbyBodyRect();
+
+    if (IsRectHit(keyRc, kirbyRc))
+    {
+        g_stageKey.active = false;
+        g_stageKey.taken = true;
+        PlayGameSound(SFX_RESCUE);
+    }
+}
 
 // =========================
 // 2스테이지 충돌체: 88번(0~999), 89번(1000~1999)
@@ -315,15 +436,29 @@ RECT GetDoorRect(StageDoor door)
 void InitRescueObjects()
 {
     if (g_currentStage == 2)
+    {
         InitStage2RescueObjects();
+        ResetStageKey(6);
+    }
     else if (g_currentStage == 3)
+    {
         InitStage3RescueObjects();
+        ResetStageKey(5);
+    }
+    else if (g_currentStage == 4)
+    {
+        ResetStageKey(-1);
+    }
     else if (g_currentStage == 5)
     {
+        ResetStageKey(-1);
         ResetDanceStage();
     }
     else
+    {
         InitStage1RescueObjects();
+        ResetStageKey(3);
+    }
 
     g_isChangingMap = false;
     g_rescueAnimTick = 0;
@@ -348,11 +483,6 @@ void CheckRescueChildTouch()
             g_totalStudentsRescued++;
             AddGameScore(1000);
             StartRescueEffect(g_stage1Boy.x + g_stage1Boy.w / 2, g_stage1Boy.y + g_stage1Boy.h / 2);
-
-            if (g_stage1ChildRescued >= g_stage1ChildTotal)
-            {
-                g_stage1Door.opening = true;
-            }
         }
         return;
     }
@@ -374,11 +504,6 @@ void CheckRescueChildTouch()
                 g_totalStudentsRescued++;
                 AddGameScore(1000);
                 StartRescueEffect(g_stage2Children[i].x + g_stage2Children[i].w / 2, g_stage2Children[i].y + g_stage2Children[i].h / 2);
-
-                if (g_stage2ChildRescued >= g_stage2ChildTotal)
-                {
-                    g_stage2Door.opening = true;
-                }
             }
         }
         return;
@@ -446,35 +571,22 @@ void UpdateRescueObjects()
 {
     g_rescueAnimTick++;
 
+    UpdateStageKeyObject();
+
     if (g_currentStage == 1)
     {
-        if (g_stage1ChildRescued >= g_stage1ChildTotal && !g_stage1Door.opened)
-        {
-            g_stage1Door.opening = true;
-        }
-
         UpdateDoorOpen(&g_stage1Door);
         return;
     }
 
     if (g_currentStage == 2)
     {
-        if (g_stage2ChildRescued >= g_stage2ChildTotal && !g_stage2Door.opened)
-        {
-            g_stage2Door.opening = true;
-        }
-
         UpdateDoorOpen(&g_stage2Door);
         return;
     }
 
     if (g_currentStage == 3)
     {
-        if (g_stage3ChildRescued >= g_stage3ChildTotal && AreStage3MonstersCleared() && !g_stage3Door.opened)
-        {
-            g_stage3Door.opening = true;
-        }
-
         UpdateDoorOpen(&g_stage3Door);
     }
 }
@@ -569,6 +681,30 @@ void GoNextMap(HWND hWnd)
     StartStarStageTransition(hWnd, targetStage);
 }
 
+
+void TryStageDoorInteraction()
+{
+    if (!IsNormalKeyStage())
+        return;
+
+    StageDoor* door = GetCurrentStageDoorPointer();
+
+    if (door == NULL)
+        return;
+
+    if (!door->active || door->opened || door->opening)
+        return;
+
+    if (!g_stageKey.taken)
+        return;
+
+    if (!IsKirbyNearStageDoor(door))
+        return;
+
+    door->opening = true;
+    door->frameIndex = 0;
+    door->tick = 0;
+}
 void CheckDoorTouch(HWND hWnd)
 {
     RECT kirbyRc = GetKirbyBodyRect();
@@ -652,6 +788,51 @@ void DrawChildObject(Graphics& graphics, RescueChild child, int frameType)
     DrawWorldImage(graphics, childFrame, child.x + shakeX, child.y + bobY, child.w, child.h);
 }
 
+
+void DrawStageKeyObjects(Graphics& graphics)
+{
+    if (!IsNormalKeyStage())
+        return;
+
+    if (g_stageKey.taken)
+        return;
+
+    int drawX = g_stageKey.x;
+    int drawY = g_stageKey.y;
+    int drawW = g_stageKey.w;
+    int drawH = g_stageKey.h;
+
+    if (!g_stageKey.dropped)
+    {
+        if (g_stageKeyMonsterIndex < 0 || g_stageKeyMonsterIndex >= MONSTER_COUNT)
+            return;
+
+        Monster* monster = &g_monsters[g_stageKeyMonsterIndex];
+        if (!monster->active)
+            return;
+
+        drawX = monster->x + monster->w / 2 - drawW / 2;
+        drawY = monster->y - drawH + 6;
+    }
+    else
+    {
+        if (!g_stageKey.active)
+            return;
+
+        if ((g_stageKey.tick / 8) % 2 == 1)
+            drawY -= 2;
+    }
+
+    if (g_bossKeyFrame != NULL)
+    {
+        DrawWorldImage(graphics, g_bossKeyFrame, drawX, drawY, drawW, drawH);
+    }
+    else
+    {
+        SolidBrush keyBrush(Color(240, 255, 230, 80));
+        graphics.FillRectangle(&keyBrush, drawX, drawY, drawW, drawH);
+    }
+}
 void DrawRescueObjects(Graphics& graphics)
 {
     if (g_currentStage == 1)

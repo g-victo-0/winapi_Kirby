@@ -812,6 +812,7 @@ public:
             active = false;
             isAttack = false;
             vy = 0.0f;
+            AddGameScore(300);
 
             // 몬스터를 먹으면 몬스터 속성 번호를 저장하고 커비가 커진 상태로 변경
             absorbedMonsterType = monsterType;

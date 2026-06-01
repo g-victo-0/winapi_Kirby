@@ -5548,6 +5548,7 @@ void DrawScene(HDC hdc, HWND hWnd)
     }
 
     DrawRescueObjects(graphics);
+    DrawStageKeyObjects(graphics);
     DrawRescueEffect(graphics);
 
     DrawDashWind(graphics);
@@ -6672,6 +6673,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             break;
 
         case 'U':
+            TryStageDoorInteraction();
             TryBossRewardInteraction();
             break;
 
