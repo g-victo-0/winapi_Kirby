@@ -4129,6 +4129,11 @@ void DrawTransitionOverlay(Graphics& graphics, int screenW, int screenH)
     {
         int alpha = g_stageTitleTick > 18 ? 230 : g_stageTitleTick * 230 / 18;
         DrawStageMessage(graphics, screenW, 145, GetStageHudName(), alpha);
+
+        if (g_currentStage == 1)
+        {
+            DrawStageMessage(graphics, screenW, 215, L"학생들을 구출해줘!", alpha);
+        }
     }
 
     if (g_stageClearTick > 0)
