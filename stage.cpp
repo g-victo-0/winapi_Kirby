@@ -44,149 +44,6 @@ SolidBlock g_solidBlocks[] =
 };
 
 int g_solidBlockCount = sizeof(g_solidBlocks) / sizeof(g_solidBlocks[0]);
-RECT GetDoorRect(StageDoor door);
-
-struct StageKeyObject
-{
-    bool active;
-    bool dropped;
-    bool taken;
-    bool visible;
-    int x;
-    int y;
-    int w;
-    int h;
-    int tick;
-};
-
-StageKeyObject g_stageKey;
-int g_stageKeyMonsterIndex = -1;
-
-void ResetStageKey(int monsterIndex)
-{
-    g_stageKey.active = false;
-    g_stageKey.dropped = false;
-    g_stageKey.taken = false;
-    g_stageKey.visible = false;
-    g_stageKey.x = 0;
-    g_stageKey.y = 0;
-    g_stageKey.w = 28;
-    g_stageKey.h = 28;
-    g_stageKey.tick = 0;
-    g_stageKeyMonsterIndex = monsterIndex;
-}
-void InitHiddenStageKey(int x, int y, int w, int h)
-{
-    g_stageKey.active = true;
-    g_stageKey.dropped = true;
-    g_stageKey.taken = false;
-    g_stageKey.visible = false;
-    g_stageKey.x = x;
-    g_stageKey.y = y;
-    g_stageKey.w = w;
-    g_stageKey.h = h;
-    g_stageKey.tick = 0;
-    g_stageKeyMonsterIndex = -1;
-}
-
-bool IsKeyStage()
-{
-    return g_currentStage == 1 || g_currentStage == 2;
-}
-
-StageDoor* GetCurrentStageDoorPointer()
-{
-    if (g_currentStage == 1)
-        return &g_stage1Door;
-
-    if (g_currentStage == 2)
-        return &g_stage2Door;
-
-    if (g_currentStage == 3)
-        return &g_stage3Door;
-
-    return NULL;
-}
-
-RECT GetStageKeyRect()
-{
-    return MakeRectFromXYWH(g_stageKey.x, g_stageKey.y, g_stageKey.w, g_stageKey.h);
-}
-
-bool IsKirbyNearStageDoor(StageDoor* door)
-{
-    if (door == NULL)
-        return false;
-
-    RECT kirbyRc = GetKirbyBodyRect();
-    RECT doorRc = GetDoorRect(*door);
-
-    doorRc.left -= 24;
-    doorRc.right += 24;
-    doorRc.top -= 16;
-    doorRc.bottom += 16;
-
-    return IsRectHit(kirbyRc, doorRc);
-}
-
-void DropStageKeyFromMonster(int monsterIndex)
-{
-    if (g_currentStage != 1)
-        return;
-
-    if (g_stageKeyMonsterIndex != monsterIndex)
-        return;
-
-    if (g_stageKey.dropped || g_stageKey.taken)
-        return;
-
-    Monster* monster = &g_monsters[monsterIndex];
-
-    g_stageKey.active = true;
-    g_stageKey.dropped = true;
-    g_stageKey.taken = false;
-    g_stageKey.visible = true;
-    g_stageKey.x = monster->x + monster->w / 2 - g_stageKey.w / 2;
-    g_stageKey.y = monster->y + monster->h - g_stageKey.h;
-    g_stageKey.tick = 0;
-}
-
-void UpdateStageKeyObject()
-{
-    if (!IsKeyStage())
-        return;
-
-    if (!g_stageKey.dropped && g_stageKeyMonsterIndex >= 0 && g_stageKeyMonsterIndex < MONSTER_COUNT)
-    {
-        Monster* monster = &g_monsters[g_stageKeyMonsterIndex];
-
-        if (!monster->active || monster->isDeadEffect)
-        {
-            DropStageKeyFromMonster(g_stageKeyMonsterIndex);
-        }
-    }
-
-    if (!g_stageKey.active || g_stageKey.taken)
-        return;
-
-    g_stageKey.tick++;
-
-    RECT keyRc = GetStageKeyRect();
-    RECT kirbyRc = GetKirbyBodyRect();
-
-    if (IsRectHit(keyRc, kirbyRc))
-    {
-        g_stageKey.active = false;
-        g_stageKey.taken = true;
-        PlayGameSound(SFX_RESCUE);
-    }
-}
-
-// =========================
-// 2스테이지 충돌체: 88번(0~999), 89번(1000~1999)
-// 대충 잡은 값이라 F1 디버그 켜고 조금씩 조정하면 됨
-// =========================
-
 void InitStage1RescueObjects()
 {
     // 81번 남자 아이: 두 번째 나무 발판 위쪽에 배치
@@ -454,26 +311,21 @@ void InitRescueObjects()
     if (g_currentStage == 2)
     {
         InitStage2RescueObjects();
-        InitHiddenStageKey(1830, 300, 80, 100);
     }
     else if (g_currentStage == 3)
     {
         InitStage3RescueObjects();
-        ResetStageKey(-1);
     }
     else if (g_currentStage == 4)
     {
-        ResetStageKey(-1);
     }
     else if (g_currentStage == 5)
     {
-        ResetStageKey(-1);
         ResetDanceStage();
     }
     else
     {
         InitStage1RescueObjects();
-        ResetStageKey(3);
     }
 
     g_isChangingMap = false;
@@ -587,23 +439,31 @@ void UpdateRescueObjects()
 {
     g_rescueAnimTick++;
 
-    UpdateStageKeyObject();
-
     if (g_currentStage == 1)
     {
+        if (g_stage1ChildRescued >= g_stage1ChildTotal && !g_stage1Door.opened && !g_stage1Door.opening)
+        {
+            g_stage1Door.opening = true;
+        }
+
         UpdateDoorOpen(&g_stage1Door);
         return;
     }
 
     if (g_currentStage == 2)
     {
+        if (g_stage2ChildRescued >= g_stage2ChildTotal && !g_stage2Door.opened && !g_stage2Door.opening)
+        {
+            g_stage2Door.opening = true;
+        }
+
         UpdateDoorOpen(&g_stage2Door);
         return;
     }
 
     if (g_currentStage == 3)
     {
-        if (g_stage3ChildRescued >= g_stage3ChildTotal && AreStage3MonstersCleared() && !g_stage3Door.opened && !g_stage3Door.opening)
+        if (g_stage3ChildRescued >= g_stage3ChildTotal && !g_stage3Door.opened && !g_stage3Door.opening)
         {
             g_stage3Door.opening = true;
         }
@@ -703,29 +563,6 @@ void GoNextMap(HWND hWnd)
 }
 
 
-void TryStageDoorInteraction()
-{
-    if (!IsKeyStage())
-        return;
-
-    StageDoor* door = GetCurrentStageDoorPointer();
-
-    if (door == NULL)
-        return;
-
-    if (!door->active || door->opened || door->opening)
-        return;
-
-    if (!g_stageKey.taken)
-        return;
-
-    if (!IsKirbyNearStageDoor(door))
-        return;
-
-    door->opening = true;
-    door->frameIndex = 0;
-    door->tick = 0;
-}
 void CheckDoorTouch(HWND hWnd)
 {
     RECT kirbyRc = GetKirbyBodyRect();
@@ -810,38 +647,6 @@ void DrawChildObject(Graphics& graphics, RescueChild child, int frameType)
 }
 
 
-void DrawStageKeyObjects(Graphics& graphics)
-{
-    if (!IsKeyStage())
-        return;
-
-    if (g_stageKey.taken)
-        return;
-
-    if (!g_stageKey.visible)
-        return;
-
-    int drawX = g_stageKey.x;
-    int drawY = g_stageKey.y;
-    int drawW = g_stageKey.w;
-    int drawH = g_stageKey.h;
-
-    if (!g_stageKey.dropped || !g_stageKey.active)
-        return;
-
-    if ((g_stageKey.tick / 8) % 2 == 1)
-        drawY -= 2;
-
-    if (g_bossKeyFrame != NULL)
-    {
-        DrawWorldImage(graphics, g_bossKeyFrame, drawX, drawY, drawW, drawH);
-    }
-    else
-    {
-        SolidBrush keyBrush(Color(240, 255, 230, 80));
-        graphics.FillRectangle(&keyBrush, drawX, drawY, drawW, drawH);
-    }
-}
 void DrawRescueObjects(Graphics& graphics)
 {
     if (g_currentStage == 1)
