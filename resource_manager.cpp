@@ -49,15 +49,35 @@ Image* LoadPNGFromResource(HINSTANCE hInst, int resourceID)
 
     Image* image = Image::FromStream(pStream);
 
-    pStream->Release();
-
     if (image == NULL || image->GetLastStatus() != Ok)
     {
         delete image;
+        pStream->Release();
         return NULL;
     }
 
-    return image;
+    Bitmap* bitmap = new Bitmap(image->GetWidth(), image->GetHeight(), PixelFormat32bppARGB);
+    if (bitmap == NULL || bitmap->GetLastStatus() != Ok)
+    {
+        delete bitmap;
+        delete image;
+        pStream->Release();
+        return NULL;
+    }
+
+    Graphics graphics(bitmap);
+    Status drawStatus = graphics.DrawImage(image, 0, 0, image->GetWidth(), image->GetHeight());
+
+    delete image;
+    pStream->Release();
+
+    if (drawStatus != Ok)
+    {
+        delete bitmap;
+        return NULL;
+    }
+
+    return bitmap;
 }
 
 void LoadAllImages(HWND hWnd)

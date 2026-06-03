@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <strsafe.h>
 
 #pragma comment(lib, "gdiplus.lib")
 #pragma comment(lib, "winmm.lib")
@@ -648,8 +649,11 @@ enum GameSoundId
     SFX_BOSS_PHASE2,
     SFX_PAUSE,
     SFX_RETRY,
-    SFX_ATTACK
+    SFX_ATTACK,
+    SFX_COUNT
 };
+
+bool g_sfxOpened[SFX_COUNT] = { false };
 
 // 34번 투사체 상태
 bool isPowerProjectileActive = false;
@@ -4006,7 +4010,7 @@ void DrawGameHUD(Graphics& graphics)
     if (g_currentStage == 5)
         return;
 
-    int panelH = (g_currentStage == 3) ? 184 : 128;
+    int panelH = 128;
     SolidBrush panelBrush(Color(150, 15, 20, 35));
     Pen panelPen(Color(220, 255, 235, 160), 2);
     graphics.FillRectangle(&panelBrush, 12, 12, 382, panelH);
@@ -4055,33 +4059,6 @@ void DrawGameHUD(Graphics& graphics)
     RectF lifeRect(28.0f, 116.0f, 110.0f, 20.0f);
     graphics.DrawString(lifeText, -1, &smallFont, lifeRect, NULL, &subBrush);
 
-    if (g_currentStage == 3)
-    {
-        int remainingMonsters = 0;
-        for (int i = 0; i < MONSTER_COUNT; i++)
-        {
-            if (g_monsters[i].active)
-                remainingMonsters++;
-        }
-
-        bool studentDone = g_stage3ChildRescued >= g_stage3ChildTotal;
-        bool monsterDone = remainingMonsters <= 0;
-
-        SolidBrush okBrush(Color(245, 125, 255, 150));
-        SolidBrush waitBrush(Color(245, 255, 210, 100));
-
-        RectF studentRect(28.0f, 140.0f, 340.0f, 20.0f);
-        graphics.DrawString(studentDone ? L"CLEAR  STUDENT OK" : L"CLEAR  STUDENT 0/1", -1, &smallFont, studentRect, NULL, studentDone ? &okBrush : &waitBrush);
-
-        wchar_t monsterText[64];
-        if (monsterDone)
-            wsprintf(monsterText, L"CLEAR  MONSTER OK");
-        else
-            wsprintf(monsterText, L"CLEAR  MONSTER LEFT %d", remainingMonsters);
-
-        RectF monsterRect(28.0f, 160.0f, 340.0f, 20.0f);
-        graphics.DrawString(monsterText, -1, &smallFont, monsterRect, NULL, monsterDone ? &okBrush : &waitBrush);
-    }
 
     if (g_debugMode)
     {
@@ -4195,9 +4172,13 @@ bool IsFileExistsW(const wchar_t* path)
     return attr != INVALID_FILE_ATTRIBUTES && (attr & FILE_ATTRIBUTE_DIRECTORY) == 0;
 }
 
-void GetExeFolder(wchar_t* folder)
+void GetExeFolder(wchar_t* folder, size_t folderCount)
 {
-    GetModuleFileNameW(NULL, folder, MAX_PATH);
+    if (folder == NULL || folderCount == 0)
+        return;
+
+    GetModuleFileNameW(NULL, folder, (DWORD)folderCount);
+    folder[folderCount - 1] = 0;
 
     int len = lstrlen(folder);
     for (int i = len - 1; i >= 0; i--)
@@ -4212,27 +4193,27 @@ void GetExeFolder(wchar_t* folder)
     folder[0] = 0;
 }
 
-bool BuildGameSoundPath(const wchar_t* fileName, wchar_t* outPath)
+bool BuildGameSoundPath(const wchar_t* fileName, wchar_t* outPath, size_t outPathCount)
 {
+    if (fileName == NULL || outPath == NULL || outPathCount == 0)
+        return false;
+
     wchar_t exeFolder[MAX_PATH];
-    GetExeFolder(exeFolder);
+    GetExeFolder(exeFolder, MAX_PATH);
 
-    wsprintf(outPath, L"sound\\%s", fileName);
-    if (IsFileExistsW(outPath))
+    if (SUCCEEDED(StringCchPrintfW(outPath, outPathCount, L"sound\\%s", fileName)) && IsFileExistsW(outPath))
         return true;
 
-    wsprintf(outPath, L"..\\..\\sound\\%s", fileName);
-    if (IsFileExistsW(outPath))
+    if (SUCCEEDED(StringCchPrintfW(outPath, outPathCount, L"..\\..\\sound\\%s", fileName)) && IsFileExistsW(outPath))
         return true;
 
-    wsprintf(outPath, L"%s\\sound\\%s", exeFolder, fileName);
-    if (IsFileExistsW(outPath))
+    if (SUCCEEDED(StringCchPrintfW(outPath, outPathCount, L"%s\\sound\\%s", exeFolder, fileName)) && IsFileExistsW(outPath))
         return true;
 
-    wsprintf(outPath, L"%s\\..\\..\\sound\\%s", exeFolder, fileName);
-    if (IsFileExistsW(outPath))
+    if (SUCCEEDED(StringCchPrintfW(outPath, outPathCount, L"%s\\..\\..\\sound\\%s", exeFolder, fileName)) && IsFileExistsW(outPath))
         return true;
 
+    outPath[0] = 0;
     return false;
 }
 
@@ -4268,14 +4249,16 @@ void PlayDefaultStageBGM()
 void PlayFileBGM(const wchar_t* fileName)
 {
     wchar_t path[MAX_PATH];
-    if (!BuildGameSoundPath(fileName, path))
+    if (!BuildGameSoundPath(fileName, path, MAX_PATH))
         return;
 
     PlaySound(NULL, NULL, 0);
     StopFileBGM();
 
-    wchar_t command[512];
-    wsprintf(command, L"open \"%s\" type waveaudio alias bgm_music", path);
+    wchar_t command[1024];
+    if (FAILED(StringCchPrintfW(command, 1024, L"open \"%s\" type waveaudio alias bgm_music", path)))
+        return;
+
     if (mciSendStringW(command, NULL, 0, NULL) != 0)
         return;
 
@@ -4303,6 +4286,29 @@ void SyncStageBGM()
         PlayDefaultStageBGM();
 }
 
+bool OpenGameSound(int soundId, const wchar_t* fileName, const wchar_t* alias)
+{
+    if (soundId < 0 || soundId >= SFX_COUNT)
+        return false;
+
+    if (g_sfxOpened[soundId])
+        return true;
+
+    wchar_t path[MAX_PATH];
+    if (!BuildGameSoundPath(fileName, path, MAX_PATH))
+        return false;
+
+    wchar_t command[1024];
+    if (FAILED(StringCchPrintfW(command, 1024, L"open \"%s\" type waveaudio alias %s", path, alias)))
+        return false;
+
+    if (mciSendStringW(command, NULL, 0, NULL) != 0)
+        return false;
+
+    g_sfxOpened[soundId] = true;
+    return true;
+}
+
 void PlayGameSound(int soundId)
 {
     const wchar_t* fileName = GetGameSoundFileName(soundId);
@@ -4311,23 +4317,35 @@ void PlayGameSound(int soundId)
     if (fileName == NULL || alias == NULL)
         return;
 
-    wchar_t path[MAX_PATH];
-    if (!BuildGameSoundPath(fileName, path))
+    if (!OpenGameSound(soundId, fileName, alias))
         return;
 
-    wchar_t command[512];
-    wsprintf(command, L"stop %s", alias);
-    mciSendStringW(command, NULL, 0, NULL);
+    wchar_t command[256];
+    if (SUCCEEDED(StringCchPrintfW(command, 256, L"stop %s", alias)))
+        mciSendStringW(command, NULL, 0, NULL);
 
-    wsprintf(command, L"close %s", alias);
-    mciSendStringW(command, NULL, 0, NULL);
+    if (SUCCEEDED(StringCchPrintfW(command, 256, L"play %s from 0", alias)))
+        mciSendStringW(command, NULL, 0, NULL);
+}
 
-    wsprintf(command, L"open \"%s\" type waveaudio alias %s", path, alias);
-    if (mciSendStringW(command, NULL, 0, NULL) != 0)
-        return;
+void StopAllGameSounds()
+{
+    wchar_t command[256];
 
-    wsprintf(command, L"play %s from 0", alias);
-    mciSendStringW(command, NULL, 0, NULL);
+    for (int i = 0; i < SFX_COUNT; i++)
+    {
+        const wchar_t* alias = GetGameSoundAlias(i);
+        if (alias == NULL)
+            continue;
+
+        if (SUCCEEDED(StringCchPrintfW(command, 256, L"stop %s", alias)))
+            mciSendStringW(command, NULL, 0, NULL);
+
+        if (SUCCEEDED(StringCchPrintfW(command, 256, L"close %s", alias)))
+            mciSendStringW(command, NULL, 0, NULL);
+
+        g_sfxOpened[i] = false;
+    }
 }
 
 void ClearRecoveryItems()
@@ -5408,9 +5426,7 @@ void DrawScene(HDC hdc, HWND hWnd)
     HDC memDC = g_backDC;
 
     // 이전 프레임 잔상이 남지 않게 먼저 전체를 지움
-    HBRUSH clearBrush = CreateSolidBrush(RGB(0, 0, 0));
-    FillRect(memDC, &rt, clearBrush);
-    DeleteObject(clearBrush);
+    FillRect(memDC, &rt, (HBRUSH)GetStockObject(BLACK_BRUSH));
 
     Graphics graphics(memDC);
     graphics.SetCompositingQuality(CompositingQualityHighSpeed);
@@ -5427,9 +5443,7 @@ void DrawScene(HDC hdc, HWND hWnd)
         }
         else
         {
-            HBRUSH bgBrush = CreateSolidBrush(RGB(0, 0, 0));
-            FillRect(memDC, &rt, bgBrush);
-            DeleteObject(bgBrush);
+            FillRect(memDC, &rt, (HBRUSH)GetStockObject(BLACK_BRUSH));
 
             SetBkMode(memDC, TRANSPARENT);
             SetTextColor(memDC, RGB(255, 255, 255));
@@ -5457,9 +5471,7 @@ void DrawScene(HDC hdc, HWND hWnd)
         }
         else
         {
-            HBRUSH bgBrush = CreateSolidBrush(RGB(0, 0, 0));
-            FillRect(memDC, &rt, bgBrush);
-            DeleteObject(bgBrush);
+            FillRect(memDC, &rt, (HBRUSH)GetStockObject(BLACK_BRUSH));
 
             SetBkMode(memDC, TRANSPARENT);
             SetTextColor(memDC, RGB(255, 255, 255));
@@ -5520,9 +5532,7 @@ void DrawScene(HDC hdc, HWND hWnd)
     else if (bg1Image == NULL && g_currentStage != 5)
     {
         // 배경 리소스 로드 실패 시 파란 화면으로 보이지 않게 검은색으로 처리
-        HBRUSH bgBrush = CreateSolidBrush(RGB(0, 0, 0));
-        FillRect(memDC, &rt, bgBrush);
-        DeleteObject(bgBrush);
+        FillRect(memDC, &rt, (HBRUSH)GetStockObject(BLACK_BRUSH));
 
         SetBkMode(memDC, TRANSPARENT);
         SetTextColor(memDC, RGB(255, 80, 180));
@@ -6787,6 +6797,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
         // 프로그램 종료 시 소리 정지
         PlaySound(NULL, NULL, 0);
         StopFileBGM();
+        StopAllGameSounds();
         mciSendStringW(L"close all", NULL, 0, NULL);
 
         KillTimer(hWnd, 1);

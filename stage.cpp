@@ -396,16 +396,6 @@ void CheckRescueChildTouch()
     }
 }
 
-bool AreStage3MonstersCleared()
-{
-    for (int i = 0; i < MONSTER_COUNT; i++)
-    {
-        if (g_monsters[i].active)
-            return false;
-    }
-
-    return true;
-}
 
 void UpdateDoorOpen(StageDoor* door)
 {
