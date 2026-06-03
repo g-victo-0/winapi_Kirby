@@ -1,5 +1,5 @@
-// PNG and image resource loading/cleanup
-// Included by game.cpp to keep the existing global-state gameplay unchanged.
+// PNG와 이미지 리소스 로드/정리
+// 기존 전역 상태 게임 구조를 유지하기 위해 game.cpp에서 포함해서 사용함.
 
 Image* LoadPNGFromResource(HINSTANCE hInst, int resourceID)
 {
@@ -163,8 +163,6 @@ void LoadAllImages(HWND hWnd)
     g_bossDeathFrame2 = LoadPNGFromResource(g_hInst, IDB_PNG103);
     g_bossPatternRedBallFrame = LoadPNGFromResource(g_hInst, IDB_PNG104);
     g_bossPatternBlueBallFrame = LoadPNGFromResource(g_hInst, IDB_PNG105);
-    g_bossHalfFloorWarnFrame = LoadPNGFromResource(g_hInst, IDB_PNG106);
-    g_bossHalfFloorBoomFrame = LoadPNGFromResource(g_hInst, IDB_PNG107);
     g_bossDoorFrames[0] = LoadPNGFromResource(g_hInst, IDB_PNG108);
     g_bossDoorFrames[1] = LoadPNGFromResource(g_hInst, IDB_PNG109);
     g_bossDoorFrames[2] = LoadPNGFromResource(g_hInst, IDB_PNG110);
@@ -634,17 +632,6 @@ void DeleteAllImages()
         g_bossPatternBlueBallFrame = NULL;
     }
 
-    if (g_bossHalfFloorWarnFrame != NULL)
-    {
-        delete g_bossHalfFloorWarnFrame;
-        g_bossHalfFloorWarnFrame = NULL;
-    }
-
-    if (g_bossHalfFloorBoomFrame != NULL)
-    {
-        delete g_bossHalfFloorBoomFrame;
-        g_bossHalfFloorBoomFrame = NULL;
-    }
 
     for (int i = 0; i < 4; i++)
     {

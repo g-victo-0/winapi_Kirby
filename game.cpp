@@ -18,7 +18,7 @@ using namespace Gdiplus;
 #include "effect_manager.h"
 
 
-// PNG resource IDs are defined in resource.h, so game.cpp does not keep duplicate fallback numbers.
+// PNG 리소스 번호는 resource.h에서 관리하므로 game.cpp에 중복 번호를 만들지 않음.
 
 HINSTANCE g_hInst;
 LPCTSTR lpszClass = L"WindowClass";
@@ -181,8 +181,6 @@ Image* g_bossDeathFrame1 = NULL;      // 102번: 보스 사망 연출 1
 Image* g_bossDeathFrame2 = NULL;      // 103번: 보스 사망 연출 2
 Image* g_bossPatternRedBallFrame = NULL;  // 104번: 보스 패턴 빨간 공
 Image* g_bossPatternBlueBallFrame = NULL; // 105번: 보스 패턴 파란 공
-Image* g_bossHalfFloorWarnFrame = NULL;   // 106번: 바닥 절반 경고
-Image* g_bossHalfFloorBoomFrame = NULL;   // 107번: 바닥 절반 폭발
 Image* g_bossDoorFrames[4] = { NULL, NULL, NULL, NULL }; // 108~111번 문 열림
 Image* g_bossKeyFrame = NULL;         // 112번 열쇠
 Image* g_bossChestClosedFrame = NULL; // 113번 닫힌 상자
@@ -595,9 +593,9 @@ int g_bossDeathCount = 0;
 int g_totalStudentsRescued = 0;
 int g_gameScore = 0;
 
-// Stage gimmick state
-const int WIND_DURATION = 50;      // about 2 seconds
-const int WIND_COOLDOWN = 125;     // about 5 seconds
+// 스테이지 장치 상태
+const int WIND_DURATION = 50;      // 약 2초
+const int WIND_COOLDOWN = 125;     // 약 5초
 bool g_windActive = false;
 int g_windDir = 1;
 int g_windTick = 0;
@@ -1110,7 +1108,7 @@ void CheckBombHitMonsters(RECT bombRc, bool fromEnemy);
 // 94: 대각선 돌진, 99: 2페이즈 기본, 98: 2페이즈 상단 폭탄 자세, 97: 입 폭탄
 // 100/101: 보스맵 입장 후 계속 위에서 떨어지는 공격
 // =========================
-const int BOSS_MAX_HP = 1000; // Boss HP
+const int BOSS_MAX_HP = 1000; // 보스 체력
 const int BOSS_W = 72;   // 커비 기본 크기 48의 1.5배
 const int BOSS_H = 72;   // 커비 기본 크기 48의 1.5배
 const int BOSS_PHASE2_W = 200; // 2페이즈 99번 모습을 더 크게 표시
@@ -1162,11 +1160,11 @@ struct BossObject
 
 BossObject g_boss;
 
-const int BOSS_PROJECTILE_MAX = 40;
+const int BOSS_PROJECTILE_MAX = 28;
 struct BossProjectile
 {
     bool active;
-    int type; // 0=96 미사일, 1=97 입 폭탄, 2=100 상시 낙하 공격, 3=101 상시 낙하 폭탄, 4/7/8/105=파란 공, 5/6/9/104=빨간 공, 10/11=패턴 낙하, 12=바닥 절반 경고, 13=바닥 절반 폭발
+    int type; // 0=96 미사일, 1=97 입 폭탄, 2=100 상시 낙하 공격, 3=101 상시 낙하 폭탄, 4/7/8/105=파란 공, 5/6/9/104=빨간 공, 10/11=패턴 낙하
     int tick;
     int x;
     int y;
@@ -1187,7 +1185,6 @@ int g_bossAimedShotCooldown = 0;  // 커비 위치를 보고 조준탄
 int g_bossWallRainCooldown = 0;   // 안전구역 하나 남기고 떨어지는 장벽 낙하
 int g_bossZigzagCooldown = 0;     // 위아래로 흔들리는 탄
 int g_bossBounceCooldown = 0;     // 바닥에 튕기는 탄
-int g_bossHalfFloorCooldown = 0;  // 바닥 절반 폭발 패턴
 
 // 보스전 연출용 상태
 bool g_bossIntro = false;
@@ -1207,7 +1204,7 @@ int g_bossBerserkDropTick = 0;
 int g_bossTopBombShakeCount = 0;
 int g_screenShakeTick = 0;
 
-// Camera action effects. Only world drawing uses these offsets, so HUD stays fixed.
+// 카메라 연출 효과. 월드 그리기에만 적용해서 HUD는 고정되게 함.
 int g_cameraShakeTick = 0;
 int g_cameraShakePower = 0;
 int g_cameraOffsetX = 0;
@@ -1219,7 +1216,7 @@ int g_cameraPushPower = 0;
 int g_edgeEffectTick = 0;
 int g_bossBerserkFogTick = 0;
 
-// Stage ambient quakes: stage 1/2/3 shake 1/2/3 times at random moments.
+// 스테이지 분위기 흔들림: 1/2/3스테이지에서 가끔 1/2/3번 흔들림.
 int g_stageRandomShakeStage = 0;
 int g_stageRandomShakeDone = 0;
 int g_stageRandomShakeCooldown = 0;
@@ -1254,7 +1251,7 @@ int g_rewardDoorH = 116;
 int g_rewardDoorFrameIndex = 0;
 int g_rewardDoorFrameTick = 0;
 
-const int BOSS_WARNING_MAX = 14;
+const int BOSS_WARNING_MAX = 10;
 struct BossWarning
 {
     bool active;
@@ -1505,7 +1502,6 @@ void StartBossPhase2()
     g_bossWallRainCooldown = 165;
     g_bossZigzagCooldown = 120;
     g_bossBounceCooldown = 150;
-    g_bossHalfFloorCooldown = 180;
 
     g_boss.state = BOSS_STATE_IDLE;
     g_boss.vx = 0.0f;
@@ -1587,7 +1583,6 @@ void InitBossObjects()
     g_bossWallRainCooldown = 240;
     g_bossZigzagCooldown = 175;
     g_bossBounceCooldown = 210;
-    g_bossHalfFloorCooldown = 260;
 }
 
 void SpawnBossProjectile(int type, int x, int y, int w, int h, float vx, float vy)
@@ -1601,7 +1596,7 @@ void SpawnBossProjectile(int type, int x, int y, int w, int h, float vx, float v
                 activeCount++;
         }
 
-        if (activeCount >= 12)
+        if (activeCount >= 8)
             return;
     }
 
@@ -1764,7 +1759,7 @@ void SpawnBossGroundWave()
 void SpawnBossRainBurst()
 {
     // 2페이즈 연속 낙하 패턴. 세로 경고 표시는 유지함.
-    int burstCount = IsBossBerserk() ? 3 : 5;
+    int burstCount = IsBossBerserk() ? 2 : 5;
     for (int i = 0; i < burstCount; i++)
     {
         int x = RandomRange(35, BG_PART_W - 70);
@@ -1820,7 +1815,7 @@ void SpawnBossWallRain()
     int gapCenter = kirbyX + kirbyW / 2;
     bool bossBerserk = IsBossBerserk();
     int gapW = bossBerserk ? 190 : 145;
-    int step = bossBerserk ? 150 : 90;
+    int step = bossBerserk ? 220 : 90;
 
     for (int x = 45; x < BG_PART_W - 45; x += step)
     {
@@ -1863,11 +1858,6 @@ void SpawnBossBounceBall()
     SpawnBossProjectile(9, x, y, size, size, 7.8f * dir, -6.0f);
 }
 
-void SpawnBossHalfFloorAttack()
-{
-    // 바닥 106/107 폭발 패턴 제거
-    return;
-}
 
 void SpawnBossMouthBomb()
 {
@@ -2059,34 +2049,9 @@ void UpdateBossProjectiles()
         if (!g_bossProjectiles[i].active)
             continue;
 
-        if (g_bossProjectiles[i].type == 12 || g_bossProjectiles[i].type == 13)
-        {
-            g_bossProjectiles[i].active = false;
-            continue;
-        }
 
         g_bossProjectiles[i].tick++;
 
-        if (g_bossProjectiles[i].type == 12)
-        {
-            // 106번 바닥 절반 경고: 약 1초 뒤 107번 폭발로 변경
-            if (g_bossProjectiles[i].tick >= 25)
-            {
-                g_bossProjectiles[i].type = 13;
-                g_bossProjectiles[i].tick = 0;
-                g_screenShakeTick = 0;
-            }
-        }
-
-        if (g_bossProjectiles[i].type == 13)
-        {
-            // 107번 폭발은 잠깐만 유지
-            if (g_bossProjectiles[i].tick >= 14)
-            {
-                g_bossProjectiles[i].active = false;
-                continue;
-            }
-        }
 
         if (g_bossProjectiles[i].type == 8)
         {
@@ -2122,20 +2087,17 @@ void UpdateBossProjectiles()
         rc.right = g_bossProjectiles[i].x + g_bossProjectiles[i].w;
         rc.bottom = g_bossProjectiles[i].y + g_bossProjectiles[i].h;
 
-        // 106번 경고는 데미지 없음. 107번 폭발은 판정 있음.
-        if (g_bossProjectiles[i].type != 12 &&
-            !isKirbyHit && kirbyHitCooldownTick <= 0 && IsRectHit(kirbyRc, rc))
+        if (!isKirbyHit && kirbyHitCooldownTick <= 0 && IsRectHit(kirbyRc, rc))
         {
             int pType = g_bossProjectiles[i].type;
 
             if (pType == 4 || pType == 7 || pType == 8 || pType == 11)
                 StartKirbySlow(); // 파란 공: 이동속도 감소
 
-            if (pType == 5 || pType == 6 || pType == 9 || pType == 10 || pType == 13)
+            if (pType == 5 || pType == 6 || pType == 9 || pType == 10)
                 StartKirbyBurn(); // 빨간 공/폭발: 잠깐 지속피해
 
-            if (pType != 13)
-                g_bossProjectiles[i].active = false;
+            g_bossProjectiles[i].active = false;
 
             StartKirbyHitEffect();
             continue;
@@ -2303,18 +2265,18 @@ void UpdateBossObjects()
             g_bossBerserkDropTick = 0;
             g_boss.y = targetY;
             g_boss.vx = (float)(2 * g_boss.dir);
-            g_bossRainAttackCooldown = 44;
-            g_bossRainBombCooldown = 58;
-            g_bossSideBallCooldown = 72;
-            g_bossSpreadShotCooldown = 135;
-            g_bossGroundWaveCooldown = 160;
-            g_bossRainBurstCooldown = 170;
-            g_bossAimedShotCooldown = 110;
-            g_bossWallRainCooldown = 230;
-            g_bossZigzagCooldown = 125;
-            g_bossBounceCooldown = 155;
-            g_boss.topBombCooldown = 140;
-            g_boss.fastDashCooldown = 105;
+            g_bossRainAttackCooldown = 75;
+            g_bossRainBombCooldown = 95;
+            g_bossSideBallCooldown = 130;
+            g_bossSpreadShotCooldown = 230;
+            g_bossGroundWaveCooldown = 260;
+            g_bossRainBurstCooldown = 310;
+            g_bossAimedShotCooldown = 185;
+            g_bossWallRainCooldown = 390;
+            g_bossZigzagCooldown = 205;
+            g_bossBounceCooldown = 285;
+            g_boss.topBombCooldown = 210;
+            g_boss.fastDashCooldown = 170;
             StartCameraShake(5, 10);
         }
 
@@ -2400,14 +2362,14 @@ void UpdateBossObjects()
     if (g_bossRainAttackCooldown <= 0)
     {
         SpawnBossRainAttack();
-        g_bossRainAttackCooldown = bossBerserk ? RandomRange(70, 105) : RandomRange(35, 60); // 숫자가 클수록 하늘 공격 간격 증가
+        g_bossRainAttackCooldown = bossBerserk ? RandomRange(95, 135) : RandomRange(35, 60); // 숫자가 클수록 하늘 공격 간격 증가
     }
 
     g_bossRainBombCooldown--;
     if (g_bossRainBombCooldown <= 0)
     {
         SpawnBossRainBomb();
-        g_bossRainBombCooldown = bossBerserk ? RandomRange(90, 135) : RandomRange(55, 85); // 숫자가 클수록 폭탄 낙하 간격 증가
+        g_bossRainBombCooldown = bossBerserk ? RandomRange(125, 175) : RandomRange(55, 85); // 숫자가 클수록 폭탄 낙하 간격 증가
     }
 
     // 2페이즈부터는 세로 낙하 공격 말고 가로로 지나가는 공도 추가
@@ -2417,7 +2379,7 @@ void UpdateBossObjects()
         if (g_bossSideBallCooldown <= 0)
         {
             SpawnBossSideBall();
-            g_bossSideBallCooldown = bossBerserk ? RandomRange(125, 180) : RandomRange(55, 85); // 숫자가 클수록 가로 공 간격 증가
+            g_bossSideBallCooldown = bossBerserk ? RandomRange(175, 240) : RandomRange(55, 85); // 숫자가 클수록 가로 공 간격 증가
         }
 
         g_bossRainBurstCooldown--;
@@ -2434,7 +2396,7 @@ void UpdateBossObjects()
     {
         SpawnBossSpreadShot();
         g_boss.dangerTextTick = 22;
-        g_bossSpreadShotCooldown = bossBerserk ? RandomRange(220, 310) : (g_boss.phase2 ? RandomRange(130, 190) : RandomRange(180, 240));
+        g_bossSpreadShotCooldown = bossBerserk ? RandomRange(300, 410) : (g_boss.phase2 ? RandomRange(130, 190) : RandomRange(180, 240));
     }
 
     g_bossAimedShotCooldown--;
@@ -2442,7 +2404,7 @@ void UpdateBossObjects()
     {
         SpawnBossAimedShot();
         g_boss.dangerTextTick = 20;
-        g_bossAimedShotCooldown = bossBerserk ? RandomRange(170, 245) : (g_boss.phase2 ? RandomRange(95, 140) : RandomRange(150, 210));
+        g_bossAimedShotCooldown = bossBerserk ? RandomRange(230, 320) : (g_boss.phase2 ? RandomRange(95, 140) : RandomRange(150, 210));
     }
 
     g_bossZigzagCooldown--;
@@ -2450,7 +2412,7 @@ void UpdateBossObjects()
     {
         SpawnBossZigzagShot();
         g_boss.dangerTextTick = 20;
-        g_bossZigzagCooldown = bossBerserk ? RandomRange(190, 275) : (g_boss.phase2 ? RandomRange(110, 160) : RandomRange(180, 240));
+        g_bossZigzagCooldown = bossBerserk ? RandomRange(260, 360) : (g_boss.phase2 ? RandomRange(110, 160) : RandomRange(180, 240));
     }
 
     if (g_boss.phase2)
@@ -2460,7 +2422,7 @@ void UpdateBossObjects()
         {
             SpawnBossGroundWave();
             g_boss.dangerTextTick = 24;
-            g_bossGroundWaveCooldown = bossBerserk ? RandomRange(250, 350) : RandomRange(170, 240);
+            g_bossGroundWaveCooldown = bossBerserk ? RandomRange(330, 460) : RandomRange(170, 240);
         }
 
         g_bossWallRainCooldown--;
@@ -2468,7 +2430,7 @@ void UpdateBossObjects()
         {
             SpawnBossWallRain();
             g_boss.dangerTextTick = 26;
-            g_bossWallRainCooldown = bossBerserk ? RandomRange(360, 500) : RandomRange(200, 280);
+            g_bossWallRainCooldown = bossBerserk ? RandomRange(480, 650) : RandomRange(200, 280);
         }
 
         g_bossBounceCooldown--;
@@ -2476,11 +2438,9 @@ void UpdateBossObjects()
         {
             SpawnBossBounceBall();
             g_boss.dangerTextTick = 22;
-            g_bossBounceCooldown = bossBerserk ? RandomRange(250, 350) : RandomRange(160, 230);
+            g_bossBounceCooldown = bossBerserk ? RandomRange(330, 460) : RandomRange(160, 230);
         }
 
-        // 106/107 바닥 절반 폭발 패턴은 어색해서 제거함.
-        // g_bossHalfFloorCooldown은 더 이상 사용하지 않음.
     }
 
     UpdateBossProjectiles();
@@ -3221,7 +3181,7 @@ void DrawBossBerserkHealEffect(Graphics& graphics)
 
     const double PI = 3.14159265358979323846;
 
-    // 1/2 PNG swirl in from 360 degrees. This is only a heal effect, not an attack.
+    // 1/2 PNG가 주변에서 돌며 들어오는 회복 연출. 공격 판정은 없음.
     for (int i = 0; i < 3; i++)
     {
         Image* absorbFrame = (((t / 5) + i) % 2 == 0) ? g_bossBerserkAbsorbFrame1 : g_bossBerserkAbsorbFrame2;
@@ -3277,10 +3237,6 @@ void DrawBossProjectiles(Graphics& graphics)
             img = g_bossPatternBlueBallFrame; // 파란 공: 이동속도 감소
         else if (g_bossProjectiles[i].type == 5 || g_bossProjectiles[i].type == 6 || g_bossProjectiles[i].type == 9 || g_bossProjectiles[i].type == 10)
             img = g_bossPatternRedBallFrame;  // 빨간 공: 지속피해
-        else if (g_bossProjectiles[i].type == 12)
-            img = g_bossHalfFloorWarnFrame;   // 바닥 절반 경고
-        else if (g_bossProjectiles[i].type == 13)
-            img = g_bossHalfFloorBoomFrame;   // 바닥 절반 폭발
 
         if (img == NULL)
             continue;
@@ -4271,7 +4227,7 @@ void SyncStageBGM()
     int nextMode = GetStageBgmMode();
 
     if (g_starTransitionActive && nextMode == 2)
-        return; // clear music starts after the star transition, when the dance screen is visible
+        return; // 클리어 음악은 별 전환이 끝나고 춤 화면이 보일 때 시작함
 
     if (g_currentBgmMode == nextMode)
         return;
@@ -4408,22 +4364,22 @@ int GetRecoveryItemHealPercent(int type)
 
 void ApplyRecoveryItem(int type)
 {
-    if (type == RECOVERY_ITEM_LIFE) // 1UP item: add one life only below the max life count.
+    if (type == RECOVERY_ITEM_LIFE) // 1UP 아이템: 최대 목숨보다 적을 때만 목숨을 올림.
     {
         if (g_kirbyLives < KIRBY_MAX_LIVES)
             g_kirbyLives++;
         return;
     }
 
-    int healPercent = GetRecoveryItemHealPercent(type); // Get the heal rate for meat/potion items.
+    int healPercent = GetRecoveryItemHealPercent(type); // 고기/물약 아이템의 회복 비율을 가져옴.
     if (healPercent <= 0)
         return;
 
-    kirbyHP += kirbyMaxHP * healPercent / 100; // Heal the real HP first.
-    if (kirbyHP > kirbyMaxHP) // Clamp HP so it never goes over full health.
+    kirbyHP += kirbyMaxHP * healPercent / 100; // 실제 체력을 먼저 회복시킴.
+    if (kirbyHP > kirbyMaxHP) // 최대 체력을 넘지 않게 막음.
         kirbyHP = kirbyMaxHP;
 
-    // Do not change kirbyDisplayHP here; UpdateHPBarAnimation() fills the bar slowly.
+    // 여기서는 kirbyDisplayHP를 건드리지 않음. UpdateHPBarAnimation()이 천천히 채움.
 }
 
 void SpawnRandomBossRecoveryItem()
@@ -4793,7 +4749,7 @@ void DrawDarkVisionOverlay(Graphics& graphics, int screenW, int screenH)
     int centerY = kirbyY + kirbyH / 2;
     int radius = 135;
 
-    // Fire Kirby lights up the nightmare darkness more widely.
+    // 불 커비는 악몽 어둠을 더 넓게 밝힘.
     if (isFireKirby || kirbyAbilityType == 1)
         radius = 205;
     else if (isSparkKirby || kirbyAbilityType == 4)
@@ -5249,36 +5205,37 @@ void DrawEdgeBox(Graphics& graphics, int screenW, int screenH, int alpha, int re
 
 void DrawScreenEdgeEffects(Graphics& graphics, int screenW, int screenH)
 {
-    // Nightmare stages get a soft dark edge, separate from the stage 2 vision mask.
+    bool bossBerserk = (g_currentStage == 4 && IsBossBerserk());
+
+    // 악몽 스테이지에는 2스테이지 시야 마스크와 별개로 어두운 테두리를 씌움.
     if (g_currentStage == 2 || g_currentStage == 3 || g_currentStage == 4)
     {
-        DrawEdgeBox(graphics, screenW, screenH, 60, 0, 0, 0, 0, 5);
-        DrawEdgeBox(graphics, screenW, screenH, 40, 35, 0, 65, 10, 4);
+        int darkLayers = bossBerserk ? 2 : 5;
+        int purpleLayers = bossBerserk ? 1 : 4;
+        DrawEdgeBox(graphics, screenW, screenH, 60, 0, 0, 0, 0, darkLayers);
+        DrawEdgeBox(graphics, screenW, screenH, 40, 35, 0, 65, 10, purpleLayers);
     }
 
-    if (g_currentStage == 4 && IsBossBerserk())
+    if (bossBerserk)
     {
-        int pulse = (g_edgeEffectTick / 3) % 32;
-        if (pulse > 16)
-            pulse = 32 - pulse;
+        int pulse = (g_edgeEffectTick / 4) % 24;
+        if (pulse > 12)
+            pulse = 24 - pulse;
 
-        int alpha = 85 + pulse * 5;
-        DrawEdgeBox(graphics, screenW, screenH, 80, 0, 0, 0, 0, 3);
-        DrawEdgeBox(graphics, screenW, screenH, alpha, 150, 40, 255, 0, 2);
-        DrawEdgeBox(graphics, screenW, screenH, 45, 45, 0, 80, 24, 2);
+        int alpha = 75 + pulse * 4;
+        DrawEdgeBox(graphics, screenW, screenH, alpha, 150, 40, 255, 6, 1);
 
-        // Every 10 seconds in berserk mode, the purple fog creeps farther into the map.
-        int fogLevel = g_bossBerserkFogTick / 600;
-        if (fogLevel > 4)
-            fogLevel = 4;
+        // 광폭화 시간이 길어질수록 보라 안개가 조금씩 안쪽으로 들어옴.
+        int fogLevel = g_bossBerserkFogTick / 700;
+        if (fogLevel > 3)
+            fogLevel = 3;
 
-        int fogAlpha = 35 + fogLevel * 12;
-        int fogInset = 42 - fogLevel * 7;
-        int fogLayers = 2 + fogLevel;
-        if (fogInset < 4)
-            fogInset = 4;
+        int fogAlpha = 28 + fogLevel * 8;
+        int fogInset = 48 - fogLevel * 8;
+        if (fogInset < 12)
+            fogInset = 12;
 
-        DrawEdgeBox(graphics, screenW, screenH, fogAlpha, 95, 20, 170, fogInset, fogLayers);
+        DrawEdgeBox(graphics, screenW, screenH, fogAlpha, 95, 20, 170, fogInset, 1);
     }
 
     if (!isGameOver && !g_retryActive && kirbyMaxHP > 0 && kirbyHP <= kirbyMaxHP / 5)
@@ -5288,7 +5245,8 @@ void DrawScreenEdgeEffects(Graphics& graphics, int screenW, int screenH)
             pulse = 24 - pulse;
 
         int alpha = 70 + pulse * 6;
-        DrawEdgeBox(graphics, screenW, screenH, alpha, 255, 20, 20, 16, 6);
+        int dangerLayers = bossBerserk ? 2 : 6;
+        DrawEdgeBox(graphics, screenW, screenH, alpha, 255, 20, 20, 16, dangerLayers);
     }
 }
 
@@ -5393,7 +5351,7 @@ void DrawHPBar(Graphics& graphics)
 
 void DrawOpeningPressSpace(Graphics& graphics, int screenW, int screenH)
 {
-    // Opening screen only: tell the player how to start.
+    // 오프닝 화면에서만 시작 방법을 알려줌.
     if (!g_isOpening)
         return;
 
@@ -5488,7 +5446,7 @@ void DrawScene(HDC hdc, HWND hWnd)
     int cameraDrawOffsetX = GetCameraDrawOffsetX();
     int cameraDrawOffsetY = GetCameraDrawOffsetY();
 
-    // Apply camera effects only to world drawing.
+    // 카메라 효과는 월드 그리기에만 적용함.
     int bg1X = -cameraX + cameraDrawOffsetX;
     int bg2X = BG_PART_W - cameraX + cameraDrawOffsetX;
 

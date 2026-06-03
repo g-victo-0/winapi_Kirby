@@ -768,7 +768,7 @@ public:
             dy = -dy;
 
         const int EAT_DISTANCE_X = 14;
-        const int EAT_DISTANCE_Y = 34; // Absorb fix: allow eating even when Y is slightly off.
+        const int EAT_DISTANCE_Y = 34; // 빨아들이기 보정: Y좌표가 조금 어긋나도 먹히게 함.
 
         if (dx <= EAT_DISTANCE_X && dy <= EAT_DISTANCE_Y)
         {
@@ -802,7 +802,7 @@ public:
         int monsterCenterY = y + h / 2;
         int pullY = kirbyCenterY - monsterCenterY;
 
-        if (pullY > 3) // Absorb fix: pull the monster vertically toward Kirby's mouth area.
+        if (pullY > 3) // 빨아들이기 보정: 몬스터를 커비 입 쪽 높이로 끌어당김.
             y += 3;
         else if (pullY < -3)
             y -= 3;

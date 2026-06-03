@@ -1,8 +1,8 @@
-// Player movement, ability, status, and Kirby drawing logic
-// Included by game.cpp to keep the existing global-state gameplay unchanged.
+// 플레이어 이동, 능력, 상태, 커비 그리기 로직
+// 기존 전역 상태 게임 구조를 유지하기 위해 game.cpp에서 포함해서 사용함.
 
-// Basic Kirby movement, hit, and HP logic
-// This file is included by game.cpp. Do not add it to ClCompile separately.
+// 기본 커비 이동, 피격, 체력 로직
+// 이 파일은 game.cpp에서 포함해서 사용함. Visual Studio 컴파일 항목에 따로 넣지 말 것.
 
 bool IsMoving()
 {
@@ -551,14 +551,14 @@ void UpdateKirbyStatusEffects()
 void UpdateHPBarAnimation()
 {
     // 실제 체력 kirbyHP까지 보이는 체력 kirbyDisplayHP를 조금씩 줄임
-    if (kirbyDisplayHP > (float)kirbyHP) // Damage: visible HP bar goes down slowly.
+    if (kirbyDisplayHP > (float)kirbyHP) // 데미지를 받으면 보이는 체력바가 천천히 줄어듦.
     {
         kirbyDisplayHP -= HP_ANIM_SPEED;
 
         if (kirbyDisplayHP < (float)kirbyHP)
             kirbyDisplayHP = (float)kirbyHP;
     }
-    else if (kirbyDisplayHP < (float)kirbyHP) // Healing: visible HP bar goes up slowly.
+    else if (kirbyDisplayHP < (float)kirbyHP) // 회복하면 보이는 체력바가 천천히 올라감.
     {
         kirbyDisplayHP += HP_ANIM_SPEED;
 
@@ -590,8 +590,8 @@ RECT GetKirbyBodyRect()
     return rc;
 }
 
-// Power Kirby and ability-star logic
-// This file is included by game.cpp. Do not add it to ClCompile separately.
+// 파워 커비와 능력 별 로직
+// 이 파일은 game.cpp에서 포함해서 사용함. Visual Studio 컴파일 항목에 따로 넣지 말 것.
 
 void DigestPowerKirby()
 {
@@ -1149,8 +1149,8 @@ void DrawPowerProjectile(Graphics& graphics)
     }
 }
 
-// Fire Kirby and fire projectile logic
-// This file is included by game.cpp. Do not add it to ClCompile separately.
+// 불 커비와 불 투사체 로직
+// 이 파일은 game.cpp에서 포함해서 사용함. Visual Studio 컴파일 항목에 따로 넣지 말 것.
 
 void StartFireAttackPose()
 {
@@ -1546,8 +1546,8 @@ void DrawEnemyFireBalls(Graphics& graphics)
     }
 }
 
-// Bomb Kirby and bomb projectile logic
-// This file is included by game.cpp. Do not add it to ClCompile separately.
+// 폭탄 커비와 폭탄 투사체 로직
+// 이 파일은 game.cpp에서 포함해서 사용함. Visual Studio 컴파일 항목에 따로 넣지 말 것.
 
 void StartBombKirbyTransform()
 {

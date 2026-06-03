@@ -1,8 +1,8 @@
-// Stage data, doors, rescue objects, monster placement, and clear dance stage
-// Included by game.cpp to keep the existing global-state gameplay unchanged.
+// 스테이지 데이터, 문, 구출 오브젝트, 몬스터 배치, 클리어 춤 스테이지
+// 기존 전역 상태 게임 구조를 유지하기 위해 game.cpp에서 포함해서 사용함.
 
-// Stage 1 map data and rescue setup
-// This file is included by game.cpp. Do not add it to ClCompile separately.
+// 1스테이지 맵 데이터와 구출 설정
+// 이 파일은 game.cpp에서 포함해서 사용함. Visual Studio 컴파일 항목에 따로 넣지 말 것.
 
 SolidBlock g_solidBlocks[] =
 {
@@ -69,8 +69,8 @@ void InitStage1RescueObjects()
     g_stage1ChildRescued = 0;
 }
 
-// Stage 2 map data and rescue setup
-// This file is included by game.cpp. Do not add it to ClCompile separately.
+// 2스테이지 맵 데이터와 구출 설정
+// 이 파일은 game.cpp에서 포함해서 사용함. Visual Studio 컴파일 항목에 따로 넣지 말 것.
 
 SolidBlock g_stage2SolidBlocks[] =
 {
@@ -149,8 +149,8 @@ void InitStage2RescueObjects()
     g_stage2ChildRescued = 0;
 }
 
-// Stage 3 map data and rescue setup
-// This file is included by game.cpp. Do not add it to ClCompile separately.
+// 3스테이지 맵 데이터와 구출 설정
+// 이 파일은 game.cpp에서 포함해서 사용함. Visual Studio 컴파일 항목에 따로 넣지 말 것.
 
 SolidBlock g_stage3SolidBlocks[] =
 {
@@ -174,7 +174,7 @@ SolidBlock g_stage3SolidBlocks[] =
     // 예전처럼 x=0~115, x=945~1000 전체를 막으면 충돌범위가 너무 어색하게 커짐
     { { 0, 0, 12, 650 }, L"S3_90_LEFT_LIMIT" },
 
-    // PNG91 second area: x = 1000 ~ 1999
+    // PNG91 두 번째 구간: x = 1000 ~ 1999
     { { 1000, 539, 2000, 650 }, L"S3_90_TOP_LEDGE" },
     { { 1182, 406, 2000, 650 }, L"S3_91_LEFT_BOTTOM_GROUND" },
     { { 1137, 476, 1190, 491 }, L"S3_91_MAIN_LEDGE_WOOD" },
@@ -188,7 +188,7 @@ SolidBlock g_stage3SolidBlocks[] =
      { { 1761, 285, 1900, 348 }, L"S3_91_RIGHT_WALL" },
      { { 1805, 123, 1890, 146 }, L"S3_91_TOP_LEDGE" },
 
-     // Restored from commit 9a72c7f: upper floors and right-end wall for stage 3.
+     // 예전 커밋 9a72c7f 기준으로 3스테이지 위쪽 발판과 오른쪽 끝 벽을 복구함.
      { { 1890, 0, 1980, 405 }, L"S3_91_RIGHTEND_WALL" },
      { { 995, 0, 1085, 490 }, L"S3_91_FLOOR1" },
      { { 995, 0, 1115, 460 }, L"S3_91_FLOOR2" },
@@ -735,11 +735,11 @@ struct DanceFrame
     int yOffset;
 };
 
-// frameIndex is zero-based: 0 means "커비 댄스1.png", 22 means "커비 댄스23.png".
-// The base Y is fixed; yOffset is used only on jump/bounce frames and stays 0 on still poses.
+// frameIndex는 0부터 시작함. 0은 "커비 댄스1.png", 22는 "커비 댄스23.png"를 뜻함.
+// 기본 Y좌표는 고정하고, yOffset은 점프/통통 튀는 프레임에서만 사용함.
 const DanceFrame g_danceSequence[] =
 {
-    // Smooth side-to-side clear dance. X moves every beat so Kirby does not look frozen.
+    // 클리어 춤이 멈춰 보이지 않도록 박자마다 X좌표를 좌우로 움직임.
     { 0, 6, false, 0, 0 },
     { 1, 6, false, 6, 0 },
     { 4, 6, false, 14, 0 },
@@ -832,7 +832,7 @@ void UpdateDanceStage()
     if (totalTicks <= 0)
         return;
 
-    if (g_danceFinished) // Ending dance stops on the last pose after one full sequence.
+    if (g_danceFinished) // 엔딩 춤은 한 바퀴를 다 돈 뒤 마지막 자세에서 멈춤.
     {
         g_danceTick = totalTicks - 1;
         ApplyDanceFrameState();
@@ -841,7 +841,7 @@ void UpdateDanceStage()
 
     g_danceTick++;
 
-    if (g_danceTick >= totalTicks) // Do not loop the clear dance; hold the final frame.
+    if (g_danceTick >= totalTicks) // 클리어 춤을 반복하지 않고 마지막 프레임을 유지함.
     {
         g_danceTick = totalTicks - 1;
         g_danceFinished = true;
@@ -871,7 +871,7 @@ void DrawDanceKirby(Graphics& graphics)
     int drawW = DANCE_DRAW_W;
     int drawH = DANCE_DRAW_H;
 
-    // Fixed draw box keeps the sprite size stable between differently sized PNG frames.
+    // PNG 프레임 크기가 달라도 커비 크기가 흔들리지 않도록 고정 박스에 그림.
     int drawX = g_danceX - drawW / 2;
     int drawY = DANCE_FLOOR_Y - drawH + danceFrame->yOffset;
 
