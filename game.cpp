@@ -731,10 +731,10 @@ bool isSpace = false;
 bool isAbsorb = false;
 bool isCrouch = false;
 
-// 풍선 상태는 최대 1.5초까지만 유지
+// 풍선 상태는 최대 2.5초까지만 유지
 int balloonTick = 0;
-const int BALLOON_DURATION_TICK = 38; // GAME_TIMER_MS 40ms 기준 약 1.5초
-const int BALLOON_COOLDOWN_TICK = 50; // GAME_TIMER_MS 40ms 기준 약 2초
+const int BALLOON_DURATION_TICK = 63; // GAME_TIMER_MS 40ms 기준 약 2.5초
+const int BALLOON_COOLDOWN_TICK = 8; // GAME_TIMER_MS 40ms 기준 약 0.3초
 int balloonCooldownTick = 0;
 bool spaceKeyHeld = false; // SPACE를 계속 누르고 있어도 제한 뒤 자동 재시작되지 않게 막음
 
