@@ -462,59 +462,49 @@ void UpdateRescueObjects()
     }
 }
 
+void SetKirbyStageMovePosition(int x, int y)
+{
+    kirbyX = x;
+    kirbyY = y;
+    kirbyVY = 0.0f;
+    g_lastSafeKirbyX = kirbyX;
+    g_lastSafeKirbyY = kirbyY;
+    cameraX = 0;
+}
+
+void FinishStageChange(HWND hWnd)
+{
+    InitRescueObjects();
+    InitMonsters();
+    UpdateCamera(hWnd);
+    ResetStageGimmicks();
+    StartStageTransitionEffect();
+}
+
 void ChangeStageNow(HWND hWnd, int targetStage)
 {
+    // 발표용 순서: 현재 스테이지 변경 -> 커비 시작 위치 지정 -> 스테이지 요소 초기화
     if (targetStage == 2)
     {
         g_currentStage = 2;
-        kirbyX = 70;
-        kirbyY = 330;
-        kirbyVY = 0.0f;
-        g_lastSafeKirbyX = kirbyX;
-        g_lastSafeKirbyY = kirbyY;
-        cameraX = 0;
-
-        InitRescueObjects();
-        InitMonsters();
-        UpdateCamera(hWnd);
-        ResetStageGimmicks();
-        StartStageTransitionEffect();
+        SetKirbyStageMovePosition(70, 330);
+        FinishStageChange(hWnd);
         return;
     }
 
     if (targetStage == 3)
     {
         g_currentStage = 3;
-        kirbyX = 145;
-        kirbyY = 500;
-        kirbyVY = 0.0f;
-        g_lastSafeKirbyX = kirbyX;
-        g_lastSafeKirbyY = kirbyY;
-        cameraX = 0;
-
-        InitRescueObjects();
-        InitMonsters();
-        UpdateCamera(hWnd);
-        ResetStageGimmicks();
-        StartStageTransitionEffect();
+        SetKirbyStageMovePosition(145, 500);
+        FinishStageChange(hWnd);
         return;
     }
 
     if (targetStage == 4)
     {
         g_currentStage = 4;
-        kirbyX = 80;
-        kirbyY = 480;
-        kirbyVY = 0.0f;
-        g_lastSafeKirbyX = kirbyX;
-        g_lastSafeKirbyY = kirbyY;
-        cameraX = 0;
-
-        InitRescueObjects();
-        InitMonsters();
-        UpdateCamera(hWnd);
-        ResetStageGimmicks();
-        StartStageTransitionEffect();
+        SetKirbyStageMovePosition(80, 480);
+        FinishStageChange(hWnd);
         return;
     }
 
@@ -522,23 +512,12 @@ void ChangeStageNow(HWND hWnd, int targetStage)
     {
         g_currentStage = 5;
         g_stageClearTick = 0;
-        kirbyX = DANCE_CENTER_X - NORMAL_KIRBY_W / 2;
-        kirbyY = DANCE_FLOOR_Y - NORMAL_KIRBY_H;
-        kirbyVY = 0.0f;
-        g_lastSafeKirbyX = kirbyX;
-        g_lastSafeKirbyY = kirbyY;
-        cameraX = 0;
-
+        SetKirbyStageMovePosition(DANCE_CENTER_X - NORMAL_KIRBY_W / 2, DANCE_FLOOR_Y - NORMAL_KIRBY_H);
         SetKirbyNormalSizeKeepBottom();
-        InitRescueObjects();
-        InitMonsters();
-        UpdateCamera(hWnd);
-        ResetStageGimmicks();
-        StartStageTransitionEffect();
+        FinishStageChange(hWnd);
         return;
     }
 }
-
 void GoNextMap(HWND hWnd)
 {
     if (g_isChangingMap || g_starTransitionActive)
@@ -553,63 +532,52 @@ void GoNextMap(HWND hWnd)
 }
 
 
+bool IsKirbyTouchOpenedDoor(RECT kirbyRc, StageDoor door)
+{
+    if (!door.active || !door.opened)
+        return false;
+
+    RECT doorRc = GetDoorRect(door);
+    return IsRectHit(kirbyRc, doorRc);
+}
+
+bool IsKirbyTouchBossRewardDoor(RECT kirbyRc)
+{
+    if (!g_rewardDoorActive || !g_rewardDoorOpened)
+        return false;
+
+    RECT doorRc = MakeRectFromXYWH(g_rewardDoorX, g_rewardDoorY, g_rewardDoorW, g_rewardDoorH);
+    return IsRectHit(kirbyRc, doorRc);
+}
+
 void CheckDoorTouch(HWND hWnd)
 {
     RECT kirbyRc = GetKirbyBodyRect();
 
-    if (g_currentStage == 1)
+    if (g_currentStage == 1 && IsKirbyTouchOpenedDoor(kirbyRc, g_stage1Door))
     {
-        if (!g_stage1Door.active || !g_stage1Door.opened)
-            return;
-
-        RECT doorRc = GetDoorRect(g_stage1Door);
-        if (IsRectHit(kirbyRc, doorRc))
-        {
-            GoNextMap(hWnd);
-        }
+        GoNextMap(hWnd);
         return;
     }
 
-    if (g_currentStage == 2)
+    if (g_currentStage == 2 && IsKirbyTouchOpenedDoor(kirbyRc, g_stage2Door))
     {
-        if (!g_stage2Door.active || !g_stage2Door.opened)
-            return;
-
-        RECT doorRc = GetDoorRect(g_stage2Door);
-        if (IsRectHit(kirbyRc, doorRc))
-        {
-            GoNextMap(hWnd);
-        }
+        GoNextMap(hWnd);
         return;
     }
 
-    if (g_currentStage == 3)
+    if (g_currentStage == 3 && IsKirbyTouchOpenedDoor(kirbyRc, g_stage3Door))
     {
-        if (!g_stage3Door.active || !g_stage3Door.opened)
-            return;
-
-        RECT doorRc = GetDoorRect(g_stage3Door);
-        if (IsRectHit(kirbyRc, doorRc))
-        {
-            GoNextMap(hWnd);
-        }
+        GoNextMap(hWnd);
         return;
     }
 
-    if (g_currentStage == 4)
+    // 보스 처치 후 열쇠로 문을 연 상태에서 문에 닿으면 춤 테스트 맵으로 이동
+    if (g_currentStage == 4 && IsKirbyTouchBossRewardDoor(kirbyRc))
     {
-        // 보스 처치 후 열쇠로 문을 연 상태에서 문에 닿으면 춤 테스트 맵으로 이동
-        if (!g_rewardDoorActive || !g_rewardDoorOpened)
-            return;
-
-        RECT doorRc = MakeRectFromXYWH(g_rewardDoorX, g_rewardDoorY, g_rewardDoorW, g_rewardDoorH);
-        if (IsRectHit(kirbyRc, doorRc))
-        {
-            GoNextMap(hWnd);
-        }
+        GoNextMap(hWnd);
     }
 }
-
 void DrawDoorObject(Graphics& graphics, StageDoor door)
 {
     if (!door.active)

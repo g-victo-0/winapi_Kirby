@@ -240,11 +240,8 @@ void UpdatePowerWait()
     }
 }
 
-void UpdateKirbyPosition(HWND hWnd)
+void StopAbsorbIfKirbyHasAbility()
 {
-    if (isGameOver)
-        return;
-
     if (isAbsorb && (isPowerKirby || isPowerDigest || isFireKirby || isBombKirby || isHammerKirby || isSparkKirby))
     {
         isAbsorb = false;
@@ -252,119 +249,131 @@ void UpdateKirbyPosition(HWND hWnd)
         absorbFrontEffectIndex = 0;
         absorbFrontEffectTick = 0;
     }
+}
 
-    if (isAbsorb)
+int GetKirbyMoveSpeed(int normalSpeed)
+{
+    int curSpeed = isDash ? dashSpeed : normalSpeed;
+
+    if (g_kirbySlowTick > 0)
     {
-        return;
+        curSpeed /= 2;
+        if (curSpeed < 1)
+            curSpeed = 1;
     }
 
-    bool wasOnGround = isOnGround;
+    return curSpeed;
+}
 
-    RECT rt;
-    GetClientRect(hWnd, &rt);
+void KeepKirbyInsideWorldX()
+{
+    if (kirbyX < 0)
+        kirbyX = 0;
 
-    if (isSpace)
+    int currentWorldW = GetCurrentWorldW();
+
+    if (kirbyX + kirbyW > currentWorldW)
+        kirbyX = currentWorldW - kirbyW;
+}
+
+void KeepKirbyInsideTopScreen()
+{
+    if (kirbyY < 0)
+        kirbyY = 0;
+}
+
+void CheckKirbyFallDeath()
+{
+    if (IsKirbyBelowDeathLine())
+        StartKirbyFallGameOver();
+}
+
+void MoveKirbyBalloonX(int nextX, RECT* hitBlock)
+{
+    // 풍선 상태: X축 충돌 검사
+    // 나무발판은 통과하지만, 땅/벽/절벽/기둥은 막음
+    RECT nextHitX = GetKirbyHitBox(nextX, kirbyY);
+
+    if (!HitSolidBlockForBalloon(nextHitX, hitBlock))
     {
-        int curBalloonSpeed = isDash ? dashSpeed : balloonSpeed;
-
-        if (g_kirbySlowTick > 0)
-        {
-            curBalloonSpeed /= 2;
-            if (curBalloonSpeed < 1)
-                curBalloonSpeed = 1;
-        }
-
-        int nextX = kirbyX;
-        int nextY = kirbyY;
-
+        kirbyX = nextX;
+    }
+    else
+    {
         if (moveLeft)
-            nextX -= curBalloonSpeed;
+        {
+            kirbyX = hitBlock->right - KIRBY_HIT_LEFT;
+        }
 
         if (moveRight)
-            nextX += curBalloonSpeed;
+        {
+            kirbyX = hitBlock->left - (kirbyW - KIRBY_HIT_RIGHT);
+        }
+    }
+}
 
+void MoveKirbyBalloonY(int nextY, RECT* hitBlock)
+{
+    // 풍선 상태: Y축 충돌 검사
+    RECT nextHitY = GetKirbyHitBox(kirbyX, nextY);
+
+    if (!HitSolidBlockForBalloon(nextHitY, hitBlock))
+    {
+        kirbyY = nextY;
+    }
+    else
+    {
         if (moveUp)
-            nextY -= curBalloonSpeed;
+        {
+            kirbyY = hitBlock->bottom - KIRBY_HIT_TOP;
+        }
 
         if (moveDown)
-            nextY += curBalloonSpeed;
-
-        RECT hitBlock;
-
-        // 풍선 상태: X축 충돌 검사
-        // 나무발판은 통과하지만, 땅/벽/절벽/기둥은 막음
-        RECT nextHitX = GetKirbyHitBox(nextX, kirbyY);
-
-        if (!HitSolidBlockForBalloon(nextHitX, &hitBlock))
         {
-            kirbyX = nextX;
+            kirbyY = hitBlock->top - (kirbyH - KIRBY_HIT_BOTTOM);
         }
-        else
-        {
-            if (moveLeft)
-            {
-                kirbyX = hitBlock.right - KIRBY_HIT_LEFT;
-            }
-
-            if (moveRight)
-            {
-                kirbyX = hitBlock.left - (kirbyW - KIRBY_HIT_RIGHT);
-            }
-        }
-
-        // 풍선 상태: Y축 충돌 검사
-        RECT nextHitY = GetKirbyHitBox(kirbyX, nextY);
-
-        if (!HitSolidBlockForBalloon(nextHitY, &hitBlock))
-        {
-            kirbyY = nextY;
-        }
-        else
-        {
-            if (moveUp)
-            {
-                kirbyY = hitBlock.bottom - KIRBY_HIT_TOP;
-            }
-
-            if (moveDown)
-            {
-                kirbyY = hitBlock.top - (kirbyH - KIRBY_HIT_BOTTOM);
-            }
-        }
-
-        kirbyVY = 0.0f;
-        isOnGround = false;
-
-        if (kirbyX < 0)
-            kirbyX = 0;
-
-        int currentWorldW = GetCurrentWorldW();
-
-        if (kirbyX + kirbyW > currentWorldW)
-            kirbyX = currentWorldW - kirbyW;
-
-        if (kirbyY < 0)
-            kirbyY = 0;
-
-        // 아래쪽은 막지 않음. 구멍이나 화면 아래로 빠지면 낙사 처리
-        if (IsKirbyBelowDeathLine())
-            StartKirbyFallGameOver();
-
-        return;
     }
+}
 
+void UpdateKirbyBalloonMove()
+{
+    int curBalloonSpeed = GetKirbyMoveSpeed(balloonSpeed);
+    int nextX = kirbyX;
+    int nextY = kirbyY;
+
+    if (moveLeft)
+        nextX -= curBalloonSpeed;
+
+    if (moveRight)
+        nextX += curBalloonSpeed;
+
+    if (moveUp)
+        nextY -= curBalloonSpeed;
+
+    if (moveDown)
+        nextY += curBalloonSpeed;
+
+    RECT hitBlock;
+    MoveKirbyBalloonX(nextX, &hitBlock);
+    MoveKirbyBalloonY(nextY, &hitBlock);
+
+    kirbyVY = 0.0f;
+    isOnGround = false;
+
+    KeepKirbyInsideWorldX();
+    KeepKirbyInsideTopScreen();
+
+    // 아래쪽은 막지 않음. 구멍이나 화면 아래로 빠지면 낙사 처리
+    CheckKirbyFallDeath();
+}
+
+void UpdateKirbyGroundXMove()
+{
     int nextX = kirbyX;
 
     if (!isCrouch)
     {
-        int curSpeed = isDash ? dashSpeed : speed;
-
-        if (g_kirbySlowTick > 0)
-        {
-            curSpeed /= 2;
-            if (curSpeed < 1)
-                curSpeed = 1;
-        }
+        int curSpeed = GetKirbyMoveSpeed(speed);
 
         if (moveLeft)
             nextX -= curSpeed;
@@ -393,19 +402,20 @@ void UpdateKirbyPosition(HWND hWnd)
         }
     }
 
-    if (kirbyX < 0)
-        kirbyX = 0;
+    KeepKirbyInsideWorldX();
+}
 
-    int currentWorldW = GetCurrentWorldW();
-
-    if (kirbyX + kirbyW > currentWorldW)
-        kirbyX = currentWorldW - kirbyW;
-
+void ApplyKirbyGravity()
+{
     kirbyVY += gravity;
 
     if (kirbyVY > maxFallSpeed)
         kirbyVY = maxFallSpeed;
+}
 
+void UpdateKirbyGroundYMove()
+{
+    RECT hitBlock;
     int nextY = kirbyY + (int)kirbyVY;
     RECT nextHitY = GetKirbyHitBox(kirbyX, nextY);
 
@@ -429,7 +439,10 @@ void UpdateKirbyPosition(HWND hWnd)
             kirbyVY = 0;
         }
     }
+}
 
+void SnapKirbyToGroundIfClose()
+{
     RECT currentHit = GetKirbyHitBox(kirbyX, kirbyY);
     int groundY;
 
@@ -439,16 +452,38 @@ void UpdateKirbyPosition(HWND hWnd)
         kirbyVY = 0;
         isOnGround = true;
     }
+}
 
+void UpdateKirbyGroundMove()
+{
+    UpdateKirbyGroundXMove();
+    ApplyKirbyGravity();
+    UpdateKirbyGroundYMove();
+    SnapKirbyToGroundIfClose();
 
     // 예전처럼 WORLD_H에서 멈추게 하면 구멍으로 떨어져도 바닥에 붙어버림.
     // 이제는 아래로 충분히 빠지면 게임오버 처리함.
-    if (IsKirbyBelowDeathLine())
-    {
-        StartKirbyFallGameOver();
-    }
+    CheckKirbyFallDeath();
 }
 
+void UpdateKirbyPosition(HWND hWnd)
+{
+    if (isGameOver)
+        return;
+
+    StopAbsorbIfKirbyHasAbility();
+
+    if (isAbsorb)
+        return;
+
+    if (isSpace)
+    {
+        UpdateKirbyBalloonMove();
+        return;
+    }
+
+    UpdateKirbyGroundMove();
+}
 bool IsInsideKirby(int mouseX, int mouseY)
 {
     return mouseX >= kirbyX &&

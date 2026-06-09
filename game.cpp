@@ -5098,7 +5098,7 @@ void DrawRetryOverlay(Graphics& graphics, int screenW, int screenH)
     graphics.DrawString(timeText, -1, &titleFont, timeRect, &format, &warnBrush);
     graphics.DrawString(L"SPACE  다시 태어나기     ESC  포기", -1, &smallFont, guideRect, &format, &subBrush);
 }
-void UpdatePlayer(HWND hWnd)
+void UpdatePlayerMovementState(HWND hWnd)
 {
     if (!isDragging && g_currentStage != 5)
     {
@@ -5108,6 +5108,10 @@ void UpdatePlayer(HWND hWnd)
     UpdateBalloonLimit();
     UpdateDashWindFrame();
     UpdateSpaceRelease();
+}
+
+void UpdatePlayerAbilityState()
+{
     UpdateAbsorbFrontEffect();
     UpdatePowerWait();
     UpdatePowerAttack();
@@ -5117,12 +5121,19 @@ void UpdatePlayer(HWND hWnd)
     UpdateHammerInvincibleSkill();
     UpdateSparkAttack();
     UpdateSparkSpecialAttack();
+    UpdatePowerProjectile();
+    UpdateAbilityStar();
+}
+
+void UpdatePlayerHpState()
+{
     UpdateKirbyHitEffect();
     UpdateKirbyStatusEffects();
     UpdateHPBarAnimation();
-    UpdatePowerProjectile();
-    UpdateAbilityStar();
+}
 
+void SaveKirbySafePosition()
+{
     if (!isGameOver && !g_retryActive && isOnGround && kirbyY < WORLD_H)
     {
         g_lastSafeKirbyX = kirbyX;
@@ -5130,6 +5141,14 @@ void UpdatePlayer(HWND hWnd)
     }
 }
 
+void UpdatePlayer(HWND hWnd)
+{
+    // 발표용 순서: 이동 처리 -> 능력/공격 처리 -> 피격/HP 처리 -> 안전 위치 저장
+    UpdatePlayerMovementState(hWnd);
+    UpdatePlayerAbilityState();
+    UpdatePlayerHpState();
+    SaveKirbySafePosition();
+}
 void UpdateStage(HWND hWnd)
 {
     CheckRescueChildTouch();
@@ -5189,6 +5208,372 @@ void DrawHUD(Graphics& graphics, int screenW, int screenH)
     DrawTransitionOverlay(graphics, screenW, screenH);
 }
 
+// 발표용 게임 루프 정리:
+// 입력은 WndProc에서 받고, 타이머에서는 상태 갱신 -> 충돌 검사 -> 화면 다시 그리기 순서로 처리함.
+void ResetAllBalloonAnimationFrames()
+{
+    spaceFrameIndex = 0;
+    spaceStartFrameDone = false;
+    fireBalloonFrameIndex = 0;
+    fireBalloonStartFrameDone = false;
+    bombBalloonFrameIndex = 0;
+    bombBalloonStartFrameDone = false;
+    hammerBalloonFrameIndex = 0;
+    hammerBalloonStartFrameDone = false;
+    sparkBalloonFrameIndex = 0;
+    sparkBalloonStartFrameDone = false;
+}
+
+void FinishStoryAndStartGame(HWND hWnd)
+{
+    g_isStory = false;
+    g_storyFrameIndex = STORY_FRAME_COUNT - 1;
+    StopMove();
+    isSpace = false;
+    isSpaceRelease = false;
+    balloonTick = 0;
+    balloonCooldownTick = 0;
+    spaceKeyHeld = false;
+    ResetAllBalloonAnimationFrames();
+    UpdateCamera(hWnd);
+    StartStageTransitionEffect();
+    StartPlayTimer();
+    g_controlGuideTick = CONTROL_GUIDE_TICK_MAX;
+}
+
+void UpdateOpeningTimer(HWND hWnd, WPARAM wParam)
+{
+    if (wParam != 1)
+        return;
+
+    g_openingTick++;
+    InvalidateRect(hWnd, NULL, FALSE);
+}
+
+void UpdateStoryTimer(HWND hWnd, WPARAM wParam)
+{
+    if (wParam != 1)
+        return;
+
+    g_storyTick++;
+
+    if (g_storyTick >= STORY_FRAME_DURATION)
+    {
+        g_storyTick = 0;
+        g_storyFrameIndex++;
+
+        if (g_storyFrameIndex >= STORY_FRAME_COUNT)
+        {
+            FinishStoryAndStartGame(hWnd);
+        }
+
+        InvalidateRect(hWnd, NULL, FALSE);
+    }
+}
+
+void UpdateStarTransitionTimer(HWND hWnd, WPARAM wParam)
+{
+    if (wParam != 1)
+        return;
+
+    UpdateStarStageTransition(hWnd);
+    SyncStageBGM();
+    InvalidateRect(hWnd, NULL, FALSE);
+}
+
+void UpdatePauseRetryTimer(HWND hWnd, WPARAM wParam)
+{
+    if (wParam != 1)
+        return;
+
+    if (g_retryActive)
+    {
+        UpdatePlayTimer();
+        UpdateRetryCountdown(hWnd);
+    }
+    else
+    {
+        InvalidateRect(hWnd, NULL, FALSE);
+    }
+}
+
+bool UpdateGameOverDelay(HWND hWnd)
+{
+    if (!isGameOver || g_gameOverHandled)
+        return false;
+
+    gameOverTick++;
+
+    if (gameOverTick >= GAME_OVER_DELAY)
+    {
+        StartRetrySequence();
+        InvalidateRect(hWnd, NULL, FALSE);
+        return true;
+    }
+
+    return false;
+}
+
+void UpdateGameLoop(HWND hWnd)
+{
+    UpdatePlayTimer();
+    UpdatePlayer(hWnd);
+    UpdateStageGimmicks(hWnd);
+    UpdateStage(hWnd);
+    SyncStageBGM();
+    CheckCollision();
+    UpdateMonster();
+    CheckKirbyCollision();
+
+    if (UpdateGameOverDelay(hWnd))
+        return;
+
+    UpdateScreenEffects();
+    UpdateCamera(hWnd);
+
+    InvalidateRect(hWnd, NULL, FALSE);
+}
+
+void ResetWalkAnimationFrames()
+{
+    walkFrameIndex = 0;
+    powerWalkFrameIndex = 0;
+    fireWalkFrameIndex = 0;
+    bombWalkFrameIndex = 0;
+    hammerWalkFrameIndex = 0;
+    sparkWalkFrameIndex = 0;
+}
+
+void UpdateWalkAnimationTimer()
+{
+    if (!isSpace && !isAbsorb && !isCrouch && IsKirbyWalkMoving())
+    {
+        if (isPowerKirby)
+        {
+            powerWalkFrameIndex++;
+
+            if (powerWalkFrameIndex >= powerWalkFrameCount)
+            {
+                powerWalkFrameIndex = 0;
+            }
+        }
+        else if (isFireKirby)
+        {
+            fireWalkFrameIndex++;
+
+            if (fireWalkFrameIndex >= FIRE_WALK_FRAME_COUNT)
+            {
+                fireWalkFrameIndex = 0;
+            }
+        }
+        else if (isBombKirby)
+        {
+            bombWalkFrameIndex++;
+
+            if (bombWalkFrameIndex >= BOMB_WALK_FRAME_COUNT)
+            {
+                bombWalkFrameIndex = 0;
+            }
+        }
+        else if (isHammerKirby)
+        {
+            hammerWalkFrameIndex++;
+
+            if (hammerWalkFrameIndex >= HAMMER_WALK_FRAME_COUNT)
+            {
+                hammerWalkFrameIndex = 0;
+                sparkWalkFrameIndex = 0;
+            }
+        }
+        else if (isSparkKirby)
+        {
+            sparkWalkFrameIndex++;
+
+            if (sparkWalkFrameIndex >= SPARK_WALK_FRAME_COUNT)
+            {
+                sparkWalkFrameIndex = 0;
+            }
+        }
+        else
+        {
+            walkFrameIndex++;
+
+            if (walkFrameIndex >= walkFrameCount)
+            {
+                walkFrameIndex = 0;
+            }
+        }
+    }
+    else
+    {
+        ResetWalkAnimationFrames();
+    }
+}
+
+void UpdateBalloonAnimationTimer()
+{
+    if (isSpace && !isAbsorb)
+    {
+        if (isFireKirby)
+        {
+            if (!fireBalloonStartFrameDone)
+            {
+                fireBalloonFrameIndex = 0;
+                fireBalloonStartFrameDone = true;
+            }
+            else
+            {
+                fireBalloonFrameIndex++;
+
+                if (fireBalloonFrameIndex >= 2)
+                    fireBalloonFrameIndex = 0;
+            }
+        }
+        else if (isBombKirby)
+        {
+            if (!bombBalloonStartFrameDone)
+            {
+                bombBalloonFrameIndex = 0;
+                bombBalloonStartFrameDone = true;
+            }
+            else
+            {
+                bombBalloonFrameIndex++;
+
+                if (bombBalloonFrameIndex >= 2)
+                    bombBalloonFrameIndex = 0;
+            }
+        }
+        else if (isHammerKirby)
+        {
+            if (!hammerBalloonStartFrameDone)
+            {
+                hammerBalloonFrameIndex = 0;
+                hammerBalloonStartFrameDone = true;
+            }
+            else
+            {
+                hammerBalloonFrameIndex++;
+
+                if (hammerBalloonFrameIndex >= 2)
+                    hammerBalloonFrameIndex = 0;
+            }
+        }
+        else if (isSparkKirby)
+        {
+            if (!sparkBalloonStartFrameDone)
+            {
+                sparkBalloonFrameIndex = 0;
+                sparkBalloonStartFrameDone = true;
+            }
+            else
+            {
+                sparkBalloonFrameIndex++;
+
+                if (sparkBalloonFrameIndex >= 2)
+                    sparkBalloonFrameIndex = 0;
+            }
+        }
+        else
+        {
+            if (!spaceStartFrameDone)
+            {
+                spaceFrameIndex = 0;
+                spaceStartFrameDone = true;
+            }
+            else
+            {
+                if (spaceFrameIndex == 0)
+                {
+                    spaceFrameIndex = 1;
+                }
+                else if (spaceFrameIndex == 1)
+                {
+                    spaceFrameIndex = 2;
+                }
+                else
+                {
+                    spaceFrameIndex = 1;
+                }
+            }
+        }
+    }
+    else
+    {
+        ResetAllBalloonAnimationFrames();
+    }
+}
+
+void UpdateAbsorbAnimationTimer()
+{
+    if (!isAbsorb)
+        return;
+
+    if (absorbFrameIndex < absorbFrameCount - 1)
+    {
+        absorbFrameIndex++;
+    }
+    else
+    {
+        absorbFrameIndex = absorbFrameCount - 1;
+    }
+}
+
+void UpdateMonsterAnimationTimer()
+{
+    for (int i = 0; i < MONSTER_COUNT; i++)
+    {
+        g_monsters[i].NextFrame();
+    }
+}
+
+void HandleGameTimer(HWND hWnd, WPARAM wParam)
+{
+    if (g_isOpening)
+    {
+        UpdateOpeningTimer(hWnd, wParam);
+        return;
+    }
+
+    if (g_isStory)
+    {
+        UpdateStoryTimer(hWnd, wParam);
+        return;
+    }
+
+    if (g_starTransitionActive)
+    {
+        UpdateStarTransitionTimer(hWnd, wParam);
+        return;
+    }
+
+    if (g_isPaused || g_retryActive || g_finalGameOver)
+    {
+        UpdatePauseRetryTimer(hWnd, wParam);
+        return;
+    }
+
+    if (wParam == 1)
+    {
+        UpdateGameLoop(hWnd);
+    }
+    else if (wParam == 2)
+    {
+        UpdateWalkAnimationTimer();
+    }
+    else if (wParam == 3)
+    {
+        UpdateBalloonAnimationTimer();
+    }
+    else if (wParam == 5)
+    {
+        UpdateAbsorbAnimationTimer();
+    }
+    else if (wParam == 7)
+    {
+        UpdateMonsterAnimationTimer();
+    }
+}
 void DrawEdgeBox(Graphics& graphics, int screenW, int screenH, int alpha, int red, int green, int blue, int startInset, int layerCount)
 {
     if (alpha <= 0)
@@ -5861,321 +6246,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_TIMER:
-        if (g_isOpening)
-        {
-            if (wParam == 1)
-            {
-                g_openingTick++;
-                InvalidateRect(hWnd, NULL, FALSE);
-            }
-            return 0;
-        }
-
-        if (g_isStory)
-        {
-            if (wParam == 1)
-            {
-                g_storyTick++;
-
-                if (g_storyTick >= STORY_FRAME_DURATION)
-                {
-                    g_storyTick = 0;
-                    g_storyFrameIndex++;
-
-                    if (g_storyFrameIndex >= STORY_FRAME_COUNT)
-                    {
-                        g_isStory = false;
-                        g_storyFrameIndex = STORY_FRAME_COUNT - 1;
-                        StopMove();
-                        isSpace = false;
-                        isSpaceRelease = false;
-                        balloonTick = 0;
-                        balloonCooldownTick = 0;
-                        spaceKeyHeld = false;
-                        spaceFrameIndex = 0;
-                        spaceStartFrameDone = false;
-                        fireBalloonFrameIndex = 0;
-                        fireBalloonStartFrameDone = false;
-                        bombBalloonFrameIndex = 0;
-                        bombBalloonStartFrameDone = false;
-                        hammerBalloonFrameIndex = 0;
-                        hammerBalloonStartFrameDone = false;
-                        sparkBalloonFrameIndex = 0;
-                        sparkBalloonStartFrameDone = false;
-                        UpdateCamera(hWnd);
-                        StartStageTransitionEffect();
-                        StartPlayTimer();
-                        g_controlGuideTick = CONTROL_GUIDE_TICK_MAX;
-                    }
-
-                    InvalidateRect(hWnd, NULL, FALSE);
-                }
-            }
-
-            return 0;
-        }
-
-        if (g_starTransitionActive)
-        {
-            if (wParam == 1)
-            {
-                UpdateStarStageTransition(hWnd);
-                SyncStageBGM();
-                InvalidateRect(hWnd, NULL, FALSE);
-            }
-
-            return 0;
-        }
-
-        if (g_isPaused || g_retryActive || g_finalGameOver)
-        {
-            if (wParam == 1)
-            {
-                if (g_retryActive)
-                {
-                    UpdatePlayTimer();
-                    UpdateRetryCountdown(hWnd);
-                }
-                else
-                {
-                    InvalidateRect(hWnd, NULL, FALSE);
-                }
-            }
-
-            return 0;
-        }
-
-
-        if (wParam == 1)
-        {
-            UpdatePlayTimer();
-            UpdatePlayer(hWnd);
-            UpdateStageGimmicks(hWnd);
-            UpdateStage(hWnd);
-            SyncStageBGM();
-            CheckCollision();
-            UpdateMonster();
-            CheckKirbyCollision();
-
-            if (isGameOver && !g_gameOverHandled)
-            {
-                gameOverTick++;
-
-                if (gameOverTick >= GAME_OVER_DELAY)
-                {
-                    StartRetrySequence();
-                    InvalidateRect(hWnd, NULL, FALSE);
-                    return 0;
-                }
-            }
-
-            UpdateScreenEffects();
-            UpdateCamera(hWnd);
-
-            InvalidateRect(hWnd, NULL, FALSE);
-        }
-        else if (wParam == 2)
-        {
-            if (!isSpace && !isAbsorb && !isCrouch && IsKirbyWalkMoving())
-            {
-                if (isPowerKirby)
-                {
-                    powerWalkFrameIndex++;
-
-                    if (powerWalkFrameIndex >= powerWalkFrameCount)
-                    {
-                        powerWalkFrameIndex = 0;
-                    }
-                }
-                else if (isFireKirby)
-                {
-                    fireWalkFrameIndex++;
-
-                    if (fireWalkFrameIndex >= FIRE_WALK_FRAME_COUNT)
-                    {
-                        fireWalkFrameIndex = 0;
-                    }
-                }
-                else if (isBombKirby)
-                {
-                    bombWalkFrameIndex++;
-
-                    if (bombWalkFrameIndex >= BOMB_WALK_FRAME_COUNT)
-                    {
-                        bombWalkFrameIndex = 0;
-                    }
-                }
-                else if (isHammerKirby)
-                {
-                    hammerWalkFrameIndex++;
-
-                    if (hammerWalkFrameIndex >= HAMMER_WALK_FRAME_COUNT)
-                    {
-                        hammerWalkFrameIndex = 0;
-                sparkWalkFrameIndex = 0;
-                    }
-                }
-                else if (isSparkKirby)
-                {
-                    sparkWalkFrameIndex++;
-
-                    if (sparkWalkFrameIndex >= SPARK_WALK_FRAME_COUNT)
-                    {
-                        sparkWalkFrameIndex = 0;
-                    }
-                }
-                else
-                {
-                    walkFrameIndex++;
-
-                    if (walkFrameIndex >= walkFrameCount)
-                    {
-                        walkFrameIndex = 0;
-                    }
-                }
-            }
-            else
-            {
-                walkFrameIndex = 0;
-                powerWalkFrameIndex = 0;
-                fireWalkFrameIndex = 0;
-                bombWalkFrameIndex = 0;
-                hammerWalkFrameIndex = 0;
-                sparkWalkFrameIndex = 0;
-            }
-
-            // 메인 타이머에서만 다시 그려서 중복 페인트를 줄임
-        }
-        else if (wParam == 3)
-        {
-            if (isSpace && !isAbsorb)
-            {
-                if (isFireKirby)
-                {
-                    if (!fireBalloonStartFrameDone)
-                    {
-                        fireBalloonFrameIndex = 0;
-                        fireBalloonStartFrameDone = true;
-                    }
-                    else
-                    {
-                        fireBalloonFrameIndex++;
-
-                        if (fireBalloonFrameIndex >= 2)
-                            fireBalloonFrameIndex = 0;
-                    }
-                }
-                else if (isBombKirby)
-                {
-                    if (!bombBalloonStartFrameDone)
-                    {
-                        bombBalloonFrameIndex = 0;
-                        bombBalloonStartFrameDone = true;
-                    }
-                    else
-                    {
-                        bombBalloonFrameIndex++;
-
-                        if (bombBalloonFrameIndex >= 2)
-                            bombBalloonFrameIndex = 0;
-                    }
-                }
-                else if (isHammerKirby)
-                {
-                    if (!hammerBalloonStartFrameDone)
-                    {
-                        hammerBalloonFrameIndex = 0;
-                        hammerBalloonStartFrameDone = true;
-                    }
-                    else
-                    {
-                        hammerBalloonFrameIndex++;
-
-                        if (hammerBalloonFrameIndex >= 2)
-                            hammerBalloonFrameIndex = 0;
-                    }
-                }
-                else if (isSparkKirby)
-                {
-                    if (!sparkBalloonStartFrameDone)
-                    {
-                        sparkBalloonFrameIndex = 0;
-                        sparkBalloonStartFrameDone = true;
-                    }
-                    else
-                    {
-                        sparkBalloonFrameIndex++;
-
-                        if (sparkBalloonFrameIndex >= 2)
-                            sparkBalloonFrameIndex = 0;
-                    }
-                }
-                else
-                {
-                    if (!spaceStartFrameDone)
-                    {
-                        spaceFrameIndex = 0;
-                        spaceStartFrameDone = true;
-                    }
-                    else
-                    {
-                        if (spaceFrameIndex == 0)
-                        {
-                            spaceFrameIndex = 1;
-                        }
-                        else if (spaceFrameIndex == 1)
-                        {
-                            spaceFrameIndex = 2;
-                        }
-                        else
-                        {
-                            spaceFrameIndex = 1;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                spaceFrameIndex = 0;
-                spaceStartFrameDone = false;
-                fireBalloonFrameIndex = 0;
-                fireBalloonStartFrameDone = false;
-                bombBalloonFrameIndex = 0;
-                bombBalloonStartFrameDone = false;
-                hammerBalloonFrameIndex = 0;
-                hammerBalloonStartFrameDone = false;
-                sparkBalloonFrameIndex = 0;
-                sparkBalloonStartFrameDone = false;
-            }
-
-            // 메인 타이머에서만 다시 그려서 중복 페인트를 줄임
-        }
-        else if (wParam == 5)
-        {
-            if (isAbsorb)
-            {
-                if (absorbFrameIndex < absorbFrameCount - 1)
-                {
-                    absorbFrameIndex++;
-                }
-                else
-                {
-                    absorbFrameIndex = absorbFrameCount - 1;
-                }
-
-                // 메인 타이머에서만 다시 그려서 중복 페인트를 줄임
-            }
-        }
-        else if (wParam == 7)
-        {
-            for (int i = 0; i < MONSTER_COUNT; i++)
-            {
-                g_monsters[i].NextFrame();
-            }
-            // 메인 타이머에서만 다시 그려서 중복 페인트를 줄임
-        }
-        break;
-
+        HandleGameTimer(hWnd, wParam);
+        return 0;
     case WM_PAINT:
         hdc = BeginPaint(hWnd, &ps);
         DrawScene(hdc, hWnd);
