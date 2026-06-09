@@ -791,6 +791,7 @@ HBITMAP g_backOldBitmap = NULL;
 int g_backW = 0;
 int g_backH = 0;
 
+// 백버퍼 해제 함수: 화면을 그릴 때 쓰던 메모리 DC와 비트맵을 정리해 메모리 누수를 막는다.
 void ReleaseBackBuffer()
 {
     if (g_backDC != NULL)
@@ -814,6 +815,7 @@ void ReleaseBackBuffer()
     g_backH = 0;
 }
 
+// 백버퍼 준비 함수: 화면 크기에 맞는 임시 그림판을 만들고, 모든 장면을 여기에 먼저 그리게 한다.
 bool PrepareBackBuffer(HDC hdc, int w, int h)
 {
     if (w <= 0 || h <= 0)
@@ -865,6 +867,7 @@ Bitmap* CreateScaledBitmap(Image* source, int w, int h)
     return bmp;
 }
 
+// 창 크기 조정 함수: 실제 게임 화면 영역이 원하는 크기가 되도록 윈도우 전체 크기를 맞춘다.
 void ResizeWindowToClient(HWND hWnd, int clientW, int clientH)
 {
     RECT rc = { 0, 0, clientW, clientH };
@@ -872,6 +875,7 @@ void ResizeWindowToClient(HWND hWnd, int clientW, int clientH)
     SetWindowPos(hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE | SWP_NOZORDER);
 }
 
+// 화면 표시 확인 함수: 월드 좌표의 물체가 현재 카메라 화면 안에 보이는지 검사한다.
 bool IsVisibleWorld(int x, int y, int w, int h)
 {
     if (x + w < cameraX) return false;
@@ -881,6 +885,7 @@ bool IsVisibleWorld(int x, int y, int w, int h)
     return true;
 }
 
+// 월드 이미지 출력 함수: 카메라 기준으로 보이는 물체만 실제 화면에 그린다.
 void DrawWorldImage(Graphics& graphics, Image* image, int x, int y, int w, int h)
 {
     if (image == NULL)
@@ -1021,6 +1026,7 @@ extern int g_rewardDoorY;
 extern int g_rewardDoorW;
 extern int g_rewardDoorH;
 
+// 파워 투사체 갱신 함수: 커비가 뱉은 별의 이동, 수명, 벽 충돌을 처리한다.
 void UpdatePowerProjectile()
 {
     if (!isPowerProjectileActive)
@@ -1043,6 +1049,7 @@ void UpdatePowerProjectile()
     }
 }
 
+// 카메라 갱신 함수: 커비 위치를 따라가도록 카메라 X좌표를 계산하고 맵 밖으로 나가지 않게 제한한다.
 void UpdateCamera(HWND hWnd)
 {
     RECT rt;
@@ -1266,6 +1273,7 @@ struct BossWarning
 
 BossWarning g_bossWarnings[BOSS_WARNING_MAX];
 
+// 랜덤 범위 함수: 최솟값과 최댓값 사이의 정수를 무작위로 반환한다.
 int RandomRange(int minValue, int maxValue)
 {
     if (maxValue <= minValue)
@@ -1274,6 +1282,7 @@ int RandomRange(int minValue, int maxValue)
     return minValue + rand() % (maxValue - minValue + 1);
 }
 
+// 카메라 흔들림 시작 함수: 피격이나 보스 공격 때 화면이 흔들리도록 세기와 시간을 설정한다.
 void StartCameraShake(int power, int duration)
 {
     if (power <= 0 || duration <= 0)
@@ -1286,6 +1295,7 @@ void StartCameraShake(int power, int duration)
     }
 }
 
+// 카메라 흔들림 갱신 함수: 남은 시간 동안 흔들림 값을 줄이고, 끝나면 흔들림을 멈춘다.
 void UpdateCameraShake()
 {
     if (g_cameraShakeTick > 0)
@@ -1309,6 +1319,7 @@ void UpdateCameraShake()
     }
 }
 
+// 카메라 밀림 시작 함수: 강한 공격 연출처럼 화면이 한쪽으로 밀리는 효과를 설정한다.
 void StartCameraPush(int dir, int power, int duration)
 {
     if (power <= 0 || duration <= 0)
@@ -1325,6 +1336,7 @@ void StartCameraPush(int dir, int power, int duration)
     g_cameraPushTick = duration;
 }
 
+// 카메라 밀림 갱신 함수: 설정된 시간 동안 화면 밀림 효과를 유지하다가 점점 종료한다.
 void UpdateCameraPush()
 {
     if (g_cameraPushTick > 0)
@@ -1341,6 +1353,7 @@ void UpdateCameraPush()
     }
 }
 
+// 카메라 밀림 값 반환 함수: 현재 화면을 좌우로 얼마나 밀어야 하는지 계산한다.
 int GetCameraPushOffsetX()
 {
     if (g_cameraPushTick <= 0 || g_cameraPushDuration <= 0)
@@ -1349,6 +1362,7 @@ int GetCameraPushOffsetX()
     return g_cameraPushDir * g_cameraPushPower * g_cameraPushTick / g_cameraPushDuration;
 }
 
+// 카메라 X 보정값 함수: 흔들림과 밀림 효과를 합쳐 화면에 적용할 가로 보정값을 반환한다.
 int GetCameraDrawOffsetX()
 {
     if (g_starTransitionActive || g_isChangingMap)
@@ -1357,6 +1371,7 @@ int GetCameraDrawOffsetX()
     return g_cameraOffsetX + GetCameraPushOffsetX();
 }
 
+// 카메라 Y 보정값 함수: 흔들림 효과로 화면에 적용할 세로 보정값을 반환한다.
 int GetCameraDrawOffsetY()
 {
     if (g_starTransitionActive || g_isChangingMap)
@@ -1365,6 +1380,7 @@ int GetCameraDrawOffsetY()
     return g_cameraOffsetY;
 }
 
+// 스테이지 랜덤 흔들림 함수: 특정 스테이지 분위기에 맞춰 약한 화면 흔들림을 가끔 발생시킨다.
 void UpdateStageRandomCameraShake()
 {
     if (g_currentStage < 1 || g_currentStage > 3)
@@ -1400,6 +1416,7 @@ void UpdateStageRandomCameraShake()
     g_stageRandomShakeCooldown = RandomRange(140, 260);
 }
 
+// 보스 충돌 박스 함수: 보스의 현재 위치와 크기로 충돌 판정용 사각형을 만든다.
 RECT GetBossRect()
 {
     RECT rc;
@@ -1410,6 +1427,7 @@ RECT GetBossRect()
     return rc;
 }
 
+// 보스 투사체 초기화 함수: 보스가 만든 미사일, 빗방울, 탄환 정보를 모두 비활성 상태로 되돌린다.
 void ResetBossProjectiles()
 {
     for (int i = 0; i < BOSS_PROJECTILE_MAX; i++)
@@ -1426,6 +1444,7 @@ void ResetBossProjectiles()
     }
 }
 
+// 보스 경고 표시 초기화 함수: 공격 전에 뜨는 위험 표시 정보를 모두 꺼진 상태로 되돌린다.
 void ResetBossWarnings()
 {
     for (int i = 0; i < BOSS_WARNING_MAX; i++)
@@ -1441,6 +1460,7 @@ void ResetBossWarnings()
     }
 }
 
+// 보스 방향 설정 함수: 커비가 보스 왼쪽에 있으면 왼쪽, 오른쪽에 있으면 오른쪽을 보게 한다.
 void FaceBossToKirby()
 {
     int kirbyCenterX = kirbyX + kirbyW / 2;
@@ -1452,6 +1472,7 @@ void FaceBossToKirby()
         g_boss.dir = 1;
 }
 
+// 보스 바닥 위치 반환 함수: 보스가 1페이즈인지 2페이즈인지에 따라 기준 바닥 높이를 반환한다.
 int GetBossGroundY()
 {
     if (g_boss.phase2)
@@ -1460,6 +1481,7 @@ int GetBossGroundY()
     return BOSS_GROUND_Y;
 }
 
+// 보스 2페이즈 외형 적용 함수: 보스 크기를 2페이즈 크기로 바꾸고 바닥과 화면 안에 맞춘다.
 void ApplyBossPhase2Form()
 {
     if (g_boss.phase2)
@@ -1479,6 +1501,7 @@ void ApplyBossPhase2Form()
         g_boss.x = BG_PART_W - 70 - g_boss.w;
 }
 
+// 보스 2페이즈 시작 함수: 보스 체력이 절반 이하가 되면 2페이즈 상태와 전환 연출을 시작한다.
 void StartBossPhase2()
 {
     if (g_boss.phase2 || g_bossPhase2Transition)
@@ -1508,6 +1531,7 @@ void StartBossPhase2()
     g_boss.vy = 0.0f;
 }
 
+// 보스 초기화 함수: 보스 체력, 위치, 패턴, 투사체, 보상 오브젝트를 처음 상태로 준비한다.
 void InitBossObjects()
 {
     ResetBossProjectiles();
@@ -1585,6 +1609,7 @@ void InitBossObjects()
     g_bossBounceCooldown = 210;
 }
 
+// 보스 투사체 생성 함수: 비어 있는 칸을 찾아 보스 탄환의 종류, 위치, 속도를 저장한다.
 void SpawnBossProjectile(int type, int x, int y, int w, int h, float vx, float vy)
 {
     if (g_bossBerserkMode && !g_bossBerserkHealActive)
@@ -1618,6 +1643,7 @@ void SpawnBossProjectile(int type, int x, int y, int w, int h, float vx, float v
     }
 }
 
+// 보스 경고 생성 함수: 공격이 나오기 전에 위험 위치와 지속 시간을 저장해 화면에 표시한다.
 void SpawnBossWarning(int type, int x, int y, int w, int h, int tick, int dir)
 {
     for (int i = 0; i < BOSS_WARNING_MAX; i++)
@@ -1637,6 +1663,7 @@ void SpawnBossWarning(int type, int x, int y, int w, int h, int tick, int dir)
     }
 }
 
+// 보스 경고 갱신 함수: 경고 표시 시간을 줄이고, 시간이 끝나면 실제 공격을 생성한다.
 void UpdateBossWarnings()
 {
     for (int i = 0; i < BOSS_WARNING_MAX; i++)
@@ -1669,6 +1696,7 @@ void UpdateBossWarnings()
     }
 }
 
+// 보스 미사일 생성 함수: 커비 방향을 보고 옆으로 날아가는 미사일 공격을 만든다.
 void SpawnBossMissile()
 {
     if (!g_boss.active)
@@ -1690,6 +1718,7 @@ void SpawnBossMissile()
     SpawnBossProjectile(0, missileX, missileY, missileW, missileH, 9.0f * g_boss.dir, 0.0f);
 }
 
+// 보스 비 공격 생성 함수: 위에서 아래로 떨어지는 기본 낙하 공격을 만든다.
 void SpawnBossRainAttack()
 {
     // 바로 떨어지지 않고 바닥에 경고 표시 후 100번 낙하 공격 생성
@@ -1697,6 +1726,7 @@ void SpawnBossRainAttack()
     SpawnBossWarning(2, x, 545 - 18, 26, 18, 16, 0);
 }
 
+// 보스 비 폭탄 생성 함수: 위에서 떨어지며 더 위협적인 폭탄형 공격을 만든다.
 void SpawnBossRainBomb()
 {
     // 바로 떨어지지 않고 바닥에 경고 표시 후 101번 낙하 폭탄 생성
@@ -1704,6 +1734,7 @@ void SpawnBossRainBomb()
     SpawnBossWarning(3, x, 545 - 20, 29, 20, 18, 0);
 }
 
+// 보스 옆 탄환 생성 함수: 화면 옆에서 가로로 날아오는 탄환을 만든다.
 void SpawnBossSideBall()
 {
     // 가로 위험 표시는 없애고, 공만 바로 빠르게 지나가게 함
@@ -1715,6 +1746,7 @@ void SpawnBossSideBall()
     SpawnBossProjectile(4, x, y, ballSize, ballSize, 9.0f * dir, 0.0f);
 }
 
+// 보스 확산탄 생성 함수: 여러 방향으로 퍼지는 탄환을 한 번에 만든다.
 void SpawnBossSpreadShot()
 {
     // 보스 중심에서 여러 방향으로 퍼지는 탄. 1페이즈는 보통 속도, 2페이즈만 1.5배 빠르게.
@@ -1741,6 +1773,7 @@ void SpawnBossSpreadShot()
     }
 }
 
+// 보스 지면 파동 생성 함수: 바닥을 따라 이동하는 파동 공격을 만든다.
 void SpawnBossGroundWave()
 {
     // 바닥을 타고 좌우로 퍼지는 공격. 점프로 피하게 만드는 패턴.
@@ -1756,6 +1789,7 @@ void SpawnBossGroundWave()
     SpawnBossProjectile(6, rightX, y, size, size, 8.5f, 0.0f);
 }
 
+// 보스 연속 낙하 생성 함수: 여러 개의 낙하 공격을 짧은 간격으로 만들어 압박한다.
 void SpawnBossRainBurst()
 {
     // 2페이즈 연속 낙하 패턴. 세로 경고 표시는 유지함.
@@ -1771,6 +1805,7 @@ void SpawnBossRainBurst()
     }
 }
 
+// 보스 조준탄 생성 함수: 커비 위치를 계산해서 커비 쪽으로 날아가는 탄환을 만든다.
 void SpawnBossAimedShot()
 {
     // 커비 위치를 보고 날아오는 조준탄. 2페이즈에서만 빠르게.
@@ -1809,6 +1844,7 @@ void SpawnBossAimedShot()
     SpawnBossProjectile(7, sx, sy, size, size, vx, vy);
 }
 
+// 보스 벽 낙하 생성 함수: 화면 특정 구간에 연속으로 떨어지는 벽 형태 공격을 만든다.
 void SpawnBossWallRain()
 {
     // 여러 줄이 떨어지지만 커비 근처 한 칸은 안전구역으로 남기는 패턴
@@ -1829,6 +1865,7 @@ void SpawnBossWallRain()
     }
 }
 
+// 보스 지그재그 탄환 생성 함수: 이동 중 방향이 흔들리는 특수 탄환을 만든다.
 void SpawnBossZigzagShot()
 {
     // 위아래로 흔들리는 탄. 그냥 직선탄보다 보스전 느낌이 남.
@@ -1844,6 +1881,7 @@ void SpawnBossZigzagShot()
     SpawnBossProjectile(8, sx, sy, size, size, speed * dir, -3.0f);
 }
 
+// 보스 튕김탄 생성 함수: 바닥이나 벽에 닿으면 튕기는 공 형태 공격을 만든다.
 void SpawnBossBounceBall()
 {
     // 바닥에 한 번씩 튕기면서 오는 탄. 2페이즈 전용.
@@ -1859,6 +1897,7 @@ void SpawnBossBounceBall()
 }
 
 
+// 보스 입 폭탄 생성 함수: 보스 입 근처에서 시작하는 폭탄 공격을 만든다.
 void SpawnBossMouthBomb()
 {
     if (!g_boss.active)
@@ -1873,6 +1912,7 @@ void SpawnBossMouthBomb()
     SpawnBossProjectile(1, bombX, bombY, bombW, bombH, 0.0f, 8.7f);
 }
 
+// 보스 데미지 처리 함수: 보스 체력을 줄이고 피격 연출, 2페이즈 전환, 사망 처리를 확인한다.
 void DamageBoss(int damage)
 {
     if (g_currentStage != 4)
@@ -1917,6 +1957,7 @@ void DamageBoss(int damage)
     }
 }
 
+// 커비 공격과 보스 충돌 검사 함수: 파워별 공격 판정이 보스에게 닿았는지 확인해 데미지를 준다.
 void CheckKirbyAttacksHitBoss()
 {
     if (g_currentStage != 4)
@@ -2019,6 +2060,7 @@ void CheckKirbyAttacksHitBoss()
     }
 }
 
+// 보스 몸통 충돌 검사 함수: 커비가 보스 몸에 직접 닿았을 때 데미지를 받게 한다.
 void CheckBossBodyHitKirby()
 {
     if (!g_boss.active)
@@ -2040,6 +2082,7 @@ void CheckBossBodyHitKirby()
     }
 }
 
+// 보스 투사체 갱신 함수: 보스 탄환을 이동시키고 커비 충돌, 화면 밖 제거, 특수 움직임을 처리한다.
 void UpdateBossProjectiles()
 {
     RECT kirbyRc = GetKirbyBodyRect();
@@ -2117,6 +2160,7 @@ void UpdateBossRewardObjects();
 void TryBossRewardInteraction();
 void DrawBossRewardObjects(Graphics& graphics);
 
+// 보스 광폭 회복 시작 함수: 보스가 특정 조건에서 회복 연출을 시작하도록 상태를 설정한다.
 void StartBossBerserkHeal()
 {
     if (g_bossBerserkHealDone || g_bossBerserkHealActive || !g_boss.active || !g_boss.phase2)
@@ -2143,6 +2187,7 @@ void StartBossBerserkHeal()
     StartCameraShake(8, 18);
 }
 
+// 보스 광폭 회복 갱신 함수: 회복 시간 동안 체력을 올리고 연출이 끝나면 다음 패턴으로 돌아간다.
 void UpdateBossBerserkHeal()
 {
     if (!g_bossBerserkHealActive)
@@ -2178,11 +2223,13 @@ void UpdateBossBerserkHeal()
     }
 }
 
+// 보스 광폭 상태 확인 함수: 현재 보스가 강해진 상태인지 true/false로 알려준다.
 bool IsBossBerserk()
 {
     return g_currentStage == 4 && g_boss.active && g_boss.phase2 && g_bossBerserkMode;
 }
 
+// 보스 전체 갱신 함수: 보스 패턴 선택, 이동, 공격 생성, 투사체, 보상, 사망 연출을 처리한다.
 void UpdateBossObjects()
 {
     if (g_currentStage != 4)
@@ -2733,6 +2780,7 @@ RECT MakeRect(int x, int y, int w, int h)
     return rc;
 }
 
+// 보스 보상 시작 함수: 보스 처치 후 열쇠와 문이 등장하도록 보상 오브젝트를 초기화한다.
 void StartBossRewardObjects()
 {
     if (g_rewardStarted)
@@ -2770,6 +2818,7 @@ void StartBossRewardObjects()
     g_rewardDoorFrameTick = 0;
 }
 
+// 커비 근처 확인 함수: 커비가 지정한 사각형 주변에 가까이 있는지 검사한다.
 bool IsKirbyNearRect(int x, int y, int w, int h)
 {
     RECT kirbyRc = GetKirbyBodyRect();
@@ -2783,6 +2832,7 @@ bool IsKirbyNearRect(int x, int y, int w, int h)
     return IsRectHit(kirbyRc, rc);
 }
 
+// 보스 보상 갱신 함수: 열쇠 획득, 문 활성화, 보상 애니메이션 상태를 갱신한다.
 void UpdateBossRewardObjects()
 {
     if (!g_rewardStarted)
@@ -2832,6 +2882,7 @@ void UpdateBossRewardObjects()
     }
 }
 
+// 보스 보상 상호작용 함수: 커비가 열쇠나 문 근처에서 상호작용 키를 눌렀는지 확인한다.
 void TryBossRewardInteraction()
 {
     if (g_currentStage != 4)
@@ -2880,6 +2931,7 @@ void TryBossRewardInteraction()
     }
 }
 
+// 보스 보상 출력 함수: 보스 처치 후 나타나는 열쇠와 문을 화면에 그린다.
 void DrawBossRewardObjects(Graphics& graphics)
 {
     if (g_currentStage != 4)
@@ -2909,6 +2961,7 @@ void DrawBossRewardObjects(Graphics& graphics)
     }
 }
 
+// 보스 HP바 출력 함수: 보스 체력 비율에 맞춰 상단 체력바를 그린다.
 void DrawBossHpBar(Graphics& graphics)
 {
     if (g_currentStage != 4)
@@ -2941,6 +2994,7 @@ void DrawBossHpBar(Graphics& graphics)
     graphics.DrawRectangle(&borderPen, barX, barY, barW, barH);
 }
 
+// 보스 경고 출력 함수: 곧 공격이 떨어질 위치를 빨간 표시나 경고 이미지로 그린다.
 void DrawBossWarnings(Graphics& graphics)
 {
     if (g_currentStage != 4)
@@ -2966,6 +3020,7 @@ void DrawBossWarnings(Graphics& graphics)
     }
 }
 
+// 보스 사망 연출 출력 함수: 보스가 죽을 때 폭발과 사라지는 효과를 그린다.
 void DrawBossDeathEffect(Graphics& graphics)
 {
     if (!g_bossDeadEffect)
@@ -3015,6 +3070,7 @@ void DrawBossDeathEffect(Graphics& graphics)
     }
 }
 
+// 보스 그림자 출력 함수: 보스 아래에 그림자를 그려 위치감을 준다.
 void DrawBossShadow(Graphics& graphics)
 {
     if (g_currentStage != 4 || !g_boss.active)
@@ -3028,6 +3084,7 @@ void DrawBossShadow(Graphics& graphics)
     graphics.FillEllipse(&shadowBrush, g_boss.x + g_boss.w / 2 - shadowW / 2, groundY, shadowW, shadowH);
 }
 
+// 보스 레이저 위험 표시 함수: 레이저나 강한 공격이 지나갈 위험 구역을 먼저 보여준다.
 void DrawBossLaserDanger(Graphics& graphics)
 {
     if (g_currentStage != 4 || !g_boss.active)
@@ -3069,12 +3126,14 @@ void DrawBossLaserDanger(Graphics& graphics)
 
 }
 
+// 보스 패턴 문구 출력 함수: 현재 보스 패턴이나 경고 문구를 화면에 표시한다.
 void DrawBossPatternText(Graphics& graphics)
 {
     // 조심/패턴 안내 글자는 출력하지 않음. 빨간 표시만 사용.
     return;
 }
 
+// 보스 2페이즈 전환 화면 함수: 2페이즈로 넘어갈 때 화면 전체 연출을 그린다.
 void DrawBossPhase2TransitionOverlay(Graphics& graphics, int screenW, int screenH)
 {
     if (g_currentStage != 4 || !g_bossPhase2Transition)
@@ -3135,6 +3194,7 @@ void DrawBossPhase2TransitionOverlay(Graphics& graphics, int screenW, int screen
         graphics.DrawString(L"DANGER", -1, &dangerFont, dangerRect, &format, &dangerBrush);
     }
 }
+// 보스 피격 빨간 효과 함수: 보스가 맞았을 때 잠깐 빨갛게 보이도록 덮어 그린다.
 void DrawBossHitRedFlash(Graphics& graphics)
 {
     if (g_currentStage != 4 || !g_boss.active)
@@ -3150,6 +3210,7 @@ void DrawBossHitRedFlash(Graphics& graphics)
     graphics.FillEllipse(&redBrush, g_boss.x, g_boss.y, g_boss.w, g_boss.h);
 }
 
+// 보스전 파티클 출력 함수: 악몽 느낌의 작은 입자들을 배경에 그려 분위기를 만든다.
 void DrawNightmareParticles(Graphics& graphics)
 {
     if (g_currentStage != 4)
@@ -3169,6 +3230,7 @@ void DrawNightmareParticles(Graphics& graphics)
     }
 }
 
+// 보스 광폭 회복 연출 함수: 보스가 회복 중일 때 흡수/회복 느낌의 이펙트를 그린다.
 void DrawBossBerserkHealEffect(Graphics& graphics)
 {
     if (!g_bossBerserkHealActive)
@@ -3218,6 +3280,7 @@ void DrawBossBerserkHealEffect(Graphics& graphics)
     Pen ringPen(Color(180, 150, 45, 255), (REAL)3);
     graphics.DrawEllipse(&ringPen, cx - 38 - pulse, cy - 38 - pulse, 76 + pulse * 2, 76 + pulse * 2);
 }
+// 보스 투사체 출력 함수: 현재 활성화된 보스 탄환들을 종류에 맞는 이미지로 그린다.
 void DrawBossProjectiles(Graphics& graphics)
 {
     for (int i = 0; i < BOSS_PROJECTILE_MAX; i++)
@@ -3267,6 +3330,7 @@ void DrawBossProjectiles(Graphics& graphics)
     }
 }
 
+// 보스 전체 출력 함수: 보스 경고, 탄환, 회복 연출, 본체, HP 효과를 정해진 순서로 그린다.
 void DrawBossObjects(Graphics& graphics)
 {
     if (g_currentStage != 4)
@@ -3309,6 +3373,7 @@ void DrawBossObjects(Graphics& graphics)
 }
 
 
+// 대시 바람 출력 함수: 커비가 대시할 때 뒤쪽에 바람 효과를 그린다.
 void DrawDashWind(Graphics& graphics)
 {
     if (!isDash)
@@ -3358,6 +3423,7 @@ void DrawDashWind(Graphics& graphics)
     }
 }
 
+// 풍선 해제 효과 출력 함수: 커비가 풍선 상태를 끝낼 때 짧은 해제 이펙트를 그린다.
 void DrawSpaceReleaseEffect(Graphics& graphics)
 {
     if (g_spaceReleaseEffect == NULL)
@@ -3395,6 +3461,7 @@ void DrawSpaceReleaseEffect(Graphics& graphics)
     }
 }
 
+// 흡수 앞쪽 효과 출력 함수: 커비가 빨아들이는 방향 앞에 흡입 효과 이미지를 그린다.
 void DrawAbsorbFrontEffect(Graphics& graphics)
 {
     Image* effect = g_absorbFrontEffectFrames[absorbFrontEffectIndex];
@@ -3451,6 +3518,7 @@ void DrawAbsorbFrontEffect(Graphics& graphics)
 
 void DrawHPBar(Graphics& graphics);
 
+// 스테이지 이름 반환 함수: 현재 스테이지 번호에 맞는 HUD용 이름 문자열을 반환한다.
 const wchar_t* GetStageHudName()
 {
     if (g_currentStage == 1) return L"STAGE 1  NIGHTMARE WOODS";
@@ -3461,6 +3529,7 @@ const wchar_t* GetStageHudName()
     return L"KIRBY ADVENTURE";
 }
 
+// 구출 수 계산 함수: 현재 스테이지에서 구출한 학생 수와 전체 학생 수를 구한다.
 void GetRescueCount(int* rescued, int* total)
 {
     if (g_currentStage == 1)
@@ -3488,12 +3557,14 @@ void GetRescueCount(int* rescued, int* total)
     *total = 0;
 }
 
+// 스테이지 전환 효과 시작 함수: 새 스테이지 진입 시 화면 전환 연출 시간을 설정한다.
 void StartStageTransitionEffect()
 {
     g_stageFadeTick = STAGE_FADE_TICK_MAX;
     g_stageTitleTick = STAGE_TITLE_TICK_MAX;
 }
 
+// 별 스테이지 전환 시작 함수: 다음 스테이지로 바로 가지 않고 별 모양 전환 효과를 먼저 시작한다.
 void StartStarStageTransition(HWND hWnd, int targetStage)
 {
     if (g_starTransitionActive)
@@ -3517,6 +3588,7 @@ void StartStarStageTransition(HWND hWnd, int targetStage)
     ResetStageProjectiles();
 }
 
+// 별 스테이지 전환 갱신 함수: 별 전환 진행도를 올리고 중간 시점에 실제 스테이지를 바꾼다.
 void UpdateStarStageTransition(HWND hWnd)
 {
     if (!g_starTransitionActive)
@@ -3540,6 +3612,7 @@ void UpdateStarStageTransition(HWND hWnd)
     }
 }
 
+// 별 꼭짓점 계산 함수: 별 모양을 그리기 위해 바깥/안쪽 반지름으로 점 좌표를 만든다.
 void MakeStarPoints(PointF* points, int cx, int cy, float outerR, float innerR)
 {
     const double PI = 3.14159265358979323846;
@@ -3554,6 +3627,7 @@ void MakeStarPoints(PointF* points, int cx, int cy, float outerR, float innerR)
     }
 }
 
+// 별 전환 출력 함수: 스테이지 이동 중 화면 위에 별 모양 마스크 효과를 그린다.
 void DrawStarStageTransition(Graphics& graphics, int screenW, int screenH)
 {
     if (!g_starTransitionActive)
@@ -3597,6 +3671,7 @@ void DrawStarStageTransition(Graphics& graphics, int screenW, int screenH)
     graphics.DrawPolygon(&starPen, starPoints, 10);
 }
 
+// 플레이 시간 초기화 함수: 플레이 시간과 클리어 시간 저장 상태를 처음으로 되돌린다.
 void ResetPlayTimer()
 {
     g_playTimerStarted = false;
@@ -3611,12 +3686,14 @@ void ResetPlayTimer()
     g_gameScore = 0;
 }
 
+// 플레이 시간 시작 함수: 실제 게임 플레이 시간이 증가하도록 타이머 상태를 켠다.
 void StartPlayTimer()
 {
     if (!g_playTimerStarted)
         g_playTimerStarted = true;
 }
 
+// 플레이 시간 갱신 함수: 게임이 진행 중일 때 플레이 시간을 한 틱씩 증가시킨다.
 void UpdatePlayTimer()
 {
     if (!g_playTimerStarted || g_clearTimeSaved)
@@ -3628,6 +3705,7 @@ void UpdatePlayTimer()
 bool IsFastClear();
 void AddFinalScoreBonus();
 
+// 최종 클리어 시간 저장 함수: 엔딩에 들어갔을 때 마지막 플레이 시간을 기록한다.
 void SaveFinalClearTime()
 {
     if (g_clearTimeSaved)
@@ -3638,6 +3716,7 @@ void SaveFinalClearTime()
     AddFinalScoreBonus();
 }
 
+// 클리어 시간 문자열 함수: 틱으로 저장된 시간을 분/초 형태의 글자로 바꾼다.
 void FormatClearTimeText(wchar_t* buffer, int tick)
 {
     int totalSeconds = tick * GAME_TIMER_MS / 1000;
@@ -3647,6 +3726,7 @@ void FormatClearTimeText(wchar_t* buffer, int tick)
     wsprintf(buffer, L"CLEAR TIME : %02d:%02d", minutes, seconds);
 }
 
+// 점수 추가 함수: 받은 점수를 현재 점수에 더하고 0 아래로 내려가지 않게 한다.
 void AddGameScore(int score)
 {
     if (score <= 0)
@@ -3655,6 +3735,7 @@ void AddGameScore(int score)
     g_gameScore += score;
 }
 
+// 전체 구출 대상 수 반환 함수: 모든 스테이지의 학생 수 합계를 반환한다.
 int GetTotalStudentCount()
 {
     return g_stage1ChildTotal + g_stage2ChildTotal + g_stage3ChildTotal;
@@ -3662,6 +3743,7 @@ int GetTotalStudentCount()
 
 bool IsFastClear();
 
+// 최종 보너스 점수 함수: 클리어 시간, 구출 수, 노미스 조건에 따라 추가 점수를 준다.
 void AddFinalScoreBonus()
 {
     int rescuedCount = g_totalStudentsRescued;
@@ -3680,11 +3762,13 @@ void AddFinalScoreBonus()
         AddGameScore(1600);
 }
 
+// 클리어 점수 반환 함수: 최종 결과 화면에 표시할 점수를 계산해 반환한다.
 int GetClearScore()
 {
     return g_gameScore;
 }
 
+// 업적 개수 계산 함수: 빠른 클리어, 전원 구출, 노미스 같은 달성 조건 개수를 센다.
 int GetAchievementCount()
 {
     int count = 0;
@@ -3699,6 +3783,7 @@ int GetAchievementCount()
     return count;
 }
 
+// 클리어 랭크 문자열 함수: 업적 개수에 따라 결과 화면의 랭크 문구를 반환한다.
 const wchar_t* GetClearRankText(int achievementCount)
 {
     if (achievementCount >= 3) return L"S";
@@ -3707,12 +3792,14 @@ const wchar_t* GetClearRankText(int achievementCount)
     return L"C";
 }
 
+// 빠른 클리어 확인 함수: 플레이 시간이 기준 시간 이하인지 확인한다.
 bool IsFastClear()
 {
     int clearSeconds = g_clearTimeTick * GAME_TIMER_MS / 1000;
     return clearSeconds <= 240;
 }
 
+// 클리어 결과판 출력 함수: 최종 시간, 점수, 구출 수, 랭크를 결과 화면에 그린다.
 void DrawClearResultPanel(Graphics& graphics, int screenW, int screenH)
 {
     if (g_currentStage != 5 || !g_clearTimeSaved)
@@ -3791,6 +3878,7 @@ void DrawClearResultPanel(Graphics& graphics, int screenW, int screenH)
     }
 }
 
+// 스테이지 클리어 메시지 시작 함수: 문을 열거나 보스를 이겼을 때 안내 문구 시간을 설정한다.
 void StartStageClearMessage()
 {
     g_stageClearTick = STAGE_CLEAR_TICK_MAX;
@@ -3801,6 +3889,7 @@ void StartStageClearMessage()
     PlayGameSound(SFX_CLEAR);
 }
 
+// 구출 효과 시작 함수: 학생을 구출한 위치에 반짝임 효과가 나오도록 좌표와 시간을 저장한다.
 void StartRescueEffect(int x, int y)
 {
     g_rescueEffectX = x;
@@ -3809,6 +3898,7 @@ void StartRescueEffect(int x, int y)
     PlayGameSound(SFX_RESCUE);
 }
 
+// 화면 효과 갱신 함수: 스테이지 전환, 구출 이펙트, 카메라 흔들림, 분위기 효과를 한 번씩 갱신한다.
 void UpdateScreenEffects()
 {
     if (g_stageFadeTick > 0)
@@ -3842,6 +3932,7 @@ void UpdateScreenEffects()
     UpdateStageAtmosphereEffects(g_currentStage);
 }
 
+// 반짝 별 출력 함수: 구출이나 결과 화면에서 쓰는 작은 별 모양을 그린다.
 void DrawSparkleStar(Graphics& graphics, int cx, int cy, int size, int alpha, bool whiteStar)
 {
     if (alpha <= 0)
@@ -3880,6 +3971,7 @@ void DrawSparkleStar(Graphics& graphics, int cx, int cy, int size, int alpha, bo
     }
 }
 
+// 구출 효과 출력 함수: 학생을 구출했을 때 주변에 반짝이는 입자를 그린다.
 void DrawRescueEffect(Graphics& graphics)
 {
     if (g_rescueEffectTick <= 0)
@@ -3925,6 +4017,7 @@ void DrawRescueEffect(Graphics& graphics)
     }
 }
 
+// 커비 데미지 화면 효과 함수: 커비 체력이 낮거나 맞았을 때 화면 가장자리 효과를 그린다.
 void DrawKirbyDamageFlash(Graphics& graphics)
 {
     if (!isKirbyHit)
@@ -3937,6 +4030,7 @@ void DrawKirbyDamageFlash(Graphics& graphics)
     graphics.FillEllipse(&flashBrush, kirbyX - 4, kirbyY - 4, kirbyW + 8, kirbyH + 8);
 }
 
+// 점수 HUD 출력 함수: 현재 점수와 플레이 시간을 화면 위쪽에 표시한다.
 void DrawScoreHUD(Graphics& graphics, int screenW)
 {
     if (g_isOpening || g_isStory)
@@ -3961,6 +4055,7 @@ void DrawScoreHUD(Graphics& graphics, int screenW)
     graphics.DrawString(scoreText, -1, &font, PointF((REAL)(boxX + 14), (REAL)(boxY + 8)), &textBrush);
 }
 
+// 게임 HUD 출력 함수: 체력바, 스테이지 이름, 구출 수 같은 기본 UI를 그린다.
 void DrawGameHUD(Graphics& graphics)
 {
     if (g_currentStage == 5)
@@ -4024,6 +4119,7 @@ void DrawGameHUD(Graphics& graphics)
     }
 }
 
+// 스테이지 메시지 출력 함수: 스테이지 제목이나 클리어 문구를 지정한 투명도로 그린다.
 void DrawStageMessage(Graphics& graphics, int screenW, int y, const wchar_t* text, int alpha)
 {
     if (alpha <= 0)
@@ -4048,6 +4144,7 @@ void DrawStageMessage(Graphics& graphics, int screenW, int y, const wchar_t* tex
     graphics.DrawString(text, -1, &font, rect, &format, &textBrush);
 }
 
+// 화면 전환 덮개 함수: 스테이지가 바뀔 때 화면을 어둡게 덮는 효과를 그린다.
 void DrawTransitionOverlay(Graphics& graphics, int screenW, int screenH)
 {
     if (g_stageFadeTick > 0)
@@ -4086,6 +4183,7 @@ void DrawTransitionOverlay(Graphics& graphics, int screenW, int screenH)
     DrawClearResultPanel(graphics, screenW, screenH);
 }
 
+// 효과음 파일명 반환 함수: 효과음 번호에 맞는 wav 파일 이름을 반환한다.
 const wchar_t* GetGameSoundFileName(int soundId)
 {
     switch (soundId)
@@ -4104,6 +4202,7 @@ const wchar_t* GetGameSoundFileName(int soundId)
     return NULL;
 }
 
+// 효과음 별명 반환 함수: MCI 재생에 사용할 효과음 고유 이름을 반환한다.
 const wchar_t* GetGameSoundAlias(int soundId)
 {
     switch (soundId)
@@ -4122,12 +4221,14 @@ const wchar_t* GetGameSoundAlias(int soundId)
     return NULL;
 }
 
+// 파일 존재 확인 함수: 지정한 경로에 실제 파일이 있는지 검사한다.
 bool IsFileExistsW(const wchar_t* path)
 {
     DWORD attr = GetFileAttributesW(path);
     return attr != INVALID_FILE_ATTRIBUTES && (attr & FILE_ATTRIBUTE_DIRECTORY) == 0;
 }
 
+// 실행 폴더 찾기 함수: exe가 있는 폴더 경로를 구해 사운드 파일 경로를 만들 때 사용한다.
 void GetExeFolder(wchar_t* folder, size_t folderCount)
 {
     if (folder == NULL || folderCount == 0)
@@ -4149,6 +4250,7 @@ void GetExeFolder(wchar_t* folder, size_t folderCount)
     folder[0] = 0;
 }
 
+// 효과음 경로 생성 함수: 실행 폴더와 sound 폴더, 파일명을 합쳐 실제 wav 경로를 만든다.
 bool BuildGameSoundPath(const wchar_t* fileName, wchar_t* outPath, size_t outPathCount)
 {
     if (fileName == NULL || outPath == NULL || outPathCount == 0)
@@ -4173,6 +4275,7 @@ bool BuildGameSoundPath(const wchar_t* fileName, wchar_t* outPath, size_t outPat
     return false;
 }
 
+// 배경음악 모드 반환 함수: 현재 스테이지가 일반, 보스, 엔딩 중 어떤 BGM을 써야 하는지 알려준다.
 int GetStageBgmMode()
 {
     if (g_currentStage == 4)
@@ -4184,12 +4287,14 @@ int GetStageBgmMode()
     return 0;
 }
 
+// 파일 BGM 정지 함수: 파일로 재생 중인 배경음악을 멈추고 닫는다.
 void StopFileBGM()
 {
     mciSendStringW(L"stop bgm_music", NULL, 0, NULL);
     mciSendStringW(L"close bgm_music", NULL, 0, NULL);
 }
 
+// 리소스 BGM 재생 함수: exe 리소스에 들어있는 배경음악을 재생한다.
 void PlayResourceBGM(int resourceId)
 {
     StopFileBGM();
@@ -4197,11 +4302,13 @@ void PlayResourceBGM(int resourceId)
     PlaySound(MAKEINTRESOURCE(resourceId), g_hInst, SND_RESOURCE | SND_ASYNC | SND_LOOP);
 }
 
+// 기본 스테이지 BGM 재생 함수: 일반 스테이지용 배경음악을 시작한다.
 void PlayDefaultStageBGM()
 {
     PlayResourceBGM(IDR_WAVE1);
 }
 
+// 파일 BGM 재생 함수: sound 폴더의 wav 파일을 찾아 반복 재생한다.
 void PlayFileBGM(const wchar_t* fileName)
 {
     wchar_t path[MAX_PATH];
@@ -4222,6 +4329,7 @@ void PlayFileBGM(const wchar_t* fileName)
     mciSendStringW(L"play bgm_music repeat", NULL, 0, NULL);
 }
 
+// 스테이지 BGM 동기화 함수: 현재 스테이지에 맞는 음악이 재생 중인지 확인하고 필요하면 바꾼다.
 void SyncStageBGM()
 {
     int nextMode = GetStageBgmMode();
@@ -4242,6 +4350,7 @@ void SyncStageBGM()
         PlayDefaultStageBGM();
 }
 
+// 효과음 열기 함수: 효과음 파일을 MCI로 열어 재생 준비 상태로 만든다.
 bool OpenGameSound(int soundId, const wchar_t* fileName, const wchar_t* alias)
 {
     if (soundId < 0 || soundId >= SFX_COUNT)
@@ -4265,6 +4374,7 @@ bool OpenGameSound(int soundId, const wchar_t* fileName, const wchar_t* alias)
     return true;
 }
 
+// 효과음 재생 함수: 효과음 번호에 맞는 소리를 처음부터 재생한다.
 void PlayGameSound(int soundId)
 {
     const wchar_t* fileName = GetGameSoundFileName(soundId);
@@ -4284,6 +4394,7 @@ void PlayGameSound(int soundId)
         mciSendStringW(command, NULL, 0, NULL);
 }
 
+// 전체 사운드 정지 함수: 열려 있는 효과음과 배경음악을 모두 닫는다.
 void StopAllGameSounds()
 {
     wchar_t command[256];
@@ -4304,6 +4415,7 @@ void StopAllGameSounds()
     }
 }
 
+// 회복 아이템 삭제 함수: 화면에 있는 회복 아이템 정보를 모두 비활성화한다.
 void ClearRecoveryItems()
 {
     for (int i = 0; i < RECOVERY_ITEM_MAX; i++)
@@ -4319,6 +4431,7 @@ void ClearRecoveryItems()
     }
 }
 
+// 회복 아이템 생성 함수: 지정한 종류와 위치에 회복 아이템을 하나 만든다.
 void SpawnRecoveryItem(int type, int x, int y, bool falling)
 {
     if (type < RECOVERY_ITEM_MEAT || type > RECOVERY_ITEM_LIFE)
@@ -4341,6 +4454,7 @@ void SpawnRecoveryItem(int type, int x, int y, bool falling)
     }
 }
 
+// 회복 아이템 초기화 함수: 모든 회복 아이템을 지우고 생성 대기 시간도 처음으로 돌린다.
 void ResetRecoveryItems()
 {
     ClearRecoveryItems();
@@ -4354,6 +4468,7 @@ void ResetRecoveryItems()
         SpawnRecoveryItem(RECOVERY_ITEM_BIG_POTION, 1130, 518, false);
 }
 
+// 회복량 반환 함수: 아이템 종류에 따라 몇 퍼센트 체력을 회복할지 알려준다.
 int GetRecoveryItemHealPercent(int type)
 {
     if (type == RECOVERY_ITEM_MEAT) return 20;
@@ -4362,6 +4477,7 @@ int GetRecoveryItemHealPercent(int type)
     return 0;
 }
 
+// 회복 아이템 적용 함수: 아이템 종류에 맞춰 커비 체력을 회복시킨다.
 void ApplyRecoveryItem(int type)
 {
     if (type == RECOVERY_ITEM_LIFE) // 1UP 아이템: 최대 목숨보다 적을 때만 목숨을 올림.
@@ -4382,6 +4498,7 @@ void ApplyRecoveryItem(int type)
     // 여기서는 kirbyDisplayHP를 건드리지 않음. UpdateHPBarAnimation()이 천천히 채움.
 }
 
+// 보스전 회복 아이템 랜덤 생성 함수: 보스전 중 일정 조건에서 무작위 회복 아이템을 떨어뜨린다.
 void SpawnRandomBossRecoveryItem()
 {
     int r = RandomRange(0, 99);
@@ -4400,6 +4517,7 @@ void SpawnRandomBossRecoveryItem()
     SpawnRecoveryItem(type, x, -45, true);
 }
 
+// 회복 아이템 갱신 함수: 아이템 낙하, 충돌, 획득, 수명 감소를 처리한다.
 void UpdateRecoveryItems()
 {
     if (isGameOver || g_retryActive || g_currentStage == 5)
@@ -4447,6 +4565,7 @@ void UpdateRecoveryItems()
     }
 }
 
+// 회복 아이템 출력 함수: 활성화된 회복 아이템을 현재 위치에 그린다.
 void DrawRecoveryItems(Graphics& graphics)
 {
     for (int i = 0; i < RECOVERY_ITEM_MAX; i++)
@@ -4464,6 +4583,7 @@ void DrawRecoveryItems(Graphics& graphics)
     }
 }
 
+// 스테이지 투사체 초기화 함수: 커비/몬스터/보스 공격 투사체와 능력 상태를 스테이지 시작 상태로 정리한다.
 void ResetStageProjectiles()
 {
     isPowerProjectileActive = false;
@@ -4509,6 +4629,7 @@ void ResetStageProjectiles()
     }
 }
 
+// 스테이지 장치 초기화 함수: 바람, 낙석, 어둠 효과 같은 스테이지별 장치를 처음 상태로 돌린다.
 void ResetStageGimmicks()
 {
     g_windActive = false;
@@ -4532,6 +4653,7 @@ void ResetStageGimmicks()
     }
 }
 
+// 바람으로 커비 밀기 함수: 1스테이지 바람이 활성화되면 커비를 바람 방향으로 조금씩 이동시킨다.
 void PushKirbyByWind()
 {
     if (!g_windActive || g_currentStage != 1 || isGameOver || g_retryActive)
@@ -4557,6 +4679,7 @@ void PushKirbyByWind()
         kirbyX = nextX;
 }
 
+// 스테이지 바람 갱신 함수: 바람이 켜지고 꺼지는 시간과 커비 밀림을 처리한다.
 void UpdateStageWind()
 {
     if (g_currentStage != 1)
@@ -4590,6 +4713,7 @@ void UpdateStageWind()
     g_windDir = (RandomRange(0, 1) == 0) ? -1 : 1;
 }
 
+// 낙석 착지 위치 계산 함수: 돌이 떨어질 X좌표에서 어느 높이에 멈춰야 하는지 계산한다.
 int GetRockTargetY(int x, int w, int h)
 {
     RECT testRc;
@@ -4605,6 +4729,7 @@ int GetRockTargetY(int x, int w, int h)
     return 545;
 }
 
+// 낙석 생성 함수: 비어 있는 낙석 칸을 찾아 위에서 떨어지는 돌을 만든다.
 void SpawnFallingRock()
 {
     if (g_currentStage != 3)
@@ -4639,6 +4764,7 @@ void SpawnFallingRock()
     }
 }
 
+// 낙석 갱신 함수: 떨어지는 돌의 위치, 바닥 충돌, 커비 피격, 사라지는 시간을 처리한다.
 void UpdateFallingRocks()
 {
     if (g_currentStage != 3)
@@ -4698,6 +4824,7 @@ void UpdateFallingRocks()
     }
 }
 
+// 스테이지 장치 전체 갱신 함수: 바람, 낙석, 어둠 효과처럼 스테이지별 특수 장치를 처리한다.
 void UpdateStageGimmicks(HWND hWnd)
 {
     (void)hWnd;
@@ -4705,6 +4832,7 @@ void UpdateStageGimmicks(HWND hWnd)
     UpdateRecoveryItems();
 }
 
+// 낙석 출력 함수: 현재 떨어지거나 바닥에 놓인 돌을 화면에 그린다.
 void DrawFallingRocks(Graphics& graphics)
 {
     if (g_currentStage != 3)
@@ -4734,12 +4862,14 @@ void DrawFallingRocks(Graphics& graphics)
     }
 }
 
+// 스테이지 장치 출력 함수: 낙석, 어둠 덮개 등 스테이지별 특수 효과를 그린다.
 void DrawStageGimmicks(Graphics& graphics, int screenW, int screenH)
 {
     DrawFallingRocks(graphics);
     DrawRecoveryItems(graphics);
 }
 
+// 어둠 시야 효과 출력 함수: 특정 스테이지에서 화면을 어둡게 덮고 커비 주변만 보이게 한다.
 void DrawDarkVisionOverlay(Graphics& graphics, int screenW, int screenH)
 {
     if (g_currentStage != 2)
@@ -4765,6 +4895,7 @@ void DrawDarkVisionOverlay(Graphics& graphics, int screenW, int screenH)
     graphics.FillRegion(&darkBrush, &darkRegion);
 }
 
+// 커비 플레이 상태 초기화 함수: 재시작이나 스테이지 이동 때 커비의 이동, 능력, 피격 상태를 정리한다.
 void ResetKirbyPlayState(bool recoverHp)
 {
     StopMove();
@@ -4811,6 +4942,7 @@ void ResetKirbyPlayState(bool recoverHp)
     }
 }
 
+// 커비 스테이지 시작 위치 함수: 현재 스테이지 번호에 맞는 시작 좌표로 커비를 배치한다.
 void SetKirbyStageStartPosition()
 {
     if (g_currentStage == 1)
@@ -4844,6 +4976,7 @@ void SetKirbyStageStartPosition()
     g_lastSafeKirbyY = kirbyY;
 }
 
+// 현재 스테이지 재시작 함수: 생명 감소 후 같은 스테이지를 처음 상태로 다시 시작한다.
 void RestartCurrentStage(HWND hWnd)
 {
     g_isPaused = false;
@@ -4869,6 +5002,7 @@ void RestartCurrentStage(HWND hWnd)
     PlayGameSound(SFX_RETRY);
 }
 
+// 재시도 시작 함수: 게임오버 후 바로 복귀하지 않고 카운트다운 상태로 들어간다.
 void StartRetrySequence()
 {
     if (g_retryActive || g_finalGameOver)
@@ -4916,6 +5050,7 @@ void StartRetrySequence()
     g_retryCountdownTick = RETRY_COUNTDOWN_TICKS;
 }
 
+// 커비 재등장 함수: 저장된 안전 위치나 스테이지 시작 위치에 커비를 다시 배치한다.
 void RespawnKirbyAtRetryPoint(HWND hWnd)
 {
     if (!g_retryActive || g_kirbyLives <= 0)
@@ -4951,6 +5086,7 @@ void RespawnKirbyAtRetryPoint(HWND hWnd)
     PlayGameSound(SFX_RETRY);
 }
 
+// 재시도 카운트 갱신 함수: 카운트다운 시간이 끝나면 커비를 다시 살리거나 최종 게임오버를 처리한다.
 void UpdateRetryCountdown(HWND hWnd)
 {
     if (!g_retryActive)
@@ -4967,6 +5103,7 @@ void UpdateRetryCountdown(HWND hWnd)
     InvalidateRect(hWnd, NULL, FALSE);
 }
 
+// 조작 안내 출력 함수: 게임 시작 직후 키 설명을 일정 시간 동안 화면에 보여준다.
 void DrawControlGuide(Graphics& graphics, int screenW)
 {
     if (g_controlGuideTick <= 0)
@@ -5005,6 +5142,7 @@ void DrawControlGuide(Graphics& graphics, int screenW)
     graphics.DrawString(L"ESC  일시정지", -1, &lineFont, PointF((REAL)(boxX + 18), (REAL)(boxY + 168)), &lineBrush);
 }
 
+// 일시정지 메뉴 출력 함수: Continue, Restart, Exit 같은 메뉴를 화면 중앙에 그린다.
 void DrawPauseMenu(Graphics& graphics, int screenW, int screenH)
 {
     if (!g_isPaused)
@@ -5050,6 +5188,7 @@ void DrawPauseMenu(Graphics& graphics, int screenW, int screenH)
     }
 }
 
+// 재시도 화면 출력 함수: 죽은 뒤 카운트다운이나 최종 게임오버 안내를 화면에 그린다.
 void DrawRetryOverlay(Graphics& graphics, int screenW, int screenH)
 {
     if (!g_retryActive && !g_finalGameOver)
@@ -5598,6 +5737,7 @@ void HandleGameTimer(HWND hWnd, WPARAM wParam)
         UpdateMonsterAnimationTimer();
     }
 }
+// 화면 가장자리 박스 출력 함수: 피격, 위험, 보스 광폭 같은 상태를 화면 테두리 색으로 표현한다.
 void DrawEdgeBox(Graphics& graphics, int screenW, int screenH, int alpha, int red, int green, int blue, int startInset, int layerCount)
 {
     if (alpha <= 0)
@@ -5612,6 +5752,7 @@ void DrawEdgeBox(Graphics& graphics, int screenW, int screenH, int alpha, int re
     }
 }
 
+// 화면 가장자리 효과 출력 함수: 체력 낮음, 보스 광폭, 상태 이상에 맞는 테두리 효과를 그린다.
 void DrawScreenEdgeEffects(Graphics& graphics, int screenW, int screenH)
 {
     bool bossBerserk = (g_currentStage == 4 && IsBossBerserk());
@@ -5659,6 +5800,7 @@ void DrawScreenEdgeEffects(Graphics& graphics, int screenW, int screenH)
     }
 }
 
+// 디버그 정보 출력 함수: 개발 중 확인용으로 충돌 박스나 좌표 정보를 화면에 그린다.
 void DrawDebugInfo(HDC memDC, HWND hWnd)
 {
     if (!g_debugMode)
@@ -5722,6 +5864,7 @@ void DrawDebugInfo(HDC memDC, HWND hWnd)
     DeleteObject(bluePen);
 }
 
+// 커비 HP바 출력 함수: 현재 체력 비율에 맞춰 HP바 이미지를 채워 그린다.
 void DrawHPBar(Graphics& graphics)
 {
     if (g_hpBarFrame == NULL)
@@ -5758,6 +5901,7 @@ void DrawHPBar(Graphics& graphics)
     graphics.FillRectangle(&hpBrush, hpX, hpY, currentW, hpH);
 }
 
+// 오프닝 안내 출력 함수: 시작 화면에서 SPACE 입력 안내 문구를 깜빡이며 보여준다.
 void DrawOpeningPressSpace(Graphics& graphics, int screenW, int screenH)
 {
     // 오프닝 화면에서만 시작 방법을 알려줌.
@@ -5782,6 +5926,7 @@ void DrawOpeningPressSpace(Graphics& graphics, int screenW, int screenH)
     graphics.DrawString(L"Press Space", -1, &font, rect, &format, &textBrush);
 }
 
+// 전체 화면 출력 함수: 배경, 스테이지, 몬스터, 커비, 이펙트, UI를 순서대로 그린다.
 void DrawScene(HDC hdc, HWND hWnd)
 {
     RECT rt;
