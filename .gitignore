@@ -48,3 +48,7 @@ Release/
 *.lastbuildstate
 *.recipe
 *.res
+
+# Generated presentation/document outputs
+outputs/
+winapi_Kirby_code_explanation.docx
