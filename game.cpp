@@ -5098,6 +5098,7 @@ void DrawRetryOverlay(Graphics& graphics, int screenW, int screenH)
     graphics.DrawString(timeText, -1, &titleFont, timeRect, &format, &warnBrush);
     graphics.DrawString(L"SPACE  다시 태어나기     ESC  포기", -1, &smallFont, guideRect, &format, &subBrush);
 }
+// 커비 이동 관련 상태를 갱신하는 함수: 위치 이동, 풍선 제한, 대시 효과, 스페이스 키 해제를 순서대로 처리한다.
 void UpdatePlayerMovementState(HWND hWnd)
 {
     if (!isDragging && g_currentStage != 5)
@@ -5110,6 +5111,7 @@ void UpdatePlayerMovementState(HWND hWnd)
     UpdateSpaceRelease();
 }
 
+// 커비 능력과 공격 상태를 갱신하는 함수: 흡수, 파워, 속성 공격, 능력별 이동을 한곳에서 처리한다.
 void UpdatePlayerAbilityState()
 {
     UpdateAbsorbFrontEffect();
@@ -5125,6 +5127,7 @@ void UpdatePlayerAbilityState()
     UpdateAbilityStar();
 }
 
+// 커비 피격과 체력 상태를 갱신하는 함수: 맞았을 때 깜빡임, 상태 이상, HP바 애니메이션을 처리한다.
 void UpdatePlayerHpState()
 {
     UpdateKirbyHitEffect();
@@ -5132,6 +5135,7 @@ void UpdatePlayerHpState()
     UpdateHPBarAnimation();
 }
 
+// 안전 위치를 저장하는 함수: 커비가 바닥 위에 있을 때 낙사 복귀용 위치를 기억한다.
 void SaveKirbySafePosition()
 {
     if (!isGameOver && !g_retryActive && isOnGround && kirbyY < WORLD_H)
@@ -5141,6 +5145,7 @@ void SaveKirbySafePosition()
     }
 }
 
+// 플레이어 전체 갱신 함수: 이동 -> 능력/공격 -> HP -> 안전 위치 저장 순서로 실행된다.
 void UpdatePlayer(HWND hWnd)
 {
     // 발표용 순서: 이동 처리 -> 능력/공격 처리 -> 피격/HP 처리 -> 안전 위치 저장
@@ -5149,6 +5154,7 @@ void UpdatePlayer(HWND hWnd)
     UpdatePlayerHpState();
     SaveKirbySafePosition();
 }
+// 스테이지 상태 갱신 함수: 구출, 문, 폭탄/불 공격, 보스, 엔딩 스테이지를 처리한다.
 void UpdateStage(HWND hWnd)
 {
     CheckRescueChildTouch();
@@ -5173,6 +5179,7 @@ void UpdateStage(HWND hWnd)
     UpdateDanceStage();
 }
 
+// 공격 충돌 검사 함수: 커비의 각 능력 공격이 몬스터나 보스에게 맞았는지 확인한다.
 void CheckCollision()
 {
     CheckPowerProjectileHitMonsters();
@@ -5183,6 +5190,7 @@ void CheckCollision()
     CheckKirbyAttacksHitBoss();
 }
 
+// 몬스터 갱신 함수: 배열에 들어있는 모든 몬스터의 이동과 상태를 갱신한다.
 void UpdateMonster()
 {
     for (int i = 0; i < MONSTER_COUNT; i++)
@@ -5191,12 +5199,14 @@ void UpdateMonster()
     }
 }
 
+// 커비 피격 검사 함수: 몬스터나 적 투사체가 커비에게 닿았는지 확인한다.
 void CheckKirbyCollision()
 {
     CheckKirbyHitByMonsters();
     CheckEnemyFireBallsHitKirby();
 }
 
+// HUD 출력 함수: 체력, 점수, 조작 안내, 보스 HP, 화면 효과를 그린다.
 void DrawHUD(Graphics& graphics, int screenW, int screenH)
 {
     DrawGameHUD(graphics);
@@ -5210,6 +5220,7 @@ void DrawHUD(Graphics& graphics, int screenW, int screenH)
 
 // 발표용 게임 루프 정리:
 // 입력은 WndProc에서 받고, 타이머에서는 상태 갱신 -> 충돌 검사 -> 화면 다시 그리기 순서로 처리함.
+// 풍선 애니메이션 초기화 함수: 일반/불/폭탄/해머/스파크 풍선 프레임을 처음 상태로 돌린다.
 void ResetAllBalloonAnimationFrames()
 {
     spaceFrameIndex = 0;
@@ -5224,6 +5235,7 @@ void ResetAllBalloonAnimationFrames()
     sparkBalloonStartFrameDone = false;
 }
 
+// 스토리 종료 후 게임 시작 함수: 스토리를 끄고 커비 상태와 카메라, 플레이 타이머를 초기화한다.
 void FinishStoryAndStartGame(HWND hWnd)
 {
     g_isStory = false;
@@ -5241,6 +5253,7 @@ void FinishStoryAndStartGame(HWND hWnd)
     g_controlGuideTick = CONTROL_GUIDE_TICK_MAX;
 }
 
+// 오프닝 타이머 함수: 1번 타이머가 올 때 오프닝 시간을 증가시키고 화면을 다시 그린다.
 void UpdateOpeningTimer(HWND hWnd, WPARAM wParam)
 {
     if (wParam != 1)
@@ -5250,6 +5263,7 @@ void UpdateOpeningTimer(HWND hWnd, WPARAM wParam)
     InvalidateRect(hWnd, NULL, FALSE);
 }
 
+// 스토리 타이머 함수: 일정 시간마다 스토리 이미지를 넘기고, 마지막이면 게임을 시작한다.
 void UpdateStoryTimer(HWND hWnd, WPARAM wParam)
 {
     if (wParam != 1)
@@ -5271,6 +5285,7 @@ void UpdateStoryTimer(HWND hWnd, WPARAM wParam)
     }
 }
 
+// 별 전환 타이머 함수: 스테이지 이동 중 별 전환 효과와 배경음악을 갱신한다.
 void UpdateStarTransitionTimer(HWND hWnd, WPARAM wParam)
 {
     if (wParam != 1)
@@ -5281,6 +5296,7 @@ void UpdateStarTransitionTimer(HWND hWnd, WPARAM wParam)
     InvalidateRect(hWnd, NULL, FALSE);
 }
 
+// 일시정지/재시도 타이머 함수: 멈춘 상태에서는 필요한 화면 또는 재시도 카운트만 갱신한다.
 void UpdatePauseRetryTimer(HWND hWnd, WPARAM wParam)
 {
     if (wParam != 1)
@@ -5297,6 +5313,7 @@ void UpdatePauseRetryTimer(HWND hWnd, WPARAM wParam)
     }
 }
 
+// 게임오버 대기 함수: 체력이 0이 된 뒤 잠깐 기다렸다가 재시도 화면으로 넘어간다.
 bool UpdateGameOverDelay(HWND hWnd)
 {
     if (!isGameOver || g_gameOverHandled)
@@ -5314,6 +5331,7 @@ bool UpdateGameOverDelay(HWND hWnd)
     return false;
 }
 
+// 실제 게임 루프 함수: 플레이어, 스테이지, 충돌, 몬스터, 카메라, 화면 갱신을 한 번에 처리한다.
 void UpdateGameLoop(HWND hWnd)
 {
     UpdatePlayTimer();
@@ -5334,6 +5352,7 @@ void UpdateGameLoop(HWND hWnd)
     InvalidateRect(hWnd, NULL, FALSE);
 }
 
+// 걷기 애니메이션 초기화 함수: 커비 상태별 걷기 프레임을 0으로 되돌린다.
 void ResetWalkAnimationFrames()
 {
     walkFrameIndex = 0;
@@ -5344,6 +5363,7 @@ void ResetWalkAnimationFrames()
     sparkWalkFrameIndex = 0;
 }
 
+// 걷기 애니메이션 타이머 함수: 이동 중인 커비의 상태에 맞춰 걷기 프레임을 넘긴다.
 void UpdateWalkAnimationTimer()
 {
     if (!isSpace && !isAbsorb && !isCrouch && IsKirbyWalkMoving())
@@ -5410,6 +5430,7 @@ void UpdateWalkAnimationTimer()
     }
 }
 
+// 풍선 애니메이션 타이머 함수: 풍선 상태일 때 커비 능력별 풍선 프레임을 넘긴다.
 void UpdateBalloonAnimationTimer()
 {
     if (isSpace && !isAbsorb)
@@ -5504,6 +5525,7 @@ void UpdateBalloonAnimationTimer()
     }
 }
 
+// 흡수 애니메이션 타이머 함수: 흡수 중일 때 입 벌리는 프레임을 마지막 프레임까지 진행한다.
 void UpdateAbsorbAnimationTimer()
 {
     if (!isAbsorb)
@@ -5519,6 +5541,7 @@ void UpdateAbsorbAnimationTimer()
     }
 }
 
+// 몬스터 애니메이션 타이머 함수: 모든 몬스터의 애니메이션 프레임을 한 칸씩 넘긴다.
 void UpdateMonsterAnimationTimer()
 {
     for (int i = 0; i < MONSTER_COUNT; i++)
@@ -5527,6 +5550,7 @@ void UpdateMonsterAnimationTimer()
     }
 }
 
+// 타이머 분배 함수: 오프닝, 스토리, 전환, 일시정지, 실제 게임 타이머를 상태별로 나눠 호출한다.
 void HandleGameTimer(HWND hWnd, WPARAM wParam)
 {
     if (g_isOpening)

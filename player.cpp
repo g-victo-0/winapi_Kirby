@@ -240,6 +240,7 @@ void UpdatePowerWait()
     }
 }
 
+// 흡수 중단 함수: 커비가 이미 능력을 가진 상태라면 흡수 동작과 앞쪽 흡수 효과를 끈다.
 void StopAbsorbIfKirbyHasAbility()
 {
     if (isAbsorb && (isPowerKirby || isPowerDigest || isFireKirby || isBombKirby || isHammerKirby || isSparkKirby))
@@ -251,6 +252,7 @@ void StopAbsorbIfKirbyHasAbility()
     }
 }
 
+// 이동 속도 계산 함수: 대시 중이면 빠른 속도, 느려지는 상태면 절반 속도를 적용한다.
 int GetKirbyMoveSpeed(int normalSpeed)
 {
     int curSpeed = isDash ? dashSpeed : normalSpeed;
@@ -265,6 +267,7 @@ int GetKirbyMoveSpeed(int normalSpeed)
     return curSpeed;
 }
 
+// 가로 범위 제한 함수: 커비가 맵 왼쪽이나 오른쪽 밖으로 나가지 않게 막는다.
 void KeepKirbyInsideWorldX()
 {
     if (kirbyX < 0)
@@ -276,18 +279,21 @@ void KeepKirbyInsideWorldX()
         kirbyX = currentWorldW - kirbyW;
 }
 
+// 화면 위쪽 제한 함수: 풍선 상태에서 커비가 화면 위로 사라지지 않게 막는다.
 void KeepKirbyInsideTopScreen()
 {
     if (kirbyY < 0)
         kirbyY = 0;
 }
 
+// 낙사 확인 함수: 커비가 죽는 높이 아래로 내려가면 낙사 게임오버를 시작한다.
 void CheckKirbyFallDeath()
 {
     if (IsKirbyBelowDeathLine())
         StartKirbyFallGameOver();
 }
 
+// 풍선 X축 이동 함수: 풍선 상태의 좌우 이동을 검사하고 벽에 닿으면 벽 앞에 세운다.
 void MoveKirbyBalloonX(int nextX, RECT* hitBlock)
 {
     // 풍선 상태: X축 충돌 검사
@@ -312,6 +318,7 @@ void MoveKirbyBalloonX(int nextX, RECT* hitBlock)
     }
 }
 
+// 풍선 Y축 이동 함수: 풍선 상태의 위아래 이동을 검사하고 천장/바닥형 장애물에 닿으면 막는다.
 void MoveKirbyBalloonY(int nextY, RECT* hitBlock)
 {
     // 풍선 상태: Y축 충돌 검사
@@ -335,6 +342,7 @@ void MoveKirbyBalloonY(int nextY, RECT* hitBlock)
     }
 }
 
+// 풍선 이동 전체 함수: 입력으로 다음 위치를 정한 뒤 X축, Y축 충돌을 나눠 처리한다.
 void UpdateKirbyBalloonMove()
 {
     int curBalloonSpeed = GetKirbyMoveSpeed(balloonSpeed);
@@ -367,6 +375,7 @@ void UpdateKirbyBalloonMove()
     CheckKirbyFallDeath();
 }
 
+// 일반 X축 이동 함수: 걷기/대시 입력을 적용하고 벽 충돌을 검사한다.
 void UpdateKirbyGroundXMove()
 {
     int nextX = kirbyX;
@@ -405,6 +414,7 @@ void UpdateKirbyGroundXMove()
     KeepKirbyInsideWorldX();
 }
 
+// 중력 적용 함수: 커비의 낙하 속도를 증가시키되 최대 낙하 속도는 넘지 않게 한다.
 void ApplyKirbyGravity()
 {
     kirbyVY += gravity;
@@ -413,6 +423,7 @@ void ApplyKirbyGravity()
         kirbyVY = maxFallSpeed;
 }
 
+// 일반 Y축 이동 함수: 점프와 낙하 위치를 계산하고 바닥/천장 충돌을 처리한다.
 void UpdateKirbyGroundYMove()
 {
     RECT hitBlock;
@@ -441,6 +452,7 @@ void UpdateKirbyGroundYMove()
     }
 }
 
+// 바닥 보정 함수: 커비가 바닥에 아주 가까우면 정확히 바닥 위에 붙여 흔들림을 줄인다.
 void SnapKirbyToGroundIfClose()
 {
     RECT currentHit = GetKirbyHitBox(kirbyX, kirbyY);
@@ -454,6 +466,7 @@ void SnapKirbyToGroundIfClose()
     }
 }
 
+// 일반 이동 전체 함수: X축 이동 -> 중력 -> Y축 충돌 -> 바닥 보정 -> 낙사 확인 순서로 처리한다.
 void UpdateKirbyGroundMove()
 {
     UpdateKirbyGroundXMove();
@@ -466,6 +479,7 @@ void UpdateKirbyGroundMove()
     CheckKirbyFallDeath();
 }
 
+// 커비 위치 갱신 함수: 게임오버/흡수 상태를 먼저 확인하고, 풍선 상태와 일반 상태를 나눠 이동시킨다.
 void UpdateKirbyPosition(HWND hWnd)
 {
     if (isGameOver)

@@ -462,6 +462,7 @@ void UpdateRescueObjects()
     }
 }
 
+// 스테이지 시작 위치 설정 함수: 새 스테이지에서 커비 좌표, 세로 속도, 안전 위치, 카메라를 초기화한다.
 void SetKirbyStageMovePosition(int x, int y)
 {
     kirbyX = x;
@@ -472,6 +473,7 @@ void SetKirbyStageMovePosition(int x, int y)
     cameraX = 0;
 }
 
+// 스테이지 전환 마무리 함수: 구출 대상, 몬스터, 카메라, 스테이지 장치, 전환 효과를 다시 준비한다.
 void FinishStageChange(HWND hWnd)
 {
     InitRescueObjects();
@@ -481,6 +483,7 @@ void FinishStageChange(HWND hWnd)
     StartStageTransitionEffect();
 }
 
+// 스테이지 즉시 변경 함수: 목표 스테이지 번호에 맞춰 현재 스테이지와 커비 시작 위치를 바꾼다.
 void ChangeStageNow(HWND hWnd, int targetStage)
 {
     // 발표용 순서: 현재 스테이지 변경 -> 커비 시작 위치 지정 -> 스테이지 요소 초기화
@@ -532,6 +535,7 @@ void GoNextMap(HWND hWnd)
 }
 
 
+// 일반 문 접촉 확인 함수: 문이 활성화되고 열린 상태일 때 커비와 문이 겹치는지 확인한다.
 bool IsKirbyTouchOpenedDoor(RECT kirbyRc, StageDoor door)
 {
     if (!door.active || !door.opened)
@@ -541,6 +545,7 @@ bool IsKirbyTouchOpenedDoor(RECT kirbyRc, StageDoor door)
     return IsRectHit(kirbyRc, doorRc);
 }
 
+// 보스 보상 문 접촉 확인 함수: 보스 클리어 후 열린 보상 문에 커비가 닿았는지 확인한다.
 bool IsKirbyTouchBossRewardDoor(RECT kirbyRc)
 {
     if (!g_rewardDoorActive || !g_rewardDoorOpened)
@@ -550,6 +555,7 @@ bool IsKirbyTouchBossRewardDoor(RECT kirbyRc)
     return IsRectHit(kirbyRc, doorRc);
 }
 
+// 문 이동 확인 함수: 현재 스테이지의 열린 문에 커비가 닿으면 다음 맵으로 이동시킨다.
 void CheckDoorTouch(HWND hWnd)
 {
     RECT kirbyRc = GetKirbyBodyRect();
